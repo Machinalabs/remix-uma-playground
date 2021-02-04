@@ -1,0 +1,1 @@
+export const PLAYGROUND_ROUTE = "/playground"
