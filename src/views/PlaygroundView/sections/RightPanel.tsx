@@ -1,5 +1,3 @@
-import { utils } from "ethers"
-import { formatUnits } from "ethers/lib/utils"
 import React, { useEffect, useState } from "react"
 import Card from "react-bootstrap/Card"
 import styled from "styled-components"
@@ -7,7 +5,13 @@ import styled from "styled-components"
 import { useRemix } from "../../../hooks"
 import { debug } from "../../../utils"
 
-import { useContract, Token, ExpiringMultiParty, Position } from "../hooks"
+import { useContract, Token } from "../hooks"
+
+const Paragraph = styled.p`
+  font-size: 0.9em;
+  color: ${props => props.theme.modalFontColor};
+  font-weight: 300;
+`
 
 export const RightPanel: React.FC = () => {
   const { clientInstance } = useRemix()
@@ -17,9 +21,6 @@ export const RightPanel: React.FC = () => {
     priceIdentifiers,
     collateralBalance,
     syntheticBalance,
-    syntheticTokens,
-    expiringMultiParties,
-    positions,
   } = useContract()
 
   useEffect(() => {
@@ -32,28 +33,20 @@ export const RightPanel: React.FC = () => {
     getAccount()
   }, [clientInstance])
 
-  const convertToDate = (unixTimestamp: number) => {
-    const milliseconds = unixTimestamp * 1000
-
-    const dateObject = new Date(milliseconds)
-
-    return dateObject.toLocaleString()
-  }
-
   return (
     <React.Fragment>
-      <p style={{ fontSize: "0.9em" }}>
+      <Paragraph>
         <b>From</b>
-      </p>
-      <p style={{ fontSize: "0.9em" }}>{account}</p>
-      <p style={{ fontSize: "0.9em" }}>
+      </Paragraph>
+      <Paragraph>{account}</Paragraph>
+      <Paragraph>
         <b>Collateral Balance</b>
-      </p>
-      <p style={{ fontSize: "0.9em" }}>{collateralBalance}</p>
-      <p style={{ fontSize: "0.9em" }}>
+      </Paragraph>
+      <Paragraph>{collateralBalance}</Paragraph>
+      <Paragraph>
         <b>Synthetic Balance</b>
-      </p>
-      <p style={{ fontSize: "0.9em" }}>{syntheticBalance}</p>
+      </Paragraph>
+      <Paragraph>{syntheticBalance}</Paragraph>
       {collateralTokens && collateralTokens.length > 0 && (
         <Card>
           <Card.Header>Collateral token</Card.Header>
@@ -87,83 +80,6 @@ export const RightPanel: React.FC = () => {
                 <Description style={{ justifyContent: "center" }}>
                   <span>{item}</span>
                 </Description>
-              </AccordionContentBody>
-            ))}
-          </React.Fragment>
-        </Card>
-      )}
-      {expiringMultiParties && expiringMultiParties.length > 0 && (
-        <Card>
-          <Card.Header>Expiring multiparty</Card.Header>
-          <React.Fragment>
-            {expiringMultiParties.map((item: ExpiringMultiParty, index: number) => (
-              <AccordionContentBody key={index} className="borderBottomExceptLast">
-                <p>
-                  Address: <span style={{ fontSize: "0.8em" }}>{item.address}</span>
-                </p>
-                <p>
-                  Expiration: <span style={{ fontSize: "0.8em" }}>{convertToDate(item.expirationTimestamp)}</span>
-                </p>
-                <p>
-                  Synthetic name: <span style={{ fontSize: "0.8em" }}>{item.syntheticName}</span>
-                </p>
-                <p>
-                  Synthetic symbol: <span style={{ fontSize: "0.8em" }}>{item.syntheticSymbol}</span>
-                </p>
-                <p>
-                  Collateral requirement: <span style={{ fontSize: "0.8em" }}>{item.collateralRequirement}</span>
-                </p>
-                <p>
-                  Minimum sponsor tokens: <span style={{ fontSize: "0.8em" }}>{item.minSponsorTokens}</span>
-                </p>
-              </AccordionContentBody>
-            ))}
-          </React.Fragment>
-        </Card>
-      )}
-      {positions && positions.length > 0 && (
-        <Card>
-          <Card.Header>Position</Card.Header>
-          <React.Fragment>
-            {positions.map((item: Position, index: number) => (
-              <AccordionContentBody key={index} className="borderBottomExceptLast">
-                <p>
-                  Collateral amount:{" "}
-                  <span style={{ fontSize: "0.8em" }}>{`${formatUnits(
-                    item.collateralAmount.toString(),
-                    "ether"
-                  )}`}</span>
-                </p>
-                <p>
-                  Synthetic tokens:{" "}
-                  <span style={{ fontSize: "0.8em" }}>{`${formatUnits(
-                    item.syntheticTokens.toString(),
-                    "ether"
-                  )}`}</span>
-                </p>
-              </AccordionContentBody>
-            ))}
-          </React.Fragment>
-        </Card>
-      )}
-      {syntheticTokens && syntheticTokens.length > 0 && (
-        <Card>
-          <Card.Header>Synthetic tokens</Card.Header>
-          <React.Fragment>
-            {syntheticTokens.map((item: Token, index: number) => (
-              <AccordionContentBody key={index} className="borderBottomExceptLast">
-                <p style={{ fontWeight: "bold" }}>
-                  Name: <span style={{ fontWeight: "lighter" }}>{item.name}</span>
-                </p>
-                <p>
-                  Symbol: <span>{item.symbol}</span>
-                </p>
-                <p>
-                  Total supply: <span>{utils.formatUnits(item.totalSupply, "ether").toString()}</span>
-                </p>
-                <p>
-                  Address: <span style={{ fontSize: "0.8em" }}>{item.address}</span>
-                </p>
               </AccordionContentBody>
             ))}
           </React.Fragment>

@@ -3,22 +3,22 @@ import { useHistory } from "react-router-dom"
 import styled from "styled-components"
 import Spinner from "react-bootstrap/Spinner"
 import Alert from "react-bootstrap/Alert"
-import { ethers } from "ethers"
 
+import { HOW_TO_PROVIDER_BLACK, HOW_TO_PROVIDER_WHITE, PLAYGROUND_ROUTE } from "../constants"
 import { StyledButton } from "../components"
 import { useRemix } from "../hooks"
 import { TITLE } from "../text"
-import { useContract } from "./PlaygroundView/hooks"
 import { debug } from "../utils"
 
-const TUTORIAL_ROUTE = "/playground"
+import { useContract } from "./PlaygroundView/hooks"
 
 export const WelcomeView: React.FC = () => {
-  const { clientInstance, web3Provider, themeType, signer } = useRemix()
+  const { clientInstance, web3Provider, themeType } = useRemix()
   const [isStarting, setIsStarting] = useState(false)
   const history = useHistory()
   const [error, setError] = useState<string | undefined>(undefined)
   const { getContractAddress } = useContract()
+
   useEffect(() => {
     if (isStarting && clientInstance) {
       const validateAndRedirectIfOk = async () => {
@@ -43,9 +43,6 @@ export const WelcomeView: React.FC = () => {
         }
 
         try {
-          // const ethersProvider = new ethers.providers.Web3Provider(web3Provider)
-          // const signer = ethersProvider.getSigner()
-          // debug("Signer", signer)
           // TODO: Verify all contracts...
           const finderCode = await web3Provider.getCode(getContractAddress("Finder"))
           debug("finderCode", finderCode)
@@ -57,7 +54,7 @@ export const WelcomeView: React.FC = () => {
           return
         }
 
-        history.push(`${TUTORIAL_ROUTE}`)
+        history.push(`${PLAYGROUND_ROUTE}`)
       }
 
       setTimeout(() => {
@@ -73,10 +70,11 @@ export const WelcomeView: React.FC = () => {
 
   const getImage = () => {
     if (themeType === "dark") {
-      return "https://res.cloudinary.com/key-solutions/image/upload/v1612437191/remix/uma-howto-white.png"
+      return HOW_TO_PROVIDER_WHITE
     }
-    return "https://res.cloudinary.com/key-solutions/image/upload/v1612436252/remix/how-to-uma-remix.png"
+    return HOW_TO_PROVIDER_BLACK
   }
+
   return (
     <Wrapper>
       <h2>{TITLE}</h2>

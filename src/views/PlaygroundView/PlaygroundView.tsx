@@ -1,42 +1,33 @@
 import React, { useState } from "react"
-import { Button, Col, Container, Row, Form, Modal } from "react-bootstrap"
-
-import { TITLE, MODAL_TITLE } from "../../text"
-
-import { StepProvider } from "./hooks"
-import { Stepmanager } from "./steps"
-import { NavMenu, RightPanel } from "./sections"
+import { Button, Col, Container, Row } from "react-bootstrap"
 import {
-  Box,
   useMediaQuery,
   InputBase,
   MenuItem,
-  FormControl,
   ListItemText,
   Select,
   Dialog
 } from "@material-ui/core";
 import { withStyles, useTheme } from "@material-ui/core/styles";
-// import Slide from '@material-ui/core/Slide';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core/styles';
 
-// import Slide from '@material-ui/core/Slide'
-// Creo 2 bootstrap input, uno para dark y uno para light
-// a este solo le falta cambiar el color del svg
+
+import { TITLE } from "../../text"
+
+import { StepProvider } from "./hooks"
+import { Stepmanager } from "./steps"
+import { NavMenu, RightPanel } from "./sections"
+
 const BootstrapInput = withStyles((theme) => ({
   root: {
-    position: "relative",
-    transition: "background-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms",
-    backgroundColor: "rgba(255, 255, 255, 0.09)", // color background del input
-    width: `100%`,
+    backgroundColor: theme.selectBackgroundColor,
+    width: `100%`
   },
   input: {
-    color: "white",
     display: "flex",
     paddingLeft: "16px",
     alignItems: "center",
@@ -51,10 +42,10 @@ export interface Emp {
   address: string;
 }
 
-enum MODE {
-  CREATE_EMP = "Create_EMP",
-  INTERACT_EMP = "Interact_EMP"
-}
+// enum MODE {
+//   CREATE_EMP = "Create_EMP",
+//   INTERACT_EMP = "Interact_EMP"
+// }
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -70,12 +61,17 @@ const useStyles = makeStyles((theme) => ({
 
 export const PlaygroundView: React.FC = () => {
   const theme = useTheme();
-  const classes = useStyles();
+
   const [empAddress, setEmpAddress] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
-  const [emps, setEmps] = useState<Emp[]>([]);
+
+  const [emps, setEmps] = useState<Emp[]>([{
+    name: "EMP1",
+    symbol: "emp1",
+    address: "0x000000000000000000000000123123123"
+  }]);
+
   const largeScreen = useMediaQuery(theme.breakpoints.up("sm"));
-  const [mode, setMode] = useState(MODE.INTERACT_EMP)
   const [open, setOpen] = React.useState(false);
 
   const handleClose = () => setOpen(false);
@@ -130,26 +126,20 @@ export const PlaygroundView: React.FC = () => {
 
         </div>
 
-        <Dialog maxWidth="xl" fullWidth={true} open={open} onClose={handleClose}>
-          <AppBar className={classes.appBar}>
-            <Toolbar>
-              <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
-                <CloseIcon />
-              </IconButton>
-            </Toolbar>
-          </AppBar>
+        <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
+          <DialogHeader onCloseClick={handleClose} />
 
           {/* TODO: Review height in different screen sizes */}
           <StepProvider>
             <Container fluid={true} style={{ padding: "2em", height: "900px", backgroundColor: `${BLUE_COLOR}` }}>
               <Row>
-                <Col md="auto" style={{ paddingLeft: "0", paddingRight: "0" }}>
+                <Col style={{ paddingLeft: "0", paddingRight: "0" }}>
                   <NavMenu />
                 </Col>
-                <Col xs={6} lg={4} style={{ display: "flex", flexDirection: "column" }}>
+                <Col style={{ display: "flex", flexDirection: "column" }}>
                   <Stepmanager />
                 </Col>
-                <Col xs={3} md={3} lg={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
+                <Col md="auto" style={{ paddingLeft: "0", paddingRight: "0" }}>
                   <RightPanel />
                 </Col>
               </Row>
@@ -158,5 +148,23 @@ export const PlaygroundView: React.FC = () => {
         </Dialog>
       </Container>
     </React.Fragment>
+  )
+}
+
+interface DialogHeaderProps {
+  onCloseClick: () => void
+}
+
+const DialogHeader: React.FC<DialogHeaderProps> = ({ onCloseClick }) => {
+  const classes = useStyles();
+  return (
+    <AppBar className={classes.appBar}>
+      <Toolbar>
+        <IconButton edge="start" color="inherit" onClick={onCloseClick} aria-label="close">
+          <CloseIcon />
+        </IconButton>
+        Create Expiring Multiparty Contract
+      </Toolbar>
+    </AppBar>
   )
 }

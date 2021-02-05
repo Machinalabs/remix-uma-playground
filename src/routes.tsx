@@ -4,6 +4,11 @@ import { BrowserRouter as Router, Switch, Route, RouteProps } from "react-router
 import { ErrorView, HomeView, PlaygroundView } from "./views"
 import { DefaultLayout } from "./layouts"
 import { PLAYGROUND_ROUTE } from "./constants"
+import { useRemix } from "./hooks"
+import { ThemeProvider } from "styled-components"
+import { ThemeProvider as MaterialUIProvider, createMuiTheme } from '@material-ui/core/styles';
+
+import { getTheme } from "./theme"
 
 interface Props extends RouteProps {
   component: any // TODO: new (props: any) => React.Component
@@ -11,13 +16,30 @@ interface Props extends RouteProps {
 }
 
 const RouteWithDefaultLayout = ({ component: Component, ...rest }: Props) => {
+  const { themeType } = useRemix()
+
+  const materialUITheme = React.useMemo(
+    () =>
+      createMuiTheme({
+        palette: {
+          type: themeType,
+        },
+        selectBackgroundColor: themeType === 'dark' ? "rgba(255, 255, 255, 0.09)" : "rgb(0 0 0 / 9%)"
+      }),
+    [themeType],
+  );
+
   return (
     <Route
       {...rest}
       render={(matchProps) => (
-        <DefaultLayout {...rest}>
-          <Component {...matchProps} />
-        </DefaultLayout>
+        <ThemeProvider theme={getTheme(themeType)}>
+          <MaterialUIProvider theme={materialUITheme}>
+            <DefaultLayout {...rest}>
+              <Component {...matchProps} />
+            </DefaultLayout>
+          </MaterialUIProvider>
+        </ThemeProvider>
       )}
     />
   )
