@@ -19,8 +19,7 @@ export const RightPanel: React.FC = () => {
   const {
     collateralTokens,
     priceIdentifiers,
-    collateralBalance,
-    syntheticBalance,
+    collateralBalance
   } = useContract()
 
   useEffect(() => {
@@ -43,10 +42,6 @@ export const RightPanel: React.FC = () => {
         <b>Collateral Balance</b>
       </Paragraph>
       <Paragraph>{collateralBalance}</Paragraph>
-      <Paragraph>
-        <b>Synthetic Balance</b>
-      </Paragraph>
-      <Paragraph>{syntheticBalance}</Paragraph>
       {collateralTokens && collateralTokens.length > 0 && (
         <Card>
           <Card.Header>Collateral token</Card.Header>

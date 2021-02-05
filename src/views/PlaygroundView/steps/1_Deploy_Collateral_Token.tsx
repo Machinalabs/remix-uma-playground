@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Formik, FormikErrors, Form } from "formik"
+import { Formik, FormikErrors } from "formik"
 
 import { BigNumber, ethers } from "ethers"
 import { toWei } from "web3-utils"
@@ -15,6 +15,10 @@ import { useContract, useStep } from "../hooks"
 import { FormItem } from "../components"
 import { SuccessMessage, ErrorMessage } from "../components"
 import { NavigationBar } from "../sections"
+import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
+import AddIcon from '@material-ui/icons/Add';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 interface FormProps {
   name: string
@@ -119,7 +123,26 @@ export const DeployCollateralToken: React.FC = () => {
 
   return (
     <React.Fragment>
-      <h4>Deploy collateral token</h4>
+      <h4>Select collateral token</h4>
+      <Form>
+        <Row>
+          <Col md={9}>
+            <Form.Control as="select">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </Form.Control>
+          </Col>
+          <BootstrapButton size="sm" variant="primary">
+            <FontAwesomeIcon icon={faPlus} />
+            {/* <AddIcon style={{ height: "0.7em", width: "0.7em" }} /> */}
+          </BootstrapButton>{' '}
+        </Row>
+
+      </Form>
+      {/* <h4>Deploy collateral token</h4>
       <p>
         The first step is to deploy the collateral token. This is the token that will serve as collateral for the
         synthethic token.
@@ -205,7 +228,7 @@ export const DeployCollateralToken: React.FC = () => {
             <NavigationBar />
           </Form>
         )}
-      </Formik>
+      </Formik> */}
     </React.Fragment>
   )
 }

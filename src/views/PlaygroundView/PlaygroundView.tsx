@@ -14,6 +14,9 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core/styles';
+import AddIcon from '@material-ui/icons/Add';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 
 import { TITLE } from "../../text"
@@ -121,7 +124,12 @@ export const PlaygroundView: React.FC = () => {
             </Select>
           </Col>
           <Col md="auto">
-            <Button variant="primary" onClick={handleShow}>+ Create EMP</Button>{' '}
+            <Button variant="primary" onClick={handleShow} style={{ padding: "0.7em 1em" }}>
+              {/* <AddIcon /> */}
+              <FontAwesomeIcon icon={faPlus} />
+              {'  '}
+              Create EMP
+              </Button>{' '}
           </Col>
 
         </div>
@@ -133,10 +141,10 @@ export const PlaygroundView: React.FC = () => {
           <StepProvider>
             <Container fluid={true} style={{ padding: "2em", height: "900px", backgroundColor: `${BLUE_COLOR}` }}>
               <Row>
-                <Col style={{ paddingLeft: "0", paddingRight: "0" }}>
+                <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
                   <NavMenu />
                 </Col>
-                <Col style={{ display: "flex", flexDirection: "column" }}>
+                <Col md={5} style={{ padding: "0", display: "flex", flexDirection: "column" }}>
                   <Stepmanager />
                 </Col>
                 <Col md="auto" style={{ paddingLeft: "0", paddingRight: "0" }}>

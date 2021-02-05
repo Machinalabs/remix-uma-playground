@@ -1,5 +1,5 @@
-import React from "react"
-import { Route, Switch, useRouteMatch } from "react-router-dom"
+import React, { useEffect } from "react"
+import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom"
 
 // steps
 import { DeployCollateralToken } from "./1_Deploy_Collateral_Token"
@@ -8,6 +8,12 @@ import { CreateExpiringMultiParty } from "./3_CreateExpiringMultiParty";
 
 export const Stepmanager: React.FC = () => {
   const match = useRouteMatch()
+  const history = useHistory()
+
+  useEffect(() => {
+    history.push(`${match.path}/deploy_collateral_token`)
+  }, [])
+
   return (
     <React.Fragment>
       <Switch>
