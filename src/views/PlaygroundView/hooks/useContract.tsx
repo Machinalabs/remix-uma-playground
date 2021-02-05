@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers"
 import React, { PropsWithChildren, useContext, useEffect, useState } from "react"
-import { EthereumAddress, UMAContractName } from "../../../extras/deployment"
+import { EthereumAddress, UMAContractName } from "../../../types"
 
 import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
 import ExpandedERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json"

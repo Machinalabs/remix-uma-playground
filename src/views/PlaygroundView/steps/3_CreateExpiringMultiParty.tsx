@@ -16,7 +16,7 @@ import { useContract, useStep } from "../hooks"
 import { Button } from "../../../components"
 import { ErrorMessage, FormItem, SuccessMessage } from "../components"
 import { useRemix } from "../../../hooks"
-import { InterfaceName } from "../../../extras/deployment"
+import { InterfaceName } from "../../../types"
 
 interface FormProps {
   expirationTimestamp: string

@@ -44,10 +44,6 @@ export interface Emp {
   address: string;
 }
 
-// enum MODE {
-//   CREATE_EMP = "Create_EMP",
-//   INTERACT_EMP = "Interact_EMP"
-// }
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -94,6 +90,7 @@ export const PlaygroundView: React.FC = () => {
     <React.Fragment>
       <h2>{TITLE}</h2>
       <Container fluid={true} style={{ padding: "2em 0" }}>
+        {/* EMP Selector */}
         <div style={{ display: "flex", justifyContent: "center" }}>
           <Col md={10} className="align-items-center">
             <Select
@@ -132,6 +129,7 @@ export const PlaygroundView: React.FC = () => {
 
         </div>
 
+        {/* EMP Dialog */}
         <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
           <DialogHeader onCloseClick={handleClose} />
           <StepProvider>
