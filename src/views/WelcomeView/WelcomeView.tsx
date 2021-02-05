@@ -4,13 +4,13 @@ import styled from "styled-components"
 import Spinner from "react-bootstrap/Spinner"
 import Alert from "react-bootstrap/Alert"
 
-import { HOW_TO_PROVIDER_BLACK, HOW_TO_PROVIDER_WHITE, PLAYGROUND_ROUTE } from "../constants"
-import { StyledButton } from "../components"
-import { useRemix } from "../hooks"
-import { TITLE } from "../text"
-import { debug } from "../utils"
+import { HOW_TO_PROVIDER_BLACK, HOW_TO_PROVIDER_WHITE, PLAYGROUND_ROUTE } from "../../constants"
+import { StyledButton } from "../../components"
+import { useRemix } from "../../hooks"
+import { TITLE } from "../../text"
+import { debug } from "../../utils"
 
-import { useContract } from "./PlaygroundView/hooks"
+import { useContract } from "../PlaygroundView/hooks"
 
 export const WelcomeView: React.FC = () => {
   const { clientInstance, web3Provider, themeType } = useRemix()

@@ -7,7 +7,7 @@ interface Props {
 
 export const SuccessMessage: React.FC<PropsWithChildren<Props>> = ({ children, show }) => {
   return (
-    <Alert variant="success" style={{ width: "100%", fontSize: "0.80em" }} show={show} transition={false}>
+    <Alert variant="success" style={{ width: "85%", fontSize: "0.80em" }} show={show} transition={false}>
       {children}
     </Alert>
   )

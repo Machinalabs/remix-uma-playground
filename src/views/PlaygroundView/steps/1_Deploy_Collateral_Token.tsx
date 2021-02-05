@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Formik, FormikErrors } from "formik"
+import { Formik, FormikErrors, Form as FormikForm } from "formik"
 
 import { BigNumber, ethers } from "ethers"
 import { toWei } from "web3-utils"
@@ -9,16 +9,15 @@ import AddressWhitelistArtifact from "@uma/core/build/contracts/AddressWhitelist
 
 import { debug, defaultTransactionValues } from "../../../utils"
 import { useRemix } from "../../../hooks"
-import { Button } from "../../../components"
+import { Button, StyledButton } from "../../../components"
 
 import { useContract, useStep } from "../hooks"
 import { FormItem } from "../components"
 import { SuccessMessage, ErrorMessage } from "../components"
-import { NavigationBar } from "../sections"
 import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
-import AddIcon from '@material-ui/icons/Add';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useHistory } from "react-router-dom"
 
 interface FormProps {
   name: string
@@ -34,12 +33,95 @@ const initialValues: FormProps = {
   totalSupply: "",
 }
 
+enum MODE {
+  SelectCollateralToken = "SelectCollateralToken",
+  DeployCollateralToken = "DeployCollateralToken"
+}
+
 export const DeployCollateralToken: React.FC = () => {
+  const { collateralTokens, selectedCollateralToken, setSelectedCollateralToken } = useContract()
+  const [mode, setMode] = useState(MODE.SelectCollateralToken)
+  const { getNextStep, goNextStep } = useStep()
+  const history = useHistory()
+
+  const handleOnDeployClick = () => {
+    setMode(MODE.DeployCollateralToken)
+  }
+
+  const handleOnCancelClick = () => {
+    setMode(MODE.SelectCollateralToken)
+  }
+
+  const onSuccessCallback = () => {
+    setMode(MODE.SelectCollateralToken)
+  }
+
+  const handleSelectChange = (e: any) => {
+    const selectedToken = collateralTokens.find((s) => s.address === e.target.value)
+    if (selectedToken) {
+      setSelectedCollateralToken(selectedToken)
+    }
+  }
+
+  const handleOnNextClick = () => {
+    const nextStep = getNextStep()
+    if (nextStep) {
+      goNextStep()
+      console.log("nextStep.route", nextStep.route)
+      history.push(nextStep.route)
+    }
+  }
+
+  return (
+    <React.Fragment>
+      {mode === MODE.SelectCollateralToken &&
+        <React.Fragment>
+          <h4>Select collateral token</h4>
+          <Form>
+            <Row>
+              <Col md={9}>
+                <Form.Control as="select" disabled={collateralTokens.length === 0} onChange={handleSelectChange}>
+                  {collateralTokens.length === 0 && <option>No collateral tokens</option>}
+                  {collateralTokens.length > 0 && collateralTokens.map((item, index) => {
+                    return (<option key={index} value={item.address}>{item.name}</option>)
+                  })}
+                </Form.Control>
+              </Col>
+              <BootstrapButton size="sm" variant="primary" onClick={handleOnDeployClick}>
+                <FontAwesomeIcon icon={faPlus} />
+              </BootstrapButton>{' '}
+            </Row>
+
+            <div style={{ marginTop: "1em" }}>
+              <StyledButton
+                isLoading={false}
+                disabled={selectedCollateralToken === undefined}
+                variant="success"
+                onClick={handleOnNextClick}>Next</StyledButton>
+            </div>
+
+          </Form>
+
+        </React.Fragment>}
+
+      {mode === MODE.DeployCollateralToken &&
+        <DeployCollateralView onCancelCallback={handleOnCancelClick} onSuccessCallback={onSuccessCallback} />}
+
+    </React.Fragment>
+  )
+}
+
+interface DeployCollateralViewProps {
+  onCancelCallback: () => void
+  onSuccessCallback: () => void
+}
+
+const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { getContractAddress, addCollateralToken, addContractAddress, updateBalances } = useContract()
-  const { setCurrentStepCompleted, isCurrentStepCompleted } = useStep()
+  const { setSelectedCollateralToken, getContractAddress, addCollateralToken, addContractAddress, updateBalances } = useContract()
   const [newCollateralTokenAddress, setNewCollateralTokenAddress] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
+  const [tokenHasBeenCreated, setTokenHasBeenCreated] = useState(false)
 
   const handleSubmit = (values: FormProps, { setSubmitting, resetForm }) => {
     debug("Deploying collateral token", values)
@@ -52,12 +134,6 @@ export const DeployCollateralToken: React.FC = () => {
         decimals: parseInt(values.decimals, 10),
         totalSupply: values.totalSupply,
       }
-
-      // const provider = new ethers.providers.Web3Provider(web3Provider)
-      // debug("Provider", provider)
-
-      // const signer = provider.getSigner()
-      // debug("Signer", signer)
 
       const accounts = await web3Provider.listAccounts()
       debug("accounts", accounts)
@@ -93,11 +169,15 @@ export const DeployCollateralToken: React.FC = () => {
       })
       debug("Collateral added to whitelist")
 
-      addCollateralToken({
+      const newTokenParsed = {
         ...newToken,
         totalSupply: BigNumber.from(newToken.totalSupply),
         address: TestnetErc20Address,
-      })
+      }
+
+      addCollateralToken(newTokenParsed)
+
+      setSelectedCollateralToken(newTokenParsed)
 
       setNewCollateralTokenAddress(TestnetErc20Address as string)
 
@@ -110,8 +190,11 @@ export const DeployCollateralToken: React.FC = () => {
       sendTx()
         .then(() => {
           setSubmitting(false)
-          setCurrentStepCompleted()
+          setTokenHasBeenCreated(true)
           resetForm()
+          setTimeout(() => {
+            onSuccessCallback()
+          }, 2400);
         })
         .catch((e) => {
           console.log("Error", e)
@@ -123,78 +206,46 @@ export const DeployCollateralToken: React.FC = () => {
 
   return (
     <React.Fragment>
-      <h4>Select collateral token</h4>
-      <Form>
-        <Row>
-          <Col md={9}>
-            <Form.Control as="select">
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-            </Form.Control>
-          </Col>
-          <BootstrapButton size="sm" variant="primary">
-            <FontAwesomeIcon icon={faPlus} />
-            {/* <AddIcon style={{ height: "0.7em", width: "0.7em" }} /> */}
-          </BootstrapButton>{' '}
-        </Row>
-
-      </Form>
-      {/* <h4>Deploy collateral token</h4>
-      <p>
-        The first step is to deploy the collateral token. This is the token that will serve as collateral for the
-        synthethic token.
-      </p>
-      <p style={{ marginBottom: "0" }}>
-        We will deploy it and give permission to the expiring multiparty creator to spend the collateral tokens on our
-        behalf.
-      </p>
+      <h4>Deploy collateral token</h4>
       <Formik
         initialValues={initialValues}
-        validate={
-          isCurrentStepCompleted
-            ? undefined
-            : (values) => {
-              return new Promise(async (resolve, reject) => {
-                const errors: FormikErrors<FormProps> = {}
-                if (!values.name) {
-                  errors.name = "Required"
-                }
-                if (!values.symbol) {
-                  errors.symbol = "Required"
-                }
-                if (!values.decimals) {
-                  errors.decimals = "Required"
-                } else if (parseInt(values.decimals, 10) > 255) {
-                  errors.decimals = "Max value is 255"
-                } else if (parseInt(values.decimals, 10) < 0) {
-                  errors.decimals = "Value cannot be negative"
-                }
-
-                if (!values.totalSupply) {
-                  errors.totalSupply = "Required"
-                } else if (parseInt(values.totalSupply, 10) < 0) {
-                  errors.totalSupply = "Value cannot be negative"
-                }
-                resolve(errors)
-              })
+        validate={(values) => {
+          return new Promise(async (resolve, reject) => {
+            const errors: FormikErrors<FormProps> = {}
+            if (!values.name) {
+              errors.name = "Required"
             }
-        }
-        onSubmit={handleSubmit}
-      >
-        {({ isSubmitting }) => (
-          <Form>
-            <FormItem label="Name" field="name" readOnly={isCurrentStepCompleted} placeHolder="WETH" />
+            if (!values.symbol) {
+              errors.symbol = "Required"
+            }
+            if (!values.decimals) {
+              errors.decimals = "Required"
+            } else if (parseInt(values.decimals, 10) > 255) {
+              errors.decimals = "Max value is 255"
+            } else if (parseInt(values.decimals, 10) < 0) {
+              errors.decimals = "Value cannot be negative"
+            }
 
-            <FormItem label="Symbol" field="symbol" readOnly={isCurrentStepCompleted} placeHolder="WETH" />
+            if (!values.totalSupply) {
+              errors.totalSupply = "Required"
+            } else if (parseInt(values.totalSupply, 10) < 0) {
+              errors.totalSupply = "Value cannot be negative"
+            }
+            resolve(errors)
+          })
+        }
+        }
+        onSubmit={handleSubmit}>
+        {({ isSubmitting }) => (
+          <FormikForm>
+            <FormItem label="Name" field="name" placeHolder="WETH" />
+
+            <FormItem label="Symbol" field="symbol" placeHolder="WETH" />
 
             <FormItem
               label="Decimals"
               field="decimals"
               placeHolder="18"
-              readOnly={isCurrentStepCompleted}
               type="number"
               showhelp={true}
               helptext="The number of decimals used by this token"
@@ -203,32 +254,41 @@ export const DeployCollateralToken: React.FC = () => {
             <FormItem
               label="Initial Supply"
               field="totalSupply"
-              readOnly={isCurrentStepCompleted}
               showhelp={true}
               type="number"
               helptext="The initial number of collateral tokens that are going to be minted and assigned to you"
             />
 
-            <Button
-              variant="primary"
-              type="submit"
-              size="sm"
-              disabled={isSubmitting}
-              isLoading={isSubmitting}
-              loadingText="Deploying..."
-              text="Deploy"
-              show={!isCurrentStepCompleted}
-            />
 
-            <SuccessMessage show={isCurrentStepCompleted}>
+            {!tokenHasBeenCreated && <div style={{ display: "flex", justifyContent: "space-between", paddingRight: "2.5em", marginTop: "1em", marginBottom: "2em" }}>
+
+              <Button
+                variant="primary"
+                type="submit"
+                size="sm"
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
+                loadingText="Deploying..."
+                text="Deploy"
+              />
+
+              <Button
+                variant="danger"
+                size="sm"
+                isLoading={false}
+                loadingText=""
+                text="Cancel"
+                onClick={onCancelCallback}
+              />
+            </div>}
+
+            <SuccessMessage show={tokenHasBeenCreated}>
               You have successfully deployed the collateral token at {newCollateralTokenAddress}
             </SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
-            <NavigationBar />
-          </Form>
+          </FormikForm>
         )}
-      </Formik> */}
+      </Formik>
     </React.Fragment>
   )
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 
-import { useRemix } from "../hooks"
-import { WelcomeView } from "./WelcomeView"
+import { useRemix } from "../../hooks"
+import { WelcomeView } from "../WelcomeView"
 
 export const HomeView: React.FC = () => {
   const { clientInstance } = useRemix()

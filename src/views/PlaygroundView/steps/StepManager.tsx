@@ -1,5 +1,6 @@
 import React, { useEffect } from "react"
 import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom"
+import { CREATE_EXPIRING_MULTIPARTY, SELECT_COLLATERAL_TOKEN, SELECT_PRICE_IDENTIFIER_ROUTE } from "../../../constants";
 
 // steps
 import { DeployCollateralToken } from "./1_Deploy_Collateral_Token"
@@ -11,19 +12,19 @@ export const Stepmanager: React.FC = () => {
   const history = useHistory()
 
   useEffect(() => {
-    history.push(`${match.path}/deploy_collateral_token`)
+    history.push(`${match.path}/${SELECT_COLLATERAL_TOKEN}`)
   }, [])
 
   return (
     <React.Fragment>
       <Switch>
-        <Route path={`${match.path}/deploy_collateral_token`}>
+        <Route path={`${match.path}/${SELECT_COLLATERAL_TOKEN}`}>
           <DeployCollateralToken />
         </Route>
-        <Route path={`${match.path}/deploy_price_identifier`}>
+        <Route path={`${match.path}/${SELECT_PRICE_IDENTIFIER_ROUTE}`}>
           <DeployPriceIdentifier />
         </Route>
-        <Route path={`${match.path}/create_expiring_multiparty`}>
+        <Route path={`${match.path}/${CREATE_EXPIRING_MULTIPARTY}`}>
           <CreateExpiringMultiParty />
         </Route>
       </Switch>

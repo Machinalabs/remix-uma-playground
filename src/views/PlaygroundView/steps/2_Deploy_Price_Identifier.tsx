@@ -10,7 +10,6 @@ import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhi
 import { FormItem } from "../components"
 import { useStep } from "../hooks"
 import { SuccessMessage, ErrorMessage } from "../components"
-import { NavigationBar } from "../sections"
 
 interface FormProps {
   priceIdentifier: string
@@ -82,12 +81,12 @@ export const DeployPriceIdentifier: React.FC = () => {
           isCurrentStepCompleted
             ? undefined
             : (values) => {
-                const errors: FormikErrors<FormProps> = {}
-                if (!values.priceIdentifier) {
-                  errors.priceIdentifier = "Required"
-                }
-                return errors
+              const errors: FormikErrors<FormProps> = {}
+              if (!values.priceIdentifier) {
+                errors.priceIdentifier = "Required"
               }
+              return errors
+            }
         }
         onSubmit={handleSubmit}
       >
@@ -115,8 +114,6 @@ export const DeployPriceIdentifier: React.FC = () => {
               You have successfully deployed the price identifier.
             </SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
-            <NavigationBar />
           </Form>
         )}
       </Formik>

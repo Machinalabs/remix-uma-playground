@@ -5,7 +5,7 @@ import styled from "styled-components"
 import { useRemix } from "../../../hooks"
 import { debug } from "../../../utils"
 
-import { useContract, Token } from "../hooks"
+import { useContract } from "../hooks"
 
 const Paragraph = styled.p`
   font-size: 0.9em;
@@ -16,11 +16,7 @@ const Paragraph = styled.p`
 export const RightPanel: React.FC = () => {
   const { clientInstance } = useRemix()
   const [account, setAccount] = useState("")
-  const {
-    collateralTokens,
-    priceIdentifiers,
-    collateralBalance
-  } = useContract()
+  const { collateralBalance, selectedCollateralToken, selectedPriceIdentifier } = useContract()
 
   useEffect(() => {
     const getAccount = async () => {
@@ -42,41 +38,37 @@ export const RightPanel: React.FC = () => {
         <b>Collateral Balance</b>
       </Paragraph>
       <Paragraph>{collateralBalance}</Paragraph>
-      {collateralTokens && collateralTokens.length > 0 && (
+      {selectedCollateralToken && (
         <Card>
           <Card.Header>Collateral token</Card.Header>
           <React.Fragment>
-            {collateralTokens.map((item: Token, index: number) => (
-              <AccordionContentBody key={index} className="borderBottomExceptLast">
-                <p style={{ fontWeight: "bold" }}>
-                  Name: <span style={{ fontWeight: "lighter" }}>{item.name}</span>
-                </p>
-                <p>
-                  Symbol: <span>{item.symbol}</span>
-                </p>
-                <p>
-                  Total supply: <span>{item.totalSupply.toString()}</span>
-                </p>
-                <p>
-                  Address: <span style={{ fontSize: "0.8em" }}>{item.address}</span>
-                </p>
-              </AccordionContentBody>
-            ))}
+            <AccordionContentBody className="borderBottomExceptLast">
+              <p style={{ fontWeight: "bold" }}>
+                Name: <span style={{ fontWeight: "lighter" }}>{selectedCollateralToken.name}</span>
+              </p>
+              <p>
+                Symbol: <span>{selectedCollateralToken.symbol}</span>
+              </p>
+              <p>
+                Total supply: <span>{selectedCollateralToken.totalSupply.toString()}</span>
+              </p>
+              <p>
+                Address: <span style={{ fontSize: "0.8em" }}>{selectedCollateralToken.address}</span>
+              </p>
+            </AccordionContentBody>
           </React.Fragment>
         </Card>
       )}
-      {priceIdentifiers && priceIdentifiers.length > 0 && (
+      {selectedPriceIdentifier && (
         <Card>
           <Card.Header> Price identifier</Card.Header>
           <React.Fragment>
-            {priceIdentifiers.map((item: string, index: number) => (
-              <AccordionContentBody key={index} direction="horizontal">
-                <Image>{item.charAt(0)}</Image>
-                <Description style={{ justifyContent: "center" }}>
-                  <span>{item}</span>
-                </Description>
-              </AccordionContentBody>
-            ))}
+            <AccordionContentBody direction="horizontal">
+              <Image>{selectedPriceIdentifier.charAt(0)}</Image>
+              <Description style={{ justifyContent: "center" }}>
+                <span>{selectedPriceIdentifier}</span>
+              </Description>
+            </AccordionContentBody>
           </React.Fragment>
         </Card>
       )}

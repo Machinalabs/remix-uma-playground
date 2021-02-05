@@ -17,7 +17,6 @@ import { Button } from "../../../components"
 import { ErrorMessage, FormItem, SuccessMessage } from "../components"
 import { useRemix } from "../../../hooks"
 import { InterfaceName } from "../../../extras/deployment"
-import { NavigationBar } from "../sections"
 
 interface FormProps {
   expirationTimestamp: string
@@ -344,8 +343,6 @@ export const CreateExpiringMultiParty: React.FC = () => {
               You have successfully deployed the expiring multiparty contract {newEMPAddress}
             </SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
-            <NavigationBar />
           </Form>
         )}
       </Formik>

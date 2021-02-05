@@ -52,45 +52,56 @@ interface IContractProvider {
   addPosition: (newPosition: Position) => void
   updateSyntheticTotalSupply: (signer: any) => Promise<void>
   updatePositions: (signer: any, account: string) => Promise<void>
+  setSelectedCollateralToken: (token: Token) => void
+  selectedCollateralToken?: Token
+  setSelectedPriceIdentifier: (priceIdentifier: string) => void
+  selectedPriceIdentifier: string
 }
+
+const defaultToken: Token = { name: "SNT", symbol: "SNT", decimals: 18, totalSupply: BigNumber.from("10000000") }
+const defaultCollateral: Token = { name: "WETH", symbol: "WETH", decimals: 18, totalSupply: BigNumber.from("10000000") }
 
 /* tslint:disable */
 // Defaults
 const ContractContext = React.createContext<IContractProvider>({
-  setContracts: (contractsMap: Map<UMAContractName, EthereumAddress>) => {},
+  setContracts: (contractsMap: Map<UMAContractName, EthereumAddress>) => { },
   getContractAddress: (contractName: UMAContractName) => {
     return ""
   },
-  addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => {},
+  addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => { },
   contracts: new Map<UMAContractName, EthereumAddress>(),
   priceIdentifiers: ["ETH/BTC"],
   addPriceIdentifier: (newPriceIdentifier: string) => {
     return ["ETH/BTC"]
   },
-  collateralTokens: [{ name: "WETH", symbol: "WETH", decimals: 18, totalSupply: BigNumber.from("10000000") }],
+  collateralTokens: [defaultCollateral],
   addCollateralToken: (newToken: Token) => [
-    { name: "WETH", symbol: "WETH", decimals: 18, totalSupply: BigNumber.from("10000000") },
+    defaultToken
   ],
-  syntheticTokens: [{ name: "SNT", symbol: "SNT", decimals: 18, totalSupply: BigNumber.from("10000000") }],
+  syntheticTokens: [defaultToken],
   addSyntheticToken: (newToken: Token) => [
-    { name: "SNT", symbol: "SNT", decimals: 18, totalSupply: BigNumber.from("10000000") },
+    defaultToken
   ],
-  cleanData: () => {},
+  cleanData: () => { },
   collateralBalance: "0",
   syntheticBalance: "0",
   updateBalances: (signer: any, account: string) => {
     return Promise.resolve()
   },
   expiringMultiParties: [],
-  addExpiringMultiParty: (newEMP: ExpiringMultiParty) => {},
+  addExpiringMultiParty: (newEMP: ExpiringMultiParty) => { },
   positions: [],
-  addPosition: (newPosition: Position) => {},
+  addPosition: (newPosition: Position) => { },
   updateSyntheticTotalSupply: (signer: any) => {
     return Promise.resolve()
   },
   updatePositions: (signer: any, account: string) => {
     return Promise.resolve()
   },
+  selectedPriceIdentifier: "",
+  selectedCollateralToken: defaultToken,
+  setSelectedCollateralToken: () => { },
+  setSelectedPriceIdentifier: () => { }
 })
 /* tslint:enable */
 
@@ -101,9 +112,10 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
   const [syntheticTokens, setSyntheticTokens] = useState<Token[]>([])
   const [collateralBalance, setCollateralBalance] = useState("0")
   const [syntheticBalance, setSyntheticBalance] = useState("0")
-
   const [expiringMultiParties, setExpiringMultiParties] = useState<ExpiringMultiParty[]>([])
   const [positions, setPositions] = useState<Position[]>([])
+  const [selectedPriceIdentifier, setSelectedPriceIdentifier] = useState<string>("")
+  const [selectedCollateralToken, setSelectedCollateralToken] = useState<Token | undefined>(undefined)
 
   const getContractAddress = (contractName: UMAContractName) => {
     return contracts.get(contractName) as string
@@ -149,6 +161,9 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
 
     const resetSynths = []
     setSyntheticTokens(resetSynths)
+
+    setSelectedPriceIdentifier("")
+    setSelectedCollateralToken(undefined)
   }
 
   const updateBalances = async (signer: any, account: string) => {
@@ -264,6 +279,10 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         expiringMultiParties,
         updateSyntheticTotalSupply,
         updatePositions,
+        selectedPriceIdentifier,
+        setSelectedPriceIdentifier,
+        selectedCollateralToken,
+        setSelectedCollateralToken
       }}
     >
       {children}
