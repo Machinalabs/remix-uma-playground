@@ -50,9 +50,10 @@ export const CreateExpiringMultiParty: React.FC = () => {
     addExpiringMultiParty,
   } = useContract()
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { setCurrentStepCompleted, isCurrentStepCompleted } = useStep()
+  const { setCurrentStepCompleted } = useStep()
   const [newEMPAddress, setNewEMPAddress] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
+  const [empHasBeenCreated, setEMPHasBeenCreated] = useState(false)
 
   const handleSubmit = (values: FormProps, { setSubmitting }) => {
     setError(undefined)
@@ -208,52 +209,48 @@ export const CreateExpiringMultiParty: React.FC = () => {
   return (
     <React.Fragment>
       <h4>Create a expiring multiparty synthethic contract</h4>
-      <p>Now, we can create a new expiring multiparty synthetic token.</p>
       <Formik
         initialValues={initialValues}
-        validate={
-          isCurrentStepCompleted
-            ? undefined
-            : (values) => {
-              const errors: FormikErrors<FormProps> = {}
-              if (!values.expirationTimestamp) {
-                errors.expirationTimestamp = "Required"
-              }
+        validate={(values) => {
+          const errors: FormikErrors<FormProps> = {}
+          if (!values.expirationTimestamp) {
+            errors.expirationTimestamp = "Required"
+          }
 
-              if (!values.syntheticName) {
-                errors.syntheticName = "Required"
-              }
+          if (!values.syntheticName) {
+            errors.syntheticName = "Required"
+          }
 
-              if (!values.syntheticSymbol) {
-                errors.syntheticSymbol = "Required"
-              }
+          if (!values.syntheticSymbol) {
+            errors.syntheticSymbol = "Required"
+          }
 
-              if (!values.collateralRequirement) {
-                errors.collateralRequirement = "Required"
-              } else if (parseInt(values.collateralRequirement, 10) < 100) {
-                errors.collateralRequirement = "Value should be higher than 100"
-              }
+          if (!values.collateralRequirement) {
+            errors.collateralRequirement = "Required"
+          } else if (parseInt(values.collateralRequirement, 10) < 100) {
+            errors.collateralRequirement = "Value should be higher than 100"
+          }
 
-              if (!values.minSponsorTokens) {
-                errors.minSponsorTokens = "Required"
-              } else if (parseInt(values.minSponsorTokens, 10) < 0) {
-                errors.minSponsorTokens = "Value cannot be negative"
-              }
+          if (!values.minSponsorTokens) {
+            errors.minSponsorTokens = "Required"
+          } else if (parseInt(values.minSponsorTokens, 10) < 0) {
+            errors.minSponsorTokens = "Value cannot be negative"
+          }
 
-              if (!values.withdrawalLiveness) {
-                errors.withdrawalLiveness = "Required"
-              } else if (parseInt(values.withdrawalLiveness, 10) < 0) {
-                errors.withdrawalLiveness = "Value cannot be negative"
-              }
+          if (!values.withdrawalLiveness) {
+            errors.withdrawalLiveness = "Required"
+          } else if (parseInt(values.withdrawalLiveness, 10) < 0) {
+            errors.withdrawalLiveness = "Value cannot be negative"
+          }
 
-              if (!values.liquidationLiveness) {
-                errors.liquidationLiveness = "Required"
-              } else if (parseInt(values.liquidationLiveness, 10) < 0) {
-                errors.liquidationLiveness = "Value cannot be negative"
-              }
+          if (!values.liquidationLiveness) {
+            errors.liquidationLiveness = "Required"
+          } else if (parseInt(values.liquidationLiveness, 10) < 0) {
+            errors.liquidationLiveness = "Value cannot be negative"
+          }
 
-              return errors
-            }
+          return errors
+        }
         }
         onSubmit={handleSubmit}
       >
@@ -328,18 +325,20 @@ export const CreateExpiringMultiParty: React.FC = () => {
               helptext="Amount of time in seconds for pending liquidation before expiry."
             />
 
-            <Button
-              variant="primary"
-              type="submit"
-              size="sm"
-              disabled={isSubmitting}
-              isLoading={isSubmitting}
-              loadingText="Creating..."
-              text="Create"
-              show={!isCurrentStepCompleted}
-            />
+            {!empHasBeenCreated && <div style={{ display: "flex", justifyContent: "space-between", paddingRight: "2.5em", marginTop: "1em", marginBottom: "2em" }}>
 
-            <SuccessMessage show={isCurrentStepCompleted}>
+              <Button
+                variant="primary"
+                type="submit"
+                size="sm"
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
+                loadingText="Creating..."
+                text="Create"
+              />
+            </div>}
+
+            <SuccessMessage show={empHasBeenCreated}>
               You have successfully deployed the expiring multiparty contract {newEMPAddress}
             </SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
