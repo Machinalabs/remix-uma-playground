@@ -4,8 +4,12 @@ import { EthereumAddress, UMAContractName } from "../../../types"
 
 import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
 import ExpandedERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json"
+import AddressWhitelistArtifact from "@uma/core/build/contracts/AddressWhitelist.json"
 import ExpiringMultiPartyArtifact from "@uma/core/build/contracts/ExpiringMultiParty.json"
 import { formatUnits } from "ethers/lib/utils"
+import { useRemix } from "../../../hooks"
+import { Observable } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 export interface Token {
   name: string
@@ -37,9 +41,7 @@ interface IContractProvider {
   addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => void
   contracts: Map<UMAContractName, EthereumAddress>
   priceIdentifiers: string[]
-  addPriceIdentifier: (newPriceIdentifier: string) => string[]
   collateralTokens: Token[]
-  addCollateralToken: (newToken: Token) => Token[]
   syntheticTokens: Token[]
   addSyntheticToken: (newToken: Token) => Token[]
   cleanData: () => void
@@ -71,13 +73,7 @@ const ContractContext = React.createContext<IContractProvider>({
   addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => { },
   contracts: new Map<UMAContractName, EthereumAddress>(),
   priceIdentifiers: ["ETH/BTC"],
-  addPriceIdentifier: (newPriceIdentifier: string) => {
-    return ["ETH/BTC"]
-  },
   collateralTokens: [defaultCollateral],
-  addCollateralToken: (newToken: Token) => [
-    defaultToken
-  ],
   syntheticTokens: [defaultToken],
   addSyntheticToken: (newToken: Token) => [
     defaultToken
@@ -105,7 +101,10 @@ const ContractContext = React.createContext<IContractProvider>({
 })
 /* tslint:enable */
 
+type Block = ethers.providers.Block;
+
 export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+  const { web3Provider } = useRemix()
   const [contracts, setContracts] = useState(new Map<UMAContractName, EthereumAddress>())
   const [priceIdentifiers, setPriceIdentifiers] = useState<string[]>([])
   const [collateralTokens, setCollateralTokens] = useState<Token[]>([])
@@ -116,6 +115,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
   const [positions, setPositions] = useState<Position[]>([])
   const [selectedPriceIdentifier, setSelectedPriceIdentifier] = useState<string>("")
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<Token | undefined>(undefined)
+  const [block$, setBlock$] = useState<Observable<Block> | null>(null);
 
   const getContractAddress = (contractName: UMAContractName) => {
     return contracts.get(contractName) as string
@@ -141,6 +141,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     return newItems
   }
 
+  // TO analyse...
   const cleanData = () => {
     const resetedCollateralToken = []
     setCollateralTokens(resetedCollateralToken)
@@ -256,6 +257,62 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     setPositions([newPositionsUpdated])
   }
 
+  const getCollateralTokens = async () => {
+    const address = getContractAddress("AddressWhitelist")
+
+    const erc20Interface = new ethers.utils.Interface(TestnetERC20Artifact.abi)
+    const whitelistInterface = new ethers.utils.Interface(AddressWhitelistArtifact.abi)
+    const whitelistContract = new ethers.Contract(address, whitelistInterface);
+    // const addToWhitelistEncodedData = whitelistInterface.encodeFunctionData("addToWhitelist", [TestnetErc20Address])
+
+    const addressesWhitelisted = await whitelistContract.getWhitelist();
+    console.log("addressesWhitelisted", addressesWhitelisted)
+
+    const promises = addressesWhitelisted.map(async (collateralAddressItem) => {
+      const instance = new ethers.Contract(collateralAddressItem, erc20Interface)
+      return {
+        name: await instance.name(),
+        symbol: await instance.symbol(),
+        decimals: await instance.decimals(),
+        totalSupply: await instance.totalSupply(),
+        address: collateralAddressItem
+      }
+    })
+    const result = await Promise.all(promises)
+    console.log("result", result)
+  }
+
+  useEffect(() => {
+    if (web3Provider) {
+      console.log("Web3 Provider Block Listener added")
+      const observable = new Observable<Block>((subscriber) => {
+        web3Provider.on("block", (blockNumber: number) => {
+          web3Provider
+            .getBlock(blockNumber)
+            .then((block) => subscriber.next(block));
+        });
+      });
+      // debounce to prevent subscribers making unnecessary calls
+      const block$ = observable.pipe(debounceTime(1000));
+      setBlock$(block$);
+    }
+  }, [web3Provider])
+
+  // get info on each new block
+  useEffect(() => {
+    if (block$) {
+      const sub = block$.subscribe(() => {
+        // initializeTokenAddress();
+        // queryTokenData();
+        // queryPoolData();
+        console.log("New block observable arrived")
+      });
+      return () => sub.unsubscribe();
+    }
+  }, [
+    block$
+  ]);
+
   return (
     <ContractContext.Provider
       value={{
@@ -265,8 +322,6 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         priceIdentifiers,
         collateralTokens,
         syntheticTokens,
-        addPriceIdentifier,
-        addCollateralToken,
         addSyntheticToken,
         cleanData,
         collateralBalance,
