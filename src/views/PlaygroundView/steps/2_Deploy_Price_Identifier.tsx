@@ -1,15 +1,19 @@
 import React, { useState } from "react"
-import { Formik, Form, FormikErrors } from "formik"
+import { Formik, FormikErrors, Form as FormikForm } from "formik"
+import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
+import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhitelist.json"
+import { useHistory } from "react-router-dom"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 import { useRemix } from "../../../hooks"
-import { Button } from "../../../components"
 import { debug, defaultTransactionValues } from "../../../utils"
 import { ethers, utils } from "ethers"
 import { useContract } from "../hooks/useContract"
-import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhitelist.json"
 import { FormItem } from "../components"
 import { useStep } from "../hooks"
 import { SuccessMessage, ErrorMessage } from "../components"
+import { Button, StyledButton } from "../../../components"
 
 interface FormProps {
   priceIdentifier: string
@@ -19,11 +23,91 @@ const initialValues: FormProps = {
   priceIdentifier: "",
 }
 
+enum MODE {
+  SelectPriceIdentifier = "SelectPriceIdentifier",
+  DeployPriceIdentifier = "DeployPriceIdentifier"
+}
+
 export const DeployPriceIdentifier: React.FC = () => {
-  const { getContractAddress, addPriceIdentifier } = useContract()
+  const { priceIdentifiers, setSelectedPriceIdentifier, selectedPriceIdentifier } = useContract()
+  const [mode, setMode] = useState(MODE.SelectPriceIdentifier)
+  const { getNextStep, goNextStep } = useStep()
+  const history = useHistory()
+
+  const handleOnDeployClick = () => {
+    setMode(MODE.DeployPriceIdentifier)
+  }
+
+  const handleOnCancelClick = () => {
+    setMode(MODE.SelectPriceIdentifier)
+  }
+
+  const onSuccessCallback = () => {
+    setMode(MODE.SelectPriceIdentifier)
+  }
+
+  const handleSelectChange = (e: any) => {
+    setSelectedPriceIdentifier(e.target.value)
+  }
+
+  const handleOnNextClick = () => {
+    const nextStep = getNextStep()
+    if (nextStep) {
+      goNextStep()
+      console.log("nextStep.route", nextStep.route)
+      history.push(nextStep.route)
+    }
+  }
+
+  return (
+    <React.Fragment>
+      {mode === MODE.SelectPriceIdentifier &&
+        <React.Fragment>
+          <h4>Select price identifier</h4>
+          <Form>
+            <Row>
+              <Col md={9}>
+                <Form.Control as="select" value={selectedPriceIdentifier || "0"} disabled={priceIdentifiers.length === 0} onChange={handleSelectChange}>
+                  {priceIdentifiers.length === 0 && <option value="0">No price identifiers</option>}
+                  {priceIdentifiers.length > 0 && priceIdentifiers.map((item, index) => {
+                    return (<option key={index} value={item}>{item}</option>)
+                  })}
+                </Form.Control>
+              </Col>
+              <BootstrapButton size="sm" variant="primary" onClick={handleOnDeployClick}>
+                <FontAwesomeIcon icon={faPlus} />
+              </BootstrapButton>{' '}
+            </Row>
+
+            <div style={{ marginTop: "1em" }}>
+              <StyledButton
+                isLoading={false}
+                disabled={selectedPriceIdentifier === ""}
+                variant="success"
+                onClick={handleOnNextClick}>Next</StyledButton>
+            </div>
+
+          </Form>
+
+        </React.Fragment>}
+
+      {mode === MODE.DeployPriceIdentifier &&
+        <DeployPriceIdentifierView onCancelCallback={handleOnCancelClick} onSuccessCallback={onSuccessCallback} />}
+
+    </React.Fragment>
+  )
+}
+
+interface DeployPriceIdentifierViewProps {
+  onCancelCallback: () => void
+  onSuccessCallback: () => void
+}
+
+const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
+  const { getContractAddress, setSelectedPriceIdentifier } = useContract()
   const { clientInstance } = useRemix()
-  const { setCurrentStepCompleted, isCurrentStepCompleted } = useStep()
   const [error, setError] = useState<string | undefined>(undefined)
+  const [priceIdentifierHasBeenCreated, setPriceIdentifierHasBeenCreated] = useState(false)
 
   const handleSubmit = (values: FormProps, { setSubmitting, resetForm }) => {
     debug("Deploying price identifier", values)
@@ -53,15 +137,18 @@ export const DeployPriceIdentifier: React.FC = () => {
 
       debug("Added supported identifier", identifierBytes)
 
-      addPriceIdentifier(values.priceIdentifier)
+      setSelectedPriceIdentifier(values.priceIdentifier)
     }
 
     setTimeout(() => {
       sendTx()
         .then(() => {
           setSubmitting(false)
-          setCurrentStepCompleted()
+          setPriceIdentifierHasBeenCreated(true)
           resetForm({})
+          setTimeout(() => {
+            onSuccessCallback()
+          }, 2400);
         })
         .catch((e) => {
           debug(e)
@@ -73,48 +160,53 @@ export const DeployPriceIdentifier: React.FC = () => {
 
   return (
     <React.Fragment>
-      <h4>Deploy price identifier</h4>
-      <p>This is important to ensure that the UMA DVM can resolve any disputes for these synthethic tokens.</p>
       <Formik
         initialValues={initialValues}
-        validate={
-          isCurrentStepCompleted
-            ? undefined
-            : (values) => {
-              const errors: FormikErrors<FormProps> = {}
-              if (!values.priceIdentifier) {
-                errors.priceIdentifier = "Required"
-              }
-              return errors
-            }
+        validate={(values) => {
+          const errors: FormikErrors<FormProps> = {}
+          if (!values.priceIdentifier) {
+            errors.priceIdentifier = "Required"
+          }
+          return errors
+        }
         }
         onSubmit={handleSubmit}
       >
         {({ isSubmitting }) => (
-          <Form>
+          <FormikForm>
             <FormItem
               label="Price Identifier"
               field="priceIdentifier"
               placeHolder="ETH/USD"
-              readOnly={isCurrentStepCompleted}
             />
 
-            <Button
-              variant="primary"
-              type="submit"
-              size="sm"
-              disabled={isSubmitting}
-              isLoading={isSubmitting}
-              loadingText="Deploying..."
-              text="Deploy"
-              show={!isCurrentStepCompleted}
-            />
+            {!priceIdentifierHasBeenCreated && <div style={{ display: "flex", justifyContent: "space-between", paddingRight: "2.5em", marginTop: "0em", marginBottom: "2em" }}>
+              <Button
+                variant="primary"
+                type="submit"
+                size="sm"
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
+                loadingText="Deploying..."
+                text="Deploy"
+              />
 
-            <SuccessMessage show={isCurrentStepCompleted}>
+              <Button
+                variant="danger"
+                size="sm"
+                isLoading={false}
+                loadingText=""
+                text="Cancel"
+                onClick={onCancelCallback}
+              />
+            </div>}
+
+            <SuccessMessage show={priceIdentifierHasBeenCreated}>
               You have successfully deployed the price identifier.
             </SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-          </Form>
+
+          </FormikForm>
         )}
       </Formik>
     </React.Fragment>

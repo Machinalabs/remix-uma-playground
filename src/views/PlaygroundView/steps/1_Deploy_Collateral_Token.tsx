@@ -118,7 +118,7 @@ interface DeployCollateralViewProps {
 
 const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { setSelectedCollateralToken, getContractAddress, addCollateralToken, addContractAddress, updateBalances } = useContract()
+  const { setSelectedCollateralToken, getContractAddress, addContractAddress, updateBalances } = useContract()
   const [newCollateralTokenAddress, setNewCollateralTokenAddress] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
   const [tokenHasBeenCreated, setTokenHasBeenCreated] = useState(false)
@@ -175,15 +175,13 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
         address: TestnetErc20Address,
       }
 
-      addCollateralToken(newTokenParsed)
-
-      setSelectedCollateralToken(newTokenParsed)
-
       setNewCollateralTokenAddress(TestnetErc20Address as string)
 
       await collateralTokenContract.allocateTo(accounts[0], toWei(`${values.totalSupply}`))
 
       await updateBalances(signer, accounts[0])
+
+      setSelectedCollateralToken(newTokenParsed)
     }
 
     setTimeout(() => {
@@ -283,7 +281,7 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
             </div>}
 
             <SuccessMessage show={tokenHasBeenCreated}>
-              You have successfully deployed the collateral token at {newCollateralTokenAddress}
+              You have successfully deployed the collateral token at {newCollateralTokenAddress}.
             </SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
           </FormikForm>
@@ -292,3 +290,4 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
     </React.Fragment>
   )
 }
+
