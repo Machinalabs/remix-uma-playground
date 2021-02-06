@@ -3,12 +3,12 @@ import React, { PropsWithChildren, useContext, useEffect, useState } from "react
 import { PluginClient } from "@remixproject/plugin"
 import { IRemixApi } from "@remixproject/plugin-api"
 import { Api, PluginApi } from "@remixproject/plugin-utils"
+import { ethers } from "ethers"
 
 import { ThemeType } from "../types"
 import { getProvider, log } from "../utils"
 
 import { RemixClient } from "./RemixClient"
-import { ethers } from "ethers"
 
 export type RemixClientInstanceType = PluginApi<Readonly<IRemixApi>> & PluginClient<Api, Readonly<IRemixApi>>
 

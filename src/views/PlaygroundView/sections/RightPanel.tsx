@@ -40,7 +40,7 @@ export const RightPanel: React.FC = () => {
       <Paragraph>{collateralBalance}</Paragraph>
       {selectedCollateralToken && (
         <Card>
-          <Card.Header>Collateral token</Card.Header>
+          <Card.Header>Selected collateral token</Card.Header>
           <React.Fragment>
             <AccordionContentBody className="borderBottomExceptLast">
               <p style={{ fontWeight: "bold" }}>
@@ -61,7 +61,7 @@ export const RightPanel: React.FC = () => {
       )}
       {selectedPriceIdentifier && (
         <Card>
-          <Card.Header> Price identifier</Card.Header>
+          <Card.Header>Selected price identifier</Card.Header>
           <React.Fragment>
             <AccordionContentBody direction="horizontal">
               <Image>{selectedPriceIdentifier.charAt(0)}</Image>
