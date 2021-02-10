@@ -33,3 +33,8 @@ input.form-control.form-control-sm:-moz-placeholder { /* Firefox 18- */
 .borderBottomExceptLast:last-child{
     border-bottom: none;
 }
+
+/* Form item calendar issue */
+.form-group.col .custom {
+    color: #999999;
+}

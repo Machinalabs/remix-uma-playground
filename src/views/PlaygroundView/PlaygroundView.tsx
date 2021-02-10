@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button, Col, Container, Row } from "react-bootstrap"
 import {
   useMediaQuery,
@@ -16,13 +16,17 @@ import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import ExpiringMultiPartyArtifact from "@uma/core/build/contracts/ExpiringMultiParty.json"
+import ExpandedIERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json"
 
 
 import { TITLE } from "../../text"
 
-import { StepProvider } from "./hooks"
+import { StepProvider, useContract } from "./hooks"
 import { Stepmanager } from "./steps"
 import { NavMenu, RightPanel } from "./sections"
+import { ethers } from "ethers";
+import { useRemix } from "../../hooks";
 
 const BootstrapInput = withStyles((theme) => ({
   root: {
@@ -59,20 +63,54 @@ const useStyles = makeStyles((theme) => ({
 
 export const PlaygroundView: React.FC = () => {
   const theme = useTheme();
-
+  const { signer } = useRemix()
+  const { resetModalData, empAddresses } = useContract()
   const [empAddress, setEmpAddress] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
 
-  const [emps, setEmps] = useState<Emp[]>([{
-    name: "EMP1",
-    symbol: "emp1",
-    address: "0x000000000000000000000000123123123"
-  }]);
+  const [emps, setEmps] = useState<Emp[]>([])
+
+  useEffect(() => {
+    const getAllEmpData = async () => {
+      const empMapped = empAddresses.map(async (expiringMultiPartyAddress) => {
+        const empContract = new ethers.Contract(expiringMultiPartyAddress, ExpiringMultiPartyArtifact.abi, signer)
+        const syntheticTokenAddress = await empContract.tokenCurrency()
+        const syntheticContract = new ethers.Contract(syntheticTokenAddress, ExpandedIERC20Artifact.abi, signer)
+
+        // synthetic token
+        const syntheticToken = {
+          address: syntheticTokenAddress,
+          name: await syntheticContract.name(),
+          symbol: await syntheticContract.symbol(),
+          decimals: await syntheticContract.decimals(),
+          totalSupply: (await syntheticContract.totalSupply()).toString(),
+        }
+
+        return {
+          name: syntheticToken.name,
+          symbol: syntheticToken.symbol,
+          address: expiringMultiPartyAddress
+        }
+      })
+      const result = Promise.all(empMapped)
+      return result
+    }
+
+    getAllEmpData()
+      .then((result) => {
+        setEmps(result)
+      })
+      .catch((error) => console.log("Error"))
+
+  }, [empAddresses])
 
   const largeScreen = useMediaQuery(theme.breakpoints.up("sm"));
   const [open, setOpen] = React.useState(false);
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false)
+    resetModalData()
+  };
   const handleShow = () => setOpen(true);
 
   const handleChange = (e: React.ChangeEvent<{ value: unknown }>) => {
@@ -131,22 +169,22 @@ export const PlaygroundView: React.FC = () => {
 
         {/* EMP Dialog */}
         <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
-          <DialogHeader onCloseClick={handleClose} />
-          <StepProvider>
-            <Container fluid={true} style={{ padding: "2em", height: "900px", overflow: "scroll", backgroundColor: `${BLUE_COLOR}` }}>
-              <Row>
-                <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
-                  <NavMenu />
-                </Col>
-                <Col md={5} style={{ padding: "0", display: "flex", flexDirection: "column" }}>
-                  <Stepmanager />
-                </Col>
-                <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
-                  <RightPanel />
-                </Col>
-              </Row>
-            </Container>
-          </StepProvider>
+          {open && <React.Fragment><DialogHeader onCloseClick={handleClose} />
+            <StepProvider>
+              <Container fluid={true} style={{ padding: "2em", height: "900px", overflow: "scroll", backgroundColor: `${BLUE_COLOR}` }}>
+                <Row>
+                  <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
+                    <NavMenu />
+                  </Col>
+                  <Col md={5} style={{ padding: "0", display: "flex", flexDirection: "column" }}>
+                    <Stepmanager closeModalTrigger={handleClose} />
+                  </Col>
+                  <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
+                    <RightPanel />
+                  </Col>
+                </Row>
+              </Container>
+            </StepProvider></React.Fragment>}
         </Dialog>
       </Container>
     </React.Fragment>

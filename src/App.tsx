@@ -1,17 +1,16 @@
 import React from "react"
 
 import { Routes } from "./routes"
-import { RemixProvider } from "./hooks"
+import { RemixProvider, UMAProvider } from "./hooks"
 
 import "./App.css"
-import { ContractProvider } from "./views/PlaygroundView/hooks"
 
 const App = () => {
   return (
     <RemixProvider>
-      <ContractProvider>
+      <UMAProvider>
         <Routes />
-      </ContractProvider>
+      </UMAProvider>
     </RemixProvider>
   )
 }

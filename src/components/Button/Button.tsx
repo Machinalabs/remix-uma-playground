@@ -11,16 +11,16 @@ export const StyledButton = styled(BootstrapButton)`
 `
 
 interface Props extends ButtonProps {
-  isLoading: boolean
+  isloading: boolean
   loadingText: string
   text: string
   show?: boolean
 }
 
-export const Button: React.FC<Props> = ({ isLoading, loadingText, text, show = true, ...props }) => {
+export const Button: React.FC<Props> = ({ isloading, loadingText, text, show = true, ...props }) => {
   return show ? (
     <StyledButton {...props}>
-      {isLoading && (
+      {isloading ? (
         <React.Fragment>
           <Spinner
             style={{ marginRight: "5px" }}
@@ -32,10 +32,9 @@ export const Button: React.FC<Props> = ({ isLoading, loadingText, text, show = t
           />
           <span>{loadingText}</span>
         </React.Fragment>
-      )}
-      {!isLoading && <span>{text}</span>}
+      ) : <span>{text}</span>}
     </StyledButton>
   ) : (
-    <React.Fragment />
-  )
+      <React.Fragment />
+    )
 }
