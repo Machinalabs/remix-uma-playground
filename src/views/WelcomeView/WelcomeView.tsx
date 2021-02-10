@@ -6,18 +6,17 @@ import Alert from "react-bootstrap/Alert"
 
 import { HOW_TO_PROVIDER_BLACK, HOW_TO_PROVIDER_WHITE, PLAYGROUND_ROUTE } from "../../constants"
 import { StyledButton } from "../../components"
-import { useRemix } from "../../hooks"
+import { useRemix, useUMAAddresses } from "../../hooks"
 import { TITLE } from "../../text"
 import { debug } from "../../utils"
 
-import { useContract } from "../PlaygroundView/hooks"
 
 export const WelcomeView: React.FC = () => {
   const { clientInstance, web3Provider, themeType } = useRemix()
   const [isStarting, setIsStarting] = useState(false)
   const history = useHistory()
   const [error, setError] = useState<string | undefined>(undefined)
-  const { getContractAddress } = useContract()
+  const { getContractAddress } = useUMAAddresses()
 
   useEffect(() => {
     if (isStarting && clientInstance) {
@@ -25,7 +24,7 @@ export const WelcomeView: React.FC = () => {
         const provider = await clientInstance.call("network", "getNetworkProvider")
         if (provider === "vm") {
           setError(
-            "Invalid provider selected. Please be sure you are running the UMA snapshot docker image and the provider is correct."
+            "Invalid provider selected. Please be ensure the provider is correct."
           )
           setIsStarting(false)
           return
