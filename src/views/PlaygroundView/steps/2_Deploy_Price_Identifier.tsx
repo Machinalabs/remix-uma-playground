@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Formik, FormikErrors, Form as FormikForm } from "formik"
 import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
 import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhitelist.json"
@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
-import { useRemix } from "../../../hooks"
+import { useRemix, useUMAAddresses } from "../../../hooks"
 import { debug, defaultTransactionValues } from "../../../utils"
 import { ethers, utils } from "ethers"
 import { useContract } from "../hooks/useContract"
@@ -14,6 +14,7 @@ import { FormItem } from "../components"
 import { useStep } from "../hooks"
 import { SuccessMessage, ErrorMessage } from "../components"
 import { Button, StyledButton } from "../../../components"
+import { DELAY_AFTER_FORM_CREATION } from "../../../constants"
 
 interface FormProps {
   priceIdentifier: string
@@ -31,7 +32,7 @@ enum MODE {
 export const DeployPriceIdentifier: React.FC = () => {
   const { priceIdentifiers, setSelectedPriceIdentifier, selectedPriceIdentifier } = useContract()
   const [mode, setMode] = useState(MODE.SelectPriceIdentifier)
-  const { getNextStep, goNextStep } = useStep()
+  const { getNextStep, goNextStep, getStepBefore, goStepBefore } = useStep()
   const history = useHistory()
 
   const handleOnDeployClick = () => {
@@ -59,6 +60,15 @@ export const DeployPriceIdentifier: React.FC = () => {
     }
   }
 
+  const handleOnBackClick = () => {
+    const stepBefore = getStepBefore()
+    if (stepBefore) {
+      goStepBefore()
+      console.log("stepBefore.route", stepBefore.route)
+      history.push(stepBefore.route)
+    }
+  }
+
   return (
     <React.Fragment>
       {mode === MODE.SelectPriceIdentifier &&
@@ -66,9 +76,10 @@ export const DeployPriceIdentifier: React.FC = () => {
           <h4>Select price identifier</h4>
           <Form>
             <Row>
-              <Col md={9}>
+              <Col md={10}>
                 <Form.Control as="select" value={selectedPriceIdentifier || "0"} disabled={priceIdentifiers.length === 0} onChange={handleSelectChange}>
                   {priceIdentifiers.length === 0 && <option value="0">No price identifiers</option>}
+                  <option value="0">Select an option</option>
                   {priceIdentifiers.length > 0 && priceIdentifiers.map((item, index) => {
                     return (<option key={index} value={item}>{item}</option>)
                   })}
@@ -80,11 +91,17 @@ export const DeployPriceIdentifier: React.FC = () => {
             </Row>
 
             <div style={{ marginTop: "1em" }}>
+
               <StyledButton
-                isLoading={false}
                 disabled={selectedPriceIdentifier === ""}
                 variant="success"
                 onClick={handleOnNextClick}>Next</StyledButton>
+
+              <StyledButton
+                variant="link"
+                onClick={handleOnBackClick}>Back</StyledButton>
+
+
             </div>
 
           </Form>
@@ -104,7 +121,8 @@ interface DeployPriceIdentifierViewProps {
 }
 
 const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
-  const { getContractAddress, setSelectedPriceIdentifier } = useContract()
+  const { setSelectedPriceIdentifier } = useContract()
+  const { getContractAddress } = useUMAAddresses()
   const { clientInstance } = useRemix()
   const [error, setError] = useState<string | undefined>(undefined)
   const [priceIdentifierHasBeenCreated, setPriceIdentifierHasBeenCreated] = useState(false)
@@ -148,7 +166,7 @@ const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ o
           resetForm({})
           setTimeout(() => {
             onSuccessCallback()
-          }, 2400);
+          }, DELAY_AFTER_FORM_CREATION);
         })
         .catch((e) => {
           debug(e)
@@ -186,7 +204,7 @@ const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ o
                 type="submit"
                 size="sm"
                 disabled={isSubmitting}
-                isLoading={isSubmitting}
+                isloading={isSubmitting}
                 loadingText="Deploying..."
                 text="Deploy"
               />
@@ -194,7 +212,7 @@ const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ o
               <Button
                 variant="danger"
                 size="sm"
-                isLoading={false}
+                isloading={false}
                 loadingText=""
                 text="Cancel"
                 onClick={onCancelCallback}

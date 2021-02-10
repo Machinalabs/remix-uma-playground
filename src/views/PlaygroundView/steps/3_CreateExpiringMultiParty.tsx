@@ -13,10 +13,12 @@ import ExpandedIERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json
 
 import { debug } from "../../../utils"
 import { useContract, useStep } from "../hooks"
-import { Button } from "../../../components"
+import { Button, StyledButton } from "../../../components"
 import { ErrorMessage, FormItem, SuccessMessage } from "../components"
-import { useRemix } from "../../../hooks"
+import { useRemix, useUMAAddresses } from "../../../hooks"
 import { InterfaceName } from "../../../types"
+import { useHistory } from "react-router-dom"
+import { DELAY_AFTER_FORM_CREATION } from "../../../constants"
 
 interface FormProps {
   expirationTimestamp: string
@@ -40,17 +42,24 @@ const initialValues: FormProps = {
   liquidationLiveness: "",
 }
 
-export const CreateExpiringMultiParty: React.FC = () => {
+interface Props {
+  onCreatedCallback: () => void
+}
+
+export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback }) => {
   const {
-    getContractAddress,
     collateralTokens,
     priceIdentifiers,
-    addContractAddress,
-    addSyntheticToken,
-    addExpiringMultiParty,
+    selectedCollateralToken,
+    // addContractAddress,
+    // addSyntheticToken,
+    // addExpiringMultiParty,
+    setSelectedEMPAddress
   } = useContract()
+  const { getContractAddress, addContractAddress } = useUMAAddresses()
+
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { setCurrentStepCompleted } = useStep()
+  const { setCurrentStepCompleted, getStepBefore, goStepBefore } = useStep()
   const [newEMPAddress, setNewEMPAddress] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
   const [empHasBeenCreated, setEMPHasBeenCreated] = useState(false)
@@ -65,7 +74,7 @@ export const CreateExpiringMultiParty: React.FC = () => {
       debug("Accounts", accounts[0])
 
       const storeAddress = getContractAddress("Store")
-      const collateralTokenAddress = collateralTokens[0].address as string
+      const collateralTokenAddress = selectedCollateralToken?.address as string// collateralTokens[0].address as string
       debug("Collateral address", collateralTokenAddress)
 
       const collateralTokenInterface = new ethers.utils.Interface(TestnetERC20Artifact.abi)
@@ -128,6 +137,8 @@ export const CreateExpiringMultiParty: React.FC = () => {
           excessTokenBeneficiary: storeAddress,
         }
 
+        debug("Params", params)
+
         const expiringMultipartyCreator = new ethers.Contract(
           expiringMultiPartyCreatorAddress,
           expiringMultipartyCreatorInterface,
@@ -144,44 +155,33 @@ export const CreateExpiringMultiParty: React.FC = () => {
         debug("Receipt", receipt)
 
         const collateralToken = new ethers.Contract(
-          getContractAddress("TestnetErc20Address"),
+          collateralTokenAddress,
           TestnetERC20Artifact.abi,
           signer
         )
         console.log("Total supply", await collateralToken.totalSupply())
         await collateralToken.approve(expiringMultiPartyAddress, await collateralToken.totalSupply())
         debug("Approved EMP allowance on collateral")
+        setSelectedEMPAddress(expiringMultiPartyAddress)
+        // const empContract = new ethers.Contract(expiringMultiPartyAddress, ExpiringMultiPartyArtifact.abi, signer)
+        // const syntheticTokenAddress = await empContract.tokenCurrency()
+        // debug("syntheticTokenAddress", syntheticTokenAddress)
 
-        const empContract = new ethers.Contract(expiringMultiPartyAddress, ExpiringMultiPartyArtifact.abi, signer)
-        const syntheticTokenAddress = await empContract.tokenCurrency()
-        debug("syntheticTokenAddress", syntheticTokenAddress)
-
-        const syntheticContract = new ethers.Contract(syntheticTokenAddress, ExpandedIERC20Artifact.abi, signer)
-        debug("syntheticContract", syntheticContract)
+        // const syntheticContract = new ethers.Contract(syntheticTokenAddress, ExpandedIERC20Artifact.abi, signer)
+        // debug("syntheticContract", syntheticContract)
 
         // add synthetic token
-        const syntheticToken = {
-          address: syntheticTokenAddress,
-          name: await syntheticContract.name(),
-          symbol: await syntheticContract.symbol(),
-          decimals: await syntheticContract.decimals(),
-          totalSupply: (await syntheticContract.totalSupply()).toString(),
-        }
-        debug("syntheticToken", syntheticToken)
-        addSyntheticToken(syntheticToken)
-        addContractAddress("SynthethicToken", syntheticTokenAddress)
-
-        // add emp
-        addExpiringMultiParty({
-          address: expiringMultiPartyAddress,
-          expirationTimestamp: parseInt(dateTimestamp, 10),
-          syntheticName: values.syntheticName,
-          syntheticSymbol: values.syntheticSymbol,
-          collateralRequirement: parseInt(values.collateralRequirement, 10),
-          minSponsorTokens: parseInt(values.minSponsorTokens, 10),
-          withdrawalLiveness: parseInt(values.withdrawalLiveness, 10),
-          liquidationLiveness: parseInt(values.liquidationLiveness, 10),
-        })
+        // const syntheticToken = {
+        //   address: syntheticTokenAddress,
+        //   name: await syntheticContract.name(),
+        //   symbol: await syntheticContract.symbol(),
+        //   decimals: await syntheticContract.decimals(),
+        //   totalSupply: (await syntheticContract.totalSupply()).toString(),
+        // }
+        // debug("syntheticToken", syntheticToken)
+        // addSyntheticToken(syntheticToken)
+        // addContractAddress("SynthethicToken", syntheticTokenAddress)
+        setEMPHasBeenCreated(true)
       } catch (error) {
         debug("Error", error)
         const traces = await clientInstance.call("debugger" as any, "getTrace", txn.hash).catch((err) => {
@@ -197,6 +197,10 @@ export const CreateExpiringMultiParty: React.FC = () => {
         .then(() => {
           setSubmitting(false)
           setCurrentStepCompleted()
+          setTimeout(() => {
+            onCreatedCallback()
+
+          }, DELAY_AFTER_FORM_CREATION);
         })
         .catch((e) => {
           debug(e)
@@ -204,6 +208,17 @@ export const CreateExpiringMultiParty: React.FC = () => {
           setError(e.message.replace("VM Exception while processing transaction: revert", "").trim())
         })
     }, 500)
+  }
+
+  const history = useHistory()
+
+  const handleOnBackClick = () => {
+    const stepBefore = getStepBefore()
+    if (stepBefore) {
+      goStepBefore()
+      console.log("stepBefore.route", stepBefore.route)
+      history.push(stepBefore.route)
+    }
   }
 
   return (
@@ -257,6 +272,7 @@ export const CreateExpiringMultiParty: React.FC = () => {
         {({ isSubmitting }) => (
           <Form>
             <FormItem
+              customClass="custom"
               key="expirationTimestamp"
               label="Expiration timestamp"
               field="expirationTimestamp"
@@ -325,17 +341,22 @@ export const CreateExpiringMultiParty: React.FC = () => {
               helptext="Amount of time in seconds for pending liquidation before expiry."
             />
 
-            {!empHasBeenCreated && <div style={{ display: "flex", justifyContent: "space-between", paddingRight: "2.5em", marginTop: "1em", marginBottom: "2em" }}>
+            {!empHasBeenCreated && <div style={{ display: "flex", paddingRight: "2.5em", marginTop: "1em", marginBottom: "2em" }}>
 
               <Button
                 variant="primary"
                 type="submit"
                 size="sm"
                 disabled={isSubmitting}
-                isLoading={isSubmitting}
+                isloading={isSubmitting}
                 loadingText="Creating..."
                 text="Create"
               />
+
+              <StyledButton
+                variant="link"
+                onClick={handleOnBackClick}>Back</StyledButton>
+
             </div>}
 
             <SuccessMessage show={empHasBeenCreated}>

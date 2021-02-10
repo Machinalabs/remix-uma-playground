@@ -1,15 +1,18 @@
 import { BigNumber, ethers } from "ethers"
 import React, { PropsWithChildren, useContext, useEffect, useState } from "react"
-import { EthereumAddress, UMAContractName } from "../../../types"
 
 import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
 import ExpandedERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json"
 import AddressWhitelistArtifact from "@uma/core/build/contracts/AddressWhitelist.json"
 import ExpiringMultiPartyArtifact from "@uma/core/build/contracts/ExpiringMultiParty.json"
+import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhitelist.json"
+import ExpiringMultiPartyCreatorArtifact from "@uma/core/build/contracts/ExpiringMultiPartyCreator.json"
+
 import { formatUnits } from "ethers/lib/utils"
 import { useRemix } from "../../../hooks"
 import { Observable } from "rxjs";
 import { debounceTime } from "rxjs/operators";
+import { useUMAAddresses } from "../../../hooks/useUmaAddresses"
 
 export interface Token {
   name: string
@@ -36,28 +39,32 @@ export interface Position {
 }
 
 interface IContractProvider {
-  setContracts: (contractsMap: Map<UMAContractName, EthereumAddress>) => void
-  getContractAddress: (contractName: UMAContractName) => string
-  addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => void
-  contracts: Map<UMAContractName, EthereumAddress>
+  // setContracts: (contractsMap: Map<UMAContractName, EthereumAddress>) => void
+  // getContractAddress: (contractName: UMAContractName) => string
+  // addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => void
+  // contracts: Map<UMAContractName, EthereumAddress>
   priceIdentifiers: string[]
   collateralTokens: Token[]
-  syntheticTokens: Token[]
-  addSyntheticToken: (newToken: Token) => Token[]
-  cleanData: () => void
-  collateralBalance: string
-  syntheticBalance: string
-  updateBalances: (signer: any, account: string) => Promise<void>
-  expiringMultiParties: ExpiringMultiParty[]
-  addExpiringMultiParty: (newEMP: ExpiringMultiParty) => void
-  positions: Position[]
-  addPosition: (newPosition: Position) => void
-  updateSyntheticTotalSupply: (signer: any) => Promise<void>
-  updatePositions: (signer: any, account: string) => Promise<void>
-  setSelectedCollateralToken: (token: Token) => void
+  empAddresses: string[]
+
+  // syntheticTokens: Token[]
+  // addSyntheticToken: (newToken: Token) => Token[]
+  resetModalData: () => void
+  // collateralBalance: string
+  // syntheticBalance: string
+  // updateBalances: (signer: any, account: string) => Promise<void>
+  // expiringMultiParties: ExpiringMultiParty[]
+  // addExpiringMultiParty: (newEMP: ExpiringMultiParty) => void
+  // positions: Position[]
+  // addPosition: (newPosition: Position) => void
+  // updateSyntheticTotalSupply: (signer: any) => Promise<void>
+  // updatePositions: (signer: any, account: string) => Promise<void>
+  setSelectedCollateralToken: (token?: Token) => void
   selectedCollateralToken?: Token
   setSelectedPriceIdentifier: (priceIdentifier: string) => void
   selectedPriceIdentifier: string
+  selectedEMPAddress: string
+  setSelectedEMPAddress: (newEMP: string) => void
 }
 
 const defaultToken: Token = { name: "SNT", symbol: "SNT", decimals: 18, totalSupply: BigNumber.from("10000000") }
@@ -66,74 +73,58 @@ const defaultCollateral: Token = { name: "WETH", symbol: "WETH", decimals: 18, t
 /* tslint:disable */
 // Defaults
 const ContractContext = React.createContext<IContractProvider>({
-  setContracts: (contractsMap: Map<UMAContractName, EthereumAddress>) => { },
-  getContractAddress: (contractName: UMAContractName) => {
-    return ""
-  },
-  addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => { },
-  contracts: new Map<UMAContractName, EthereumAddress>(),
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
-  syntheticTokens: [defaultToken],
-  addSyntheticToken: (newToken: Token) => [
-    defaultToken
-  ],
-  cleanData: () => { },
-  collateralBalance: "0",
-  syntheticBalance: "0",
-  updateBalances: (signer: any, account: string) => {
-    return Promise.resolve()
-  },
-  expiringMultiParties: [],
-  addExpiringMultiParty: (newEMP: ExpiringMultiParty) => { },
-  positions: [],
-  addPosition: (newPosition: Position) => { },
-  updateSyntheticTotalSupply: (signer: any) => {
-    return Promise.resolve()
-  },
-  updatePositions: (signer: any, account: string) => {
-    return Promise.resolve()
-  },
+  // syntheticTokens: [defaultToken],
+  empAddresses: ["0x000000"],
+  // addSyntheticToken: (newToken: Token) => [
+  //   defaultToken
+  // ],
+  resetModalData: () => { },
+  // collateralBalance: "0",
+  // syntheticBalance: "0",
+  // updateBalances: (signer: any, account: string) => {
+  //   return Promise.resolve()
+  // },
+  // expiringMultiParties: [],
+  // addExpiringMultiParty: (newEMP: ExpiringMultiParty) => { },
+  // positions: [],
+  // addPosition: (newPosition: Position) => { },
+  // updateSyntheticTotalSupply: (signer: any) => {
+  //   return Promise.resolve()
+  // },
+  // updatePositions: (signer: any, account: string) => {
+  //   return Promise.resolve()
+  // },
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
   setSelectedCollateralToken: () => { },
-  setSelectedPriceIdentifier: () => { }
+  setSelectedPriceIdentifier: () => { },
+  selectedEMPAddress: "0x000000",
+  setSelectedEMPAddress: (newEMP: string) => { }
 })
 /* tslint:enable */
 
 type Block = ethers.providers.Block;
 
 export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
-  const { web3Provider } = useRemix()
-  const [contracts, setContracts] = useState(new Map<UMAContractName, EthereumAddress>())
+  const { web3Provider, signer } = useRemix()
   const [priceIdentifiers, setPriceIdentifiers] = useState<string[]>([])
   const [collateralTokens, setCollateralTokens] = useState<Token[]>([])
+  const [empAddresses, setEmpAddresses] = useState<string[]>([])
+
+  const [expiringMultiParties, setExpiringMultiParties] = useState<ExpiringMultiParty[]>([])
+
   const [syntheticTokens, setSyntheticTokens] = useState<Token[]>([])
   const [collateralBalance, setCollateralBalance] = useState("0")
   const [syntheticBalance, setSyntheticBalance] = useState("0")
-  const [expiringMultiParties, setExpiringMultiParties] = useState<ExpiringMultiParty[]>([])
   const [positions, setPositions] = useState<Position[]>([])
   const [selectedPriceIdentifier, setSelectedPriceIdentifier] = useState<string>("")
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<Token | undefined>(undefined)
+  const [selectedEMPAddress, setSelectedEMPAddress] = useState<string>("")
+
   const [block$, setBlock$] = useState<Observable<Block> | null>(null);
-
-  const getContractAddress = (contractName: UMAContractName) => {
-    return contracts.get(contractName) as string
-  }
-
-  const addPriceIdentifier = (newPriceIdentifier: string) => {
-    const newItems = [...priceIdentifiers, newPriceIdentifier]
-    setPriceIdentifiers(newItems)
-    return newItems
-  }
-
-  const addCollateralToken = (newToken: Token) => {
-    console.log("newToken", newToken)
-    const newItems = [...collateralTokens, newToken]
-    console.log("newItems", newItems)
-    setCollateralTokens(newItems)
-    return newItems
-  }
+  const { getContractAddress } = useUMAAddresses()
 
   const addSyntheticToken = (newToken: Token) => {
     const newItems = [...syntheticTokens, newToken]
@@ -142,26 +133,26 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
   }
 
   // TO analyse...
-  const cleanData = () => {
-    const resetedCollateralToken = []
-    setCollateralTokens(resetedCollateralToken)
+  const resetModalData = () => {
+    // const resetedCollateralToken = []
+    // setCollateralTokens(resetedCollateralToken)
 
-    const resetedPriceIdentifiers = []
-    setPriceIdentifiers(resetedPriceIdentifiers)
+    // const resetedPriceIdentifiers = []
+    // setPriceIdentifiers(resetedPriceIdentifiers)
 
-    setCollateralBalance("0")
-    setSyntheticBalance("0")
-    addContractAddress("TestnetErc20Address", "")
-    addContractAddress("SynthethicToken", "")
+    // setCollateralBalance("0")
+    // setSyntheticBalance("0")
+    // addContractAddress("TestnetErc20Address", "")
+    // addContractAddress("SynthethicToken", "")
 
-    const resetedPositions = []
-    setPositions(resetedPositions)
+    // const resetedPositions = []
+    // setPositions(resetedPositions)
 
-    const resetedEMPs = []
-    setExpiringMultiParties(resetedEMPs)
+    // const resetedEMPs = []
+    // setExpiringMultiParties(resetedEMPs)
 
-    const resetSynths = []
-    setSyntheticTokens(resetSynths)
+    // const resetSynths = []
+    // setSyntheticTokens(resetSynths)
 
     setSelectedPriceIdentifier("")
     setSelectedCollateralToken(undefined)
@@ -190,9 +181,9 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     }
   }
 
-  const addContractAddress = (contractName: UMAContractName, address: EthereumAddress) => {
-    setContracts(new Map(contracts.set(contractName, address)))
-  }
+  // const addContractAddress = (contractName: UMAContractName, address: EthereumAddress) => {
+  //   setContracts(new Map(contracts.set(contractName, address)))
+  // }
 
   const updateSyntheticTotalSupply = async (signer: any) => {
     const newSynthsWithBalancesUpdated = syntheticTokens.map(async (item) => {
@@ -211,34 +202,42 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     setSyntheticTokens(await Promise.all(newSynthsWithBalancesUpdated))
   }
 
-  useEffect(() => {
-    const addresses = new Map<UMAContractName, EthereumAddress>()
-    addresses.set("Finder", "0x0CE79bD134ad8b1559e70315955FeBD0585Bd61c")
-    addresses.set("Timer", "0xCbd9DA4C726C7e7Ab6A29B428B295799861cE0eD")
-    addresses.set("VotingToken", "0x087183aF87b05C2AE914562826C5afBFc0E61a34")
-    addresses.set("IdentifierWhitelist", "0xB02c41f1eB22fa5FfF384aB8Ff3109E79E0ff16d")
-    addresses.set("Voting", "0xf0950a16020A237Ce05A3aEBD2916BAb43974a39")
-    addresses.set("Registry", "0x42eCCE1cde42c25826E76A038DD3b58D9787BCdb")
-    addresses.set("FinancialContractAdmin", "0xfd936B0581055e4De459a6aBB8f76336796edCEB")
-    addresses.set("Store", "0x1D07EE6EE4cDEd89a8a693878808bc50BaDF5F60")
-    addresses.set("Governor", "0x88a63D653C33C61C242C05d2681100478E1B278A")
-    addresses.set("DesignatedVotingFactory", "0xA49203528D1C19a0163FAcEB1fc87Dd44DD3f5a0")
-    addresses.set("TokenFactory", "0x514CF025Df0f69b306f14B921639881435783434")
-    addresses.set("AddressWhitelist", "0xDFA95Ac05203120470a694e54cF983c4190642E7")
-    addresses.set("ExpiringMultiPartyCreator", "0xA73c47D7619be70893ebf2E6d2d4401fcDE7aA26")
-    setContracts(addresses)
-  }, [])
+  // const addExpiringMultiParty = (newItem: ExpiringMultiParty) => {
+  //   const newItems = [...expiringMultiParties, newItem]
+  //   setExpiringMultiParties(newItems)
+  //   return newItems
+  // }
 
-  const addExpiringMultiParty = (newItem: ExpiringMultiParty) => {
-    const newItems = [...expiringMultiParties, newItem]
-    setExpiringMultiParties(newItems)
-    return newItems
-  }
+  // const addPosition = (newItem: Position) => {
+  //   const newItems = [...positions, newItem]
+  //   setPositions(newItems)
+  //   return newItems
+  // }
 
-  const addPosition = (newItem: Position) => {
-    const newItems = [...positions, newItem]
-    setPositions(newItems)
-    return newItems
+  const getEMPs = async () => {
+    // CreatedExpiringMultiParty
+    const expiringMultipartyCreatorInterface = new ethers.utils.Interface(ExpiringMultiPartyCreatorArtifact.abi)
+
+    const expiringMultiPartyCreatorAddress = getContractAddress("ExpiringMultiPartyCreator")
+    const expiringMultipartyCreator = new ethers.Contract(
+      expiringMultiPartyCreatorAddress,
+      expiringMultipartyCreatorInterface,
+      signer
+    )
+
+    const empCreatedFilter = await expiringMultipartyCreator.filters.CreatedExpiringMultiParty()
+
+    const events = await expiringMultipartyCreator.queryFilter(empCreatedFilter, 0, 'latest');
+    console.log("events", events)
+
+    const empAddresses = events.map((event) => {
+      if (event.args) {
+        return event.args[0]
+      }
+    })
+    console.log("identifiers", empAddresses)
+    const identifiersFiltered: string[] = empAddresses.filter(s => s != undefined) as string[]
+    setEmpAddresses(identifiersFiltered);
   }
 
   const updatePositions = async (signer: any, account: string) => {
@@ -259,17 +258,16 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
 
   const getCollateralTokens = async () => {
     const address = getContractAddress("AddressWhitelist")
+    console.log("address", address)
 
     const erc20Interface = new ethers.utils.Interface(TestnetERC20Artifact.abi)
     const whitelistInterface = new ethers.utils.Interface(AddressWhitelistArtifact.abi)
-    const whitelistContract = new ethers.Contract(address, whitelistInterface);
-    // const addToWhitelistEncodedData = whitelistInterface.encodeFunctionData("addToWhitelist", [TestnetErc20Address])
-
+    const whitelistContract = new ethers.Contract(address, whitelistInterface, signer);
     const addressesWhitelisted = await whitelistContract.getWhitelist();
     console.log("addressesWhitelisted", addressesWhitelisted)
 
     const promises = addressesWhitelisted.map(async (collateralAddressItem) => {
-      const instance = new ethers.Contract(collateralAddressItem, erc20Interface)
+      const instance = new ethers.Contract(collateralAddressItem, erc20Interface, signer)
       return {
         name: await instance.name(),
         symbol: await instance.symbol(),
@@ -280,10 +278,28 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     })
     const result = await Promise.all(promises)
     console.log("result", result)
+    setCollateralTokens(result as Token[])
+  }
+
+  const getPriceIdentifiers = async () => {
+    const address = getContractAddress("IdentifierWhitelist")
+    const identifierWhitelistInterface = new ethers.utils.Interface(IdentifierWhitelistArtifact.abi)
+    const identifierWhitelistContract = new ethers.Contract(address, identifierWhitelistInterface, signer);
+    const supportedIdentifierFilter = await identifierWhitelistContract.filters.SupportedIdentifierAdded()
+    const events = await identifierWhitelistContract.queryFilter(supportedIdentifierFilter, 0, 'latest');
+    const identifiers = events.map((event) => {
+      if (event.args) {
+        return ethers.utils.parseBytes32String(event.args[0])
+      }
+    })
+    console.log("identifiers", identifiers)
+    const identifiersFiltered: string[] = identifiers.filter(s => s != undefined) as string[]
+    setPriceIdentifiers(identifiersFiltered);
   }
 
   useEffect(() => {
-    if (web3Provider) {
+    console.log("Use contract")
+    if (web3Provider && signer) {
       console.log("Web3 Provider Block Listener added")
       const observable = new Observable<Block>((subscriber) => {
         web3Provider.on("block", (blockNumber: number) => {
@@ -295,49 +311,58 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
       // debounce to prevent subscribers making unnecessary calls
       const block$ = observable.pipe(debounceTime(1000));
       setBlock$(block$);
-    }
-  }, [web3Provider])
 
-  // get info on each new block
+      console.log("Use contract middle")
+
+      getCollateralTokens()
+        .then(() => console.log("Collateral retrieved"))
+        .catch((error) => console.log("Error getCollateralTokens", error))
+
+      getPriceIdentifiers()
+        .then(() => console.log("Price identifiers retrieved"))
+        .catch((error) => console.log("Error getPriceIdentifiers", error))
+
+      getEMPs()
+        .then(() => console.log("EMPs retrieved"))
+        .catch((error) => console.log("Error getEMPs", error))
+    }
+  }, [])
+
   useEffect(() => {
-    if (block$) {
-      const sub = block$.subscribe(() => {
-        // initializeTokenAddress();
-        // queryTokenData();
-        // queryPoolData();
+    if (block$ && web3Provider && signer) {
+      const sub = block$.subscribe(async () => {
         console.log("New block observable arrived")
+        await getCollateralTokens()
+        await getPriceIdentifiers()
+        await getEMPs()
       });
       return () => sub.unsubscribe();
     }
-  }, [
-    block$
-  ]);
+  }, [block$]);
 
   return (
     <ContractContext.Provider
       value={{
-        setContracts,
-        getContractAddress,
-        contracts,
         priceIdentifiers,
         collateralTokens,
-        syntheticTokens,
-        addSyntheticToken,
-        cleanData,
-        collateralBalance,
-        syntheticBalance,
-        updateBalances,
-        addContractAddress,
-        addExpiringMultiParty,
-        addPosition,
-        positions,
-        expiringMultiParties,
-        updateSyntheticTotalSupply,
-        updatePositions,
+        empAddresses,
+        resetModalData: resetModalData,
+        // collateralBalance,
+        // syntheticBalance,
+        // updateBalances,
+        // // addContractAddress,
+        // // addExpiringMultiParty,
+        // // addPosition,
+        // positions,
+        // expiringMultiParties,
+        // // updateSyntheticTotalSupply,
+        // // updatePositions,
         selectedPriceIdentifier,
         setSelectedPriceIdentifier,
         selectedCollateralToken,
-        setSelectedCollateralToken
+        setSelectedCollateralToken,
+        setSelectedEMPAddress,
+        selectedEMPAddress
       }}
     >
       {children}

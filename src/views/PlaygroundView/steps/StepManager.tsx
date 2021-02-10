@@ -7,7 +7,11 @@ import { DeployCollateralToken } from "./1_Deploy_Collateral_Token"
 import { DeployPriceIdentifier } from "./2_Deploy_Price_Identifier"
 import { CreateExpiringMultiParty } from "./3_CreateExpiringMultiParty";
 
-export const Stepmanager: React.FC = () => {
+interface Props {
+  closeModalTrigger: () => void
+}
+
+export const Stepmanager: React.FC<Props> = ({ closeModalTrigger }) => {
   const match = useRouteMatch()
   const history = useHistory()
 
@@ -25,7 +29,7 @@ export const Stepmanager: React.FC = () => {
           <DeployPriceIdentifier />
         </Route>
         <Route path={`${match.path}/${CREATE_EXPIRING_MULTIPARTY}`}>
-          <CreateExpiringMultiParty />
+          <CreateExpiringMultiParty onCreatedCallback={closeModalTrigger} />
         </Route>
       </Switch>
     </React.Fragment>

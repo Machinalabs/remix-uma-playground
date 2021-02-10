@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Formik, FormikErrors, Form as FormikForm } from "formik"
 
 import { BigNumber, ethers } from "ethers"
@@ -8,7 +8,7 @@ import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
 import AddressWhitelistArtifact from "@uma/core/build/contracts/AddressWhitelist.json"
 
 import { debug, defaultTransactionValues } from "../../../utils"
-import { useRemix } from "../../../hooks"
+import { useRemix, useUMAAddresses } from "../../../hooks"
 import { Button, StyledButton } from "../../../components"
 
 import { useContract, useStep } from "../hooks"
@@ -18,6 +18,7 @@ import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useHistory } from "react-router-dom"
+import { DELAY_AFTER_FORM_CREATION } from "../../../constants"
 
 interface FormProps {
   name: string
@@ -79,9 +80,10 @@ export const DeployCollateralToken: React.FC = () => {
           <h4>Select collateral token</h4>
           <Form>
             <Row>
-              <Col md={9}>
-                <Form.Control as="select" disabled={collateralTokens.length === 0} onChange={handleSelectChange}>
+              <Col md={10}>
+                <Form.Control as="select" disabled={collateralTokens.length === 0} onChange={handleSelectChange} value={selectedCollateralToken?.address || "0"}>
                   {collateralTokens.length === 0 && <option>No collateral tokens</option>}
+                  <option value="0">Select an option</option>
                   {collateralTokens.length > 0 && collateralTokens.map((item, index) => {
                     return (<option key={index} value={item.address}>{item.name}</option>)
                   })}
@@ -94,7 +96,6 @@ export const DeployCollateralToken: React.FC = () => {
 
             <div style={{ marginTop: "1em" }}>
               <StyledButton
-                isLoading={false}
                 disabled={selectedCollateralToken === undefined}
                 variant="success"
                 onClick={handleOnNextClick}>Next</StyledButton>
@@ -118,7 +119,9 @@ interface DeployCollateralViewProps {
 
 const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { setSelectedCollateralToken, getContractAddress, addContractAddress, updateBalances } = useContract()
+  const { setSelectedCollateralToken } = useContract()
+  const { getContractAddress, addContractAddress } = useUMAAddresses()
+
   const [newCollateralTokenAddress, setNewCollateralTokenAddress] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
   const [tokenHasBeenCreated, setTokenHasBeenCreated] = useState(false)
@@ -179,7 +182,7 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
 
       await collateralTokenContract.allocateTo(accounts[0], toWei(`${values.totalSupply}`))
 
-      await updateBalances(signer, accounts[0])
+      // await updateBalances(signer, accounts[0])
 
       setSelectedCollateralToken(newTokenParsed)
     }
@@ -192,7 +195,7 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
           resetForm()
           setTimeout(() => {
             onSuccessCallback()
-          }, 2400);
+          }, DELAY_AFTER_FORM_CREATION);
         })
         .catch((e) => {
           console.log("Error", e)
@@ -265,7 +268,7 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
                 type="submit"
                 size="sm"
                 disabled={isSubmitting}
-                isLoading={isSubmitting}
+                isloading={isSubmitting}
                 loadingText="Deploying..."
                 text="Deploy"
               />
@@ -273,7 +276,7 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
               <Button
                 variant="danger"
                 size="sm"
-                isLoading={false}
+                isloading={false}
                 loadingText=""
                 text="Cancel"
                 onClick={onCancelCallback}

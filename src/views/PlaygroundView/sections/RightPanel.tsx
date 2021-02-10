@@ -16,7 +16,7 @@ const Paragraph = styled.p`
 export const RightPanel: React.FC = () => {
   const { clientInstance } = useRemix()
   const [account, setAccount] = useState("")
-  const { collateralBalance, selectedCollateralToken, selectedPriceIdentifier } = useContract()
+  const { selectedCollateralToken, selectedPriceIdentifier } = useContract() // collateralBalance TODO
 
   useEffect(() => {
     const getAccount = async () => {
