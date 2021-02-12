@@ -6,7 +6,7 @@ import Alert from "react-bootstrap/Alert"
 
 import { HOW_TO_PROVIDER_BLACK, HOW_TO_PROVIDER_WHITE, PLAYGROUND_ROUTE } from "../../constants"
 import { StyledButton } from "../../components"
-import { useRemix, useUMAAddresses } from "../../hooks"
+import { useRemix, useUMARegistry } from "../../hooks"
 import { TITLE } from "../../text"
 import { debug } from "../../utils"
 
@@ -16,7 +16,7 @@ export const WelcomeView: React.FC = () => {
   const [isStarting, setIsStarting] = useState(false)
   const history = useHistory()
   const [error, setError] = useState<string | undefined>(undefined)
-  const { getContractAddress } = useUMAAddresses()
+  const { getContractAddress } = useUMARegistry()
 
   useEffect(() => {
     if (isStarting && clientInstance) {

@@ -8,7 +8,7 @@ import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
 import AddressWhitelistArtifact from "@uma/core/build/contracts/AddressWhitelist.json"
 
 import { debug, defaultTransactionValues } from "../../../utils"
-import { useRemix, useUMAAddresses } from "../../../hooks"
+import { useRemix, useUMARegistry } from "../../../hooks"
 import { Button, StyledButton } from "../../../components"
 
 import { useContract, useStep } from "../hooks"
@@ -120,7 +120,7 @@ interface DeployCollateralViewProps {
 const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
   const { clientInstance, web3Provider, signer } = useRemix()
   const { setSelectedCollateralToken } = useContract()
-  const { getContractAddress, addContractAddress } = useUMAAddresses()
+  const { getContractAddress } = useUMARegistry()
 
   const [newCollateralTokenAddress, setNewCollateralTokenAddress] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
@@ -157,7 +157,8 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
 
       debug("collateral token deployed", TestnetErc20Address)
 
-      addContractAddress("TestnetErc20Address", TestnetErc20Address)
+      // TODO: Add a new hook to store addresses..
+      // addContractAddress("TestnetErc20Address", TestnetErc20Address)
 
       const address = getContractAddress("AddressWhitelist")
       debug("AddressWhitelist address", address)

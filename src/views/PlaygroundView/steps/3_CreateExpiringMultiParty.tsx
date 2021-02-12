@@ -8,14 +8,12 @@ import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
 import ExpiringMultiPartyCreatorArtifact from "@uma/core/build/contracts/ExpiringMultiPartyCreator.json"
 import MockOracleArtifact from "@uma/core/build/contracts/MockOracle.json"
 import FinderArtifact from "@uma/core/build/contracts/Finder.json"
-import ExpiringMultiPartyArtifact from "@uma/core/build/contracts/ExpiringMultiParty.json"
-import ExpandedIERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json"
 
 import { debug } from "../../../utils"
 import { useContract, useStep } from "../hooks"
 import { Button, StyledButton } from "../../../components"
 import { ErrorMessage, FormItem, SuccessMessage } from "../components"
-import { useRemix, useUMAAddresses } from "../../../hooks"
+import { useRemix, useUMARegistry } from "../../../hooks"
 import { InterfaceName } from "../../../types"
 import { useHistory } from "react-router-dom"
 import { DELAY_AFTER_FORM_CREATION } from "../../../constants"
@@ -47,18 +45,10 @@ interface Props {
 }
 
 export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback }) => {
-  const {
-    collateralTokens,
-    priceIdentifiers,
-    selectedCollateralToken,
-    // addContractAddress,
-    // addSyntheticToken,
-    // addExpiringMultiParty,
-    setSelectedEMPAddress
-  } = useContract()
-  const { getContractAddress, addContractAddress } = useUMAAddresses()
-
   const { clientInstance, web3Provider, signer } = useRemix()
+  const { priceIdentifiers, selectedCollateralToken, setSelectedEMPAddress } = useContract()
+  const { getContractAddress } = useUMARegistry()
+
   const { setCurrentStepCompleted, getStepBefore, goStepBefore } = useStep()
   const [newEMPAddress, setNewEMPAddress] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
@@ -147,7 +137,8 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
         const expiringMultiPartyAddress = await expiringMultipartyCreator.callStatic.createExpiringMultiParty(params)
         debug("ExpiringMultiPartyAddress", expiringMultiPartyAddress)
         setNewEMPAddress(expiringMultiPartyAddress)
-        addContractAddress("ExpiringMultiParty", expiringMultiPartyAddress)
+        // TODO: Create hook to add addresses
+        // addContractAddress("ExpiringMultiParty", expiringMultiPartyAddress)
         txn = await expiringMultipartyCreator.createExpiringMultiParty(params)
         debug("transaction", txn)
 
@@ -159,28 +150,10 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
           TestnetERC20Artifact.abi,
           signer
         )
-        console.log("Total supply", await collateralToken.totalSupply())
+        debug("Total supply", await collateralToken.totalSupply())
         await collateralToken.approve(expiringMultiPartyAddress, await collateralToken.totalSupply())
         debug("Approved EMP allowance on collateral")
         setSelectedEMPAddress(expiringMultiPartyAddress)
-        // const empContract = new ethers.Contract(expiringMultiPartyAddress, ExpiringMultiPartyArtifact.abi, signer)
-        // const syntheticTokenAddress = await empContract.tokenCurrency()
-        // debug("syntheticTokenAddress", syntheticTokenAddress)
-
-        // const syntheticContract = new ethers.Contract(syntheticTokenAddress, ExpandedIERC20Artifact.abi, signer)
-        // debug("syntheticContract", syntheticContract)
-
-        // add synthetic token
-        // const syntheticToken = {
-        //   address: syntheticTokenAddress,
-        //   name: await syntheticContract.name(),
-        //   symbol: await syntheticContract.symbol(),
-        //   decimals: await syntheticContract.decimals(),
-        //   totalSupply: (await syntheticContract.totalSupply()).toString(),
-        // }
-        // debug("syntheticToken", syntheticToken)
-        // addSyntheticToken(syntheticToken)
-        // addContractAddress("SynthethicToken", syntheticTokenAddress)
         setEMPHasBeenCreated(true)
       } catch (error) {
         debug("Error", error)

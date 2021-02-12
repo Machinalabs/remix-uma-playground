@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
-import { useRemix, useUMAAddresses } from "../../../hooks"
+import { useRemix, useUMARegistry } from "../../../hooks"
 import { debug, defaultTransactionValues } from "../../../utils"
 import { ethers, utils } from "ethers"
 import { useContract } from "../hooks/useContract"
@@ -122,7 +122,7 @@ interface DeployPriceIdentifierViewProps {
 
 const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
   const { setSelectedPriceIdentifier } = useContract()
-  const { getContractAddress } = useUMAAddresses()
+  const { getContractAddress } = useUMARegistry()
   const { clientInstance } = useRemix()
   const [error, setError] = useState<string | undefined>(undefined)
   const [priceIdentifierHasBeenCreated, setPriceIdentifierHasBeenCreated] = useState(false)

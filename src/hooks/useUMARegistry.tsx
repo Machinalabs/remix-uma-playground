@@ -1,30 +1,25 @@
-import React, { PropsWithChildren, useContext } from "react"
-import { useEffect, useState } from "react"
+import React, { PropsWithChildren, useContext, useEffect, useState } from "react"
 
 import { EthereumAddress, UMAContractName } from "../types"
 
 interface IUMAProvider {
     getContractAddress: (contractName: UMAContractName) => EthereumAddress
-    addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => void
 }
 
-/* tslint:disable */
 const UMAContext = React.createContext<IUMAProvider>({
     getContractAddress: (contractName: UMAContractName) => { return "" },
-    addContractAddress: (contractName: UMAContractName, address: EthereumAddress) => { }
 })
-/* tslint:enable */
 
-export const UMAProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+export const UMARegistryProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
     const [contracts, setContracts] = useState(new Map<UMAContractName, EthereumAddress>())
 
     const getContractAddress = (contractName: UMAContractName) => {
         return contracts.get(contractName) as string
     }
 
-    const addContractAddress = (contractName: UMAContractName, address: EthereumAddress) => {
-        setContracts(new Map(contracts.set(contractName, address)))
-    }
+    // const addContractAddress = (contractName: UMAContractName, address: EthereumAddress) => {
+    //     setContracts(new Map(contracts.set(contractName, address)))
+    // }
 
     useEffect(() => {
         console.log("Use uma addresses")
@@ -44,14 +39,12 @@ export const UMAProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
         addresses.set("AddressWhitelist", "0xDFA95Ac05203120470a694e54cF983c4190642E7")
         addresses.set("ExpiringMultiPartyCreator", "0xA73c47D7619be70893ebf2E6d2d4401fcDE7aA26")
         setContracts(addresses)
-        console.log("Use uma addresses end")
     }, [])
 
     return (
         <UMAContext.Provider
             value={{
-                getContractAddress,
-                addContractAddress
+                getContractAddress
             }}
         >
             {children}
@@ -59,13 +52,11 @@ export const UMAProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
     )
 }
 
-export const useUMAAddresses = () => {
+export const useUMARegistry = () => {
     const context = useContext(UMAContext)
 
     if (context === null) {
-        throw new Error(
-            "useUMAAddresses() can only be used inside of <ContractProvider />, please declare it at a higher level"
-        )
+        throw new Error("useUMARegistry() can only be used inside of <UMARegistryProvider />, please declare it at a higher level")
     }
     return context
 }
