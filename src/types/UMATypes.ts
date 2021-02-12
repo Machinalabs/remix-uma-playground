@@ -16,10 +16,6 @@ export type UMAContractName =
     | "ExpiringMultiParty"
     | "SynthethicToken"
 
-export type Bytes20 = string
-
-export type EthereumAddress = Bytes20
-
 export enum InterfaceName {
     FinancialContractsAdmin = "FinancialContractsAdmin",
     Oracle = "Oracle",
