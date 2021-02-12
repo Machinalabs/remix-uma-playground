@@ -28,7 +28,6 @@ describe('useWeb3Provider tests', () => {
         await delay(10000)
 
         injectedProvider = new Web3HttpProvider(`http://localhost:${CONTAINER_PORT}`, options);
-        console.log("Injected provider", injectedProvider)
     })
 
     const render = () => {
