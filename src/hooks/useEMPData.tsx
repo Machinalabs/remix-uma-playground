@@ -57,19 +57,15 @@ const initState = {
 export const useEMPData = (empAddress: EthereumAddress) => {
     const [state, setState] = useState<ContractState>(initState);
     const { instance } = useEMPAt(empAddress)
-    // const { block$ } = useWeb3Provider()
-    const getAllEMPData = async (contractInstance) => {
-        console.log("Contract instance", contractInstance)
+    const { block$ } = useWeb3Provider()
 
+    const getAllEMPData = async (contractInstance) => {
         const res = await Promise.all([
             contractInstance.expirationTimestamp(),
             contractInstance.collateralCurrency(),
             contractInstance.priceIdentifier(),
             contractInstance.tokenCurrency(),
             contractInstance.collateralRequirement(),
-            // contractInstance.disputeBondPercentage(),
-            // contractInstance.disputerDisputeRewardPercentage(),
-            // contractInstance.sponsorDisputeRewardPercentage(),
             contractInstance.minSponsorTokens(),
             contractInstance.timerAddress(),
             contractInstance.cumulativeFeeMultiplier(),
@@ -81,8 +77,11 @@ export const useEMPData = (empAddress: EthereumAddress) => {
             contractInstance.contractState(),
             contractInstance.finder(),
             contractInstance.expiryPrice(),
+            // contractInstance.disputeBondPercentage(),
+            // contractInstance.disputerDisputeRewardPercentage(),
+            // contractInstance.sponsorDisputeRewardPercentage(),
         ]);
-        console.log("pasaron todas las async calls")
+        // console.log("pasaron todas las async calls")
 
         const newState: Partial<ContractState> = {
             expirationTimestamp: res[0] as BigNumber,
@@ -90,29 +89,28 @@ export const useEMPData = (empAddress: EthereumAddress) => {
             priceIdentifier: res[2] as Bytes,
             tokenCurrency: res[3] as EthereumAddress,
             collateralRequirement: res[4] as BigNumber,
-            // disputeBondPct: res[5] as BigNumber,
-            // disputerDisputeRewardPct: res[6] as BigNumber,
-            // sponsorDisputeRewardPct: res[7] as BigNumber,
-            minSponsorTokens: res[8] as BigNumber,
-            timerAddress: res[9] as EthereumAddress,
-            cumulativeFeeMultiplier: res[10] as BigNumber,
-            rawTotalPositionCollateral: res[11] as BigNumber,
-            totalTokensOutstanding: res[12] as BigNumber,
-            liquidationLiveness: res[13] as BigNumber,
-            withdrawalLiveness: res[14] as BigNumber,
-            currentTime: res[15] as BigNumber,
-            isExpired: Number(res[15]) >= Number(res[0]),
-            contractState: Number(res[16]),
-            finderAddress: res[17] as EthereumAddress,
-            expiryPrice: res[18] as BigNumber,
+            minSponsorTokens: res[5] as BigNumber,
+            timerAddress: res[6] as EthereumAddress,
+            cumulativeFeeMultiplier: res[7] as BigNumber,
+            rawTotalPositionCollateral: res[8] as BigNumber,
+            totalTokensOutstanding: res[9] as BigNumber,
+            liquidationLiveness: res[10] as BigNumber,
+            withdrawalLiveness: res[11] as BigNumber,
+            currentTime: res[12] as BigNumber,
+            isExpired: Number(res[13]) >= Number(res[0]),
+            contractState: Number(res[14]),
+            finderAddress: res[15] as EthereumAddress,
+            expiryPrice: res[16] as BigNumber,
+            // disputeBondPct: res[17] as BigNumber,
+            // disputerDisputeRewardPct: res[18] as BigNumber,
+            // sponsorDisputeRewardPct: res[19] as BigNumber,
         };
-        console.log("New state", newState)
+        // console.log("New state", newState)
         return newState
     }
 
     useEffect(() => {
         if (instance) {
-            console.log("Instance definida")
             getAllEMPData(instance)
                 .then((result) => {
                     setState(result as any);
@@ -124,12 +122,12 @@ export const useEMPData = (empAddress: EthereumAddress) => {
     }, [instance]);
 
     // get state on each block
-    // useEffect(() => {
-    //     if (block$ && instance) {
-    //         const sub = block$.subscribe(() => getAllEMPData(instance));
-    //         return () => sub.unsubscribe();
-    //     }
-    // }, [block$, instance]);
+    useEffect(() => {
+        if (block$ && instance) {
+            const sub = block$.subscribe(() => getAllEMPData(instance));
+            return () => sub.unsubscribe();
+        }
+    }, [block$, instance]);
 
     return { state }
 }
