@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import React from 'react'
 import { EthereumAddress } from '../types'
 
-import { UMASnapshotContainer, delay, getInjectedProvider, PROVIDER_URL } from '../utils'
+import { UMASnapshotContainer, getInjectedProvider, PROVIDER_URL, stopUMASnapshotContainerOrSkip, startUMASnapshotContainerOrSkip } from '../utils'
 
 import { ReactWeb3Provider } from './useWeb3Provider'
 import { useERC20At } from './useERC20At'
@@ -11,15 +11,11 @@ import { deployERC20 } from './utils'
 
 describe('useERC20At tests', () => {
     let tokenAddress: EthereumAddress
-    let mongoContainerInstance: UMASnapshotContainer
+    let umaSnapshotContainer: UMASnapshotContainer | undefined
     let injectedProvider: ethers.providers.Provider
 
     beforeAll(async () => {
-        // mongoContainerInstance = new UMASnapshotContainer()
-        // await mongoContainerInstance.init()
-        // await mongoContainerInstance.start()
-        // await delay(10000)
-
+        umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
         injectedProvider = getInjectedProvider(PROVIDER_URL)
         const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
         const signer = ethersJSProvider.getSigner()
@@ -40,7 +36,7 @@ describe('useERC20At tests', () => {
         expect(result.current.instance).toBeDefined()
     })
 
-    // afterAll(async () => {
-    //     await mongoContainerInstance.stop()
-    // })
+    afterAll(async () => {
+        await stopUMASnapshotContainerOrSkip(umaSnapshotContainer)
+    })
 })

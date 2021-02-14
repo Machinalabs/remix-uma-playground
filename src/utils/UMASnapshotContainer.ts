@@ -1,10 +1,4 @@
-import path from 'path'
-
 const Docker = require('dockerode');
-
-export const delay = (ms: number) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 export const CONTAINER_PORT = 8548;
 

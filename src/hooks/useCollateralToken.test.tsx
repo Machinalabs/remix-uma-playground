@@ -2,7 +2,7 @@ import React from 'react'
 import { renderHook } from '@testing-library/react-hooks'
 import { ethers } from 'ethers'
 
-import { UMASnapshotContainer, delay, getInjectedProvider, PROVIDER_URL } from '../utils'
+import { UMASnapshotContainer, getInjectedProvider, PROVIDER_URL, startUMASnapshotContainerOrSkip, stopUMASnapshotContainerOrSkip } from '../utils'
 import { EthereumAddress } from '../types'
 
 import { UMARegistryProvider } from './useUMARegistry'
@@ -12,15 +12,11 @@ import { deploySampleEMP } from './utils'
 
 describe('useCollateralToken tests', () => {
     let empAddress: EthereumAddress
-    let mongoContainerInstance: UMASnapshotContainer
+    let umaSnapshotContainer: UMASnapshotContainer | undefined
     let injectedProvider: ethers.providers.Provider
 
     beforeAll(async () => {
-        // mongoContainerInstance = new UMASnapshotContainer()
-        // await mongoContainerInstance.init()
-        // await mongoContainerInstance.start()
-        // await delay(10000)
-
+        umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
         injectedProvider = getInjectedProvider(PROVIDER_URL)
         const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
         const signer = ethersJSProvider.getSigner()
@@ -47,7 +43,7 @@ describe('useCollateralToken tests', () => {
         expect(result.current.symbol).toEqual('yUSD')
     })
 
-    // afterAll(async () => {
-    //     await mongoContainerInstance.stop()
-    // })
+    afterAll(async () => {
+        await stopUMASnapshotContainerOrSkip(umaSnapshotContainer)
+    })
 })

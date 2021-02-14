@@ -2,21 +2,26 @@ import React, { PropsWithChildren, useContext, useEffect, useState } from "react
 import { ethers } from "ethers";
 import { Observable } from "rxjs";
 import { debounceTime } from "rxjs/operators";
+import { EthereumAddress } from "../types";
 
 type Web3Provider = ethers.providers.Web3Provider;
 type Signer = ethers.Signer;
 type Block = ethers.providers.Block;
 
 interface IWeb3Provider {
-    signer: Signer | null
-    provider: ethers.providers.Web3Provider | null
-    block$: Observable<Block> | null
+    signer: Signer | undefined
+    provider: ethers.providers.Web3Provider | undefined
+    block$: Observable<Block> | undefined
+    address: EthereumAddress
+    setAddress: (newAddress: EthereumAddress) => void
 }
 
 const Web3Context = React.createContext<IWeb3Provider>({
-    provider: null,
-    signer: null,
-    block$: null
+    provider: undefined,
+    signer: undefined,
+    block$: undefined,
+    address: "",
+    setAddress: (newAddress: EthereumAddress) => { throw new Error("Not implemented") }
 })
 
 interface ReactWeb3ProviderProps {
@@ -24,9 +29,10 @@ interface ReactWeb3ProviderProps {
 }
 
 export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProps>> = ({ children, injectedProvider }) => {
-    const [provider, setWeb3Provider] = useState<Web3Provider | null>(null)
-    const [signer, setSigner] = useState<Signer | null>(null)
-    const [block$, setBlock$] = useState<Observable<Block> | null>(null);
+    const [provider, setWeb3Provider] = useState<Web3Provider | undefined>(undefined)
+    const [signer, setSigner] = useState<Signer | undefined>(undefined)
+    const [block$, setBlock$] = useState<Observable<Block> | undefined>(undefined);
+    const [address, setAddress] = useState("")
 
     useEffect(() => {
         if (injectedProvider) {
@@ -57,7 +63,9 @@ export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProp
             value={{
                 provider,
                 signer,
-                block$
+                block$,
+                address,
+                setAddress
             }}>
             {children}
         </Web3Context.Provider>

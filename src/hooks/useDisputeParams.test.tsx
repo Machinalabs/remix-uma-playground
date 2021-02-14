@@ -3,24 +3,19 @@ import { ethers } from 'ethers'
 import React from 'react'
 import { EthereumAddress } from '../types'
 
-import { UMASnapshotContainer, delay, getInjectedProvider, PROVIDER_URL } from '../utils'
+import { UMASnapshotContainer, getInjectedProvider, PROVIDER_URL, startUMASnapshotContainerOrSkip, stopUMASnapshotContainerOrSkip } from '../utils'
 
-import { getUMAAddresses, getUMAInterfaces } from './useUMARegistry'
 import { ReactWeb3Provider } from './useWeb3Provider'
 import { useDisputeParams } from './useDisputeParams'
 import { deploySampleEMP } from './utils'
 
 describe('useGeneralInfo tests', () => {
-    let mongoContainerInstance: UMASnapshotContainer
+    let umaSnapshotContainer: UMASnapshotContainer | undefined
     let injectedProvider: ethers.providers.Provider
     let empAddress: EthereumAddress
 
     beforeAll(async () => {
-        // mongoContainerInstance = new UMASnapshotContainer()
-        // await mongoContainerInstance.init()
-        // await mongoContainerInstance.start()
-        // await delay(10000)
-
+        umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
         injectedProvider = getInjectedProvider(PROVIDER_URL)
         const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
         const signer = ethersJSProvider.getSigner()
@@ -48,7 +43,7 @@ describe('useGeneralInfo tests', () => {
         console.log("Result", result.current)
     })
 
-    // afterAll(async () => {
-    //     await mongoContainerInstance.stop()
-    // })
+    afterAll(async () => {
+        await stopUMASnapshotContainerOrSkip(umaSnapshotContainer)
+    })
 })

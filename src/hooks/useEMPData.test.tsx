@@ -3,21 +3,19 @@ import { renderHook } from '@testing-library/react-hooks'
 import { ethers } from 'ethers'
 import { EthereumAddress } from '../types'
 
-import { UMASnapshotContainer, delay, getInjectedProvider, PROVIDER_URL } from '../utils'
+import { UMASnapshotContainer, delay, getInjectedProvider, PROVIDER_URL, stopUMASnapshotContainerOrSkip, startUMASnapshotContainerOrSkip } from '../utils'
 
 import { useEMPData } from './useEMPData'
 import { ReactWeb3Provider } from './useWeb3Provider'
 import { deploySampleEMP } from './utils'
 
 describe('useEMPData tests', () => {
-    let mongoContainerInstance: UMASnapshotContainer
+    let umaSnapshotContainer: UMASnapshotContainer | undefined
     let injectedProvider: ethers.providers.Provider
     let empAddress: EthereumAddress
 
     beforeAll(async () => {
-        mongoContainerInstance = new UMASnapshotContainer()
-        await mongoContainerInstance.init()
-        await mongoContainerInstance.start()
+        umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
         await delay(10000)
 
         injectedProvider = getInjectedProvider(PROVIDER_URL)
@@ -46,7 +44,7 @@ describe('useEMPData tests', () => {
         console.log("Result", result.current.state)
     })
 
-    // afterAll(async () => {
-    //     await mongoContainerInstance.stop()
-    // })
+    afterAll(async () => {
+        await stopUMASnapshotContainerOrSkip(umaSnapshotContainer)
+    })
 })
