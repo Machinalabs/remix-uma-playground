@@ -26,7 +26,8 @@ import { StepProvider, useContract } from "./hooks"
 import { Stepmanager } from "./steps"
 import { NavMenu, RightPanel } from "./sections"
 import { ethers } from "ethers";
-import { useRemix } from "../../hooks";
+import { ReactWeb3Provider, useRemix } from "../../hooks";
+import { EMPBody } from "./EMPBody";
 
 const BootstrapInput = withStyles((theme) => ({
   root: {
@@ -63,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const PlaygroundView: React.FC = () => {
   const theme = useTheme();
-  const { signer } = useRemix()
+  const { signer, web3Provider } = useRemix()
   const { resetModalData, empAddresses } = useContract()
   const [empAddress, setEmpAddress] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
@@ -99,10 +100,15 @@ export const PlaygroundView: React.FC = () => {
     getAllEmpData()
       .then((result) => {
         setEmps(result)
+        setIsLoading(false)
       })
       .catch((error) => console.log("Error"))
 
   }, [empAddresses])
+
+  useEffect(() => {
+    setIsLoading(true)
+  }, [])
 
   const largeScreen = useMediaQuery(theme.breakpoints.up("sm"));
   const [open, setOpen] = React.useState(false);
@@ -166,6 +172,11 @@ export const PlaygroundView: React.FC = () => {
           </Col>
 
         </div>
+
+        {/* EMP Body */}
+        <ReactWeb3Provider injectedProvider={web3Provider}>
+          <EMPBody />
+        </ReactWeb3Provider>
 
         {/* EMP Dialog */}
         <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
