@@ -2,6 +2,7 @@ import { formatUnits, parseBytes32String } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
 import { fromWei } from "web3-utils";
 import { DateAsString, EthereumAddress } from "../types";
+import { useCollateralToken } from "./useCollateralToken";
 import { useEMPData } from "./useEMPData";
 
 interface GeneralInfo {
@@ -16,7 +17,7 @@ interface GeneralInfo {
 
 export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo => {
     const { state: empState } = useEMPData(empAddress)
-    // const { symbol } = useCollateralToken(empAddress)
+    const { symbol } = useCollateralToken(empAddress)
     // const { symbol } = useSyntheticToken(empAddress)
 
     const [expireDate, setExpireDate] = useState<string>("")
