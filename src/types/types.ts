@@ -11,3 +11,5 @@ export type Web3Provider = ethers.providers.Web3Provider;
 export type Signer = ethers.Signer;
 
 export type Block = ethers.providers.Block;
+
+export type DateAsString = string

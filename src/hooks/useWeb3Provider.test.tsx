@@ -2,19 +2,9 @@ import { renderHook } from '@testing-library/react-hooks'
 import { ethers } from 'ethers'
 import React from 'react'
 
-import { UMASnapshotContainer, delay, CONTAINER_PORT } from '../utils'
+import { UMASnapshotContainer, delay, PROVIDER_URL, getInjectedProvider } from '../utils'
 
 import { useWeb3Provider, ReactWeb3Provider } from './useWeb3Provider'
-
-jest.setTimeout(30000)
-
-const Web3HttpProvider = require('web3-providers-http');
-
-const options = {
-    keepAlive: true,
-    timeout: 20000, // milliseconds,
-    withCredentials: false,
-};
 
 describe('useWeb3Provider tests', () => {
 
@@ -27,7 +17,7 @@ describe('useWeb3Provider tests', () => {
         await mongoContainerInstance.start()
         await delay(10000)
 
-        injectedProvider = new Web3HttpProvider(`http://localhost:${CONTAINER_PORT}`, options);
+        injectedProvider = getInjectedProvider(PROVIDER_URL)
     })
 
     const render = () => {

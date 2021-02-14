@@ -7,49 +7,49 @@ import { useWeb3Provider } from "./useWeb3Provider";
 import { useEMPAt } from "./useEMPAt";
 
 interface ContractState {
-    expirationTimestamp: BigNumber | null;
-    collateralCurrency: string | null;
-    priceIdentifier: Bytes | null;
-    tokenCurrency: string | null;
-    collateralRequirement: BigNumber | null;
-    disputeBondPct: BigNumber | null;
-    disputerDisputeRewardPct: BigNumber | null;
-    sponsorDisputeRewardPct: BigNumber | null;
-    minSponsorTokens: BigNumber | null;
-    timerAddress: string | null;
-    cumulativeFeeMultiplier: BigNumber | null;
-    rawTotalPositionCollateral: BigNumber | null;
-    totalTokensOutstanding: BigNumber | null;
-    liquidationLiveness: BigNumber | null;
-    withdrawalLiveness: BigNumber | null;
-    currentTime: BigNumber | null;
-    isExpired: boolean | null;
-    contractState: number | null;
-    finderAddress: string | null;
-    expiryPrice: BigNumber | null;
+    expirationTimestamp: BigNumber | undefined;
+    collateralCurrency: string | undefined;
+    priceIdentifier: Bytes | undefined;
+    tokenCurrency: string | undefined;
+    collateralRequirement: BigNumber | undefined;
+    disputeBondPct: BigNumber | undefined;
+    disputerDisputeRewardPct: BigNumber | undefined;
+    sponsorDisputeRewardPct: BigNumber | undefined;
+    minSponsorTokens: BigNumber | undefined;
+    timerAddress: string | undefined;
+    cumulativeFeeMultiplier: BigNumber | undefined;
+    rawTotalPositionCollateral: BigNumber | undefined;
+    totalTokensOutstanding: BigNumber | undefined;
+    liquidationLiveness: BigNumber | undefined;
+    withdrawalLiveness: BigNumber | undefined;
+    currentTime: BigNumber | undefined;
+    isExpired: boolean | undefined;
+    contractState: number | undefined;
+    finderAddress: string | undefined;
+    expiryPrice: BigNumber | undefined;
 }
 
 const initState = {
-    expirationTimestamp: null,
-    collateralCurrency: null,
-    priceIdentifier: null,
-    tokenCurrency: null,
-    collateralRequirement: null,
-    disputeBondPct: null,
-    disputerDisputeRewardPct: null,
-    sponsorDisputeRewardPct: null,
-    minSponsorTokens: null,
-    timerAddress: null,
-    cumulativeFeeMultiplier: null,
-    rawTotalPositionCollateral: null,
-    totalTokensOutstanding: null,
-    liquidationLiveness: null,
-    withdrawalLiveness: null,
-    currentTime: null,
-    isExpired: null,
-    contractState: null,
-    finderAddress: null,
-    expiryPrice: null,
+    expirationTimestamp: undefined,
+    collateralCurrency: undefined,
+    priceIdentifier: undefined,
+    tokenCurrency: undefined,
+    collateralRequirement: undefined,
+    disputeBondPct: undefined,
+    disputerDisputeRewardPct: undefined,
+    sponsorDisputeRewardPct: undefined,
+    minSponsorTokens: undefined,
+    timerAddress: undefined,
+    cumulativeFeeMultiplier: undefined,
+    rawTotalPositionCollateral: undefined,
+    totalTokensOutstanding: undefined,
+    liquidationLiveness: undefined,
+    withdrawalLiveness: undefined,
+    currentTime: undefined,
+    isExpired: undefined,
+    contractState: undefined,
+    finderAddress: undefined,
+    expiryPrice: undefined,
 };
 
 

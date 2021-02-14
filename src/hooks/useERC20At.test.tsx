@@ -5,15 +5,14 @@ import { EthereumAddress } from '../types'
 
 import { UMASnapshotContainer, delay, getInjectedProvider, PROVIDER_URL } from '../utils'
 
-import { getUMAAddresses, getUMAInterfaces } from './useUMARegistry'
 import { ReactWeb3Provider } from './useWeb3Provider'
-import { useDisputeParams } from './useDisputeParams'
-import { deploySampleEMP } from './utils'
+import { useERC20At } from './useERC20At'
+import { deployERC20 } from './utils'
 
-describe('useGeneralInfo tests', () => {
+describe('useERC20At tests', () => {
+    let tokenAddress: EthereumAddress
     let mongoContainerInstance: UMASnapshotContainer
     let injectedProvider: ethers.providers.Provider
-    let empAddress: EthereumAddress
 
     beforeAll(async () => {
         // mongoContainerInstance = new UMASnapshotContainer()
@@ -25,27 +24,20 @@ describe('useGeneralInfo tests', () => {
         const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
         const signer = ethersJSProvider.getSigner()
 
-        // create sample EMP
-        empAddress = await deploySampleEMP(signer)
+        // deploy token
+        tokenAddress = await deployERC20(signer)
     })
 
     const render = () => {
         const wrapper = ({ children }: any) => <ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider>
-        const result = renderHook(() => useDisputeParams(empAddress), { wrapper })
+        const result = renderHook(() => useERC20At(tokenAddress), { wrapper })
         return result
     }
 
-    test('values are defined', async () => {
-        const { result, waitForNextUpdate } = render()
+    test('properties are defined', async () => {
+        const { result } = render()
 
-        console.log("Result", result.current.liquidationLiveness)
-
-        await waitForNextUpdate()
-
-        expect(result.current.liquidationLiveness).toBeDefined()
-        expect(result.current.withdrawalLiveness).toBeDefined()
-
-        console.log("Result", result.current)
+        expect(result.current.instance).toBeDefined()
     })
 
     // afterAll(async () => {
