@@ -3,31 +3,13 @@ import { ethers } from 'ethers'
 import React from 'react'
 import { EthereumAddress } from '../types'
 
-import { UMASnapshotContainer, delay, CONTAINER_PORT } from '../utils'
+import { UMASnapshotContainer, delay, PROVIDER_URL, getInjectedProvider } from '../utils'
 
-import { getUMAAddresses, getUMAInterfaces } from './useUMARegistry'
 import { ReactWeb3Provider } from './useWeb3Provider'
-import { buildFakeEMP } from './faker'
 import { useCollateralInfo } from './useCollateralInfo'
 import { deploySampleEMP } from './utils'
 
-jest.setTimeout(30000)
-
-const http = require('http');
-const Web3HttpProvider = require('web3-providers-http');
-
-const options = {
-    keepAlive: true,
-    timeout: 2000, // milliseconds,
-    withCredentials: false,
-    headers: [{ name: 'Access-Control-Allow-Origin', value: '*' }],
-    agent: { http: http.Agent(), baseUrl: '' }
-};
-
 describe('useCollateralInfo tests', () => {
-
-    const PROVIDER_URL = `http://localhost:${CONTAINER_PORT}`
-
     let mongoContainerInstance: UMASnapshotContainer
     let injectedProvider: ethers.providers.Provider
     let empAddress: EthereumAddress
@@ -37,8 +19,7 @@ describe('useCollateralInfo tests', () => {
         // await mongoContainerInstance.init()
         // await mongoContainerInstance.start()
         // await delay(10000)
-
-        injectedProvider = new Web3HttpProvider(PROVIDER_URL, options);
+        injectedProvider = getInjectedProvider(PROVIDER_URL)
         const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
         const signer = ethersJSProvider.getSigner()
 
