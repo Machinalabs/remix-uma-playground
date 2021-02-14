@@ -8,6 +8,8 @@ export const delay = (ms: number) => {
 
 export const CONTAINER_PORT = 8548;
 
+export const PROVIDER_URL = `http://localhost:${CONTAINER_PORT}`
+
 export class UMASnapshotContainer {
     container: any
 
