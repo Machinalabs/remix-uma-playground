@@ -16,6 +16,7 @@ export type UMAContractName =
     | "ExpiringMultiParty"
     | "SynthethicToken"
     | "WETH"
+    | "ERC20"
 
 export enum InterfaceName {
     FinancialContractsAdmin = "FinancialContractsAdmin",

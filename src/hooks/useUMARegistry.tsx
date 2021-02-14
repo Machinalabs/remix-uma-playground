@@ -17,13 +17,16 @@ import GovernorArtifact from '@uma/core/build/contracts/Governor.json'
 import DesignatedVotingFactoryArtifact from '@uma/core/build/contracts/DesignatedVotingFactory.json'
 import TokenFactoryArtifact from '@uma/core/build/contracts/TokenFactory.json'
 import AddressWhitelistArtifact from '@uma/core/build/contracts/AddressWhitelist.json'
+import ERC20Artifact from '@uma/core/build/contracts/ERC20.json'
 
 interface IUMAProvider {
     getContractAddress: (contractName: UMAContractName) => EthereumAddress
+    getContractInterface: (contractName: UMAContractName) => ethers.utils.Interface
 }
 
 const UMAContext = React.createContext<IUMAProvider>({
     getContractAddress: (contractName: UMAContractName) => { return "" },
+    getContractInterface: (contractName: UMAContractName) => { return new ethers.utils.Interface('[]') }
 })
 
 export const getUMAInterfaces = () => {
@@ -42,6 +45,7 @@ export const getUMAInterfaces = () => {
     interfaces.set('AddressWhitelist', new ethers.utils.Interface(AddressWhitelistArtifact.abi))
     interfaces.set('ExpiringMultiPartyCreator', new ethers.utils.Interface(ExpiringMultiPartyCreatorArtifact.abi))
     interfaces.set('WETH', new ethers.utils.Interface(TestnetERC20Artifact.abi))
+    interfaces.set('ERC20', new ethers.utils.Interface(ERC20Artifact.abi))
     return interfaces
 }
 
@@ -67,25 +71,30 @@ export const getUMAAddresses = () => {
 
 export const UMARegistryProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
     const [contracts, setContracts] = useState(new Map<UMAContractName, EthereumAddress>())
+    const [interfaces, setInterfaces] = useState(new Map<UMAContractName, ethers.utils.Interface>())
 
     const getContractAddress = (contractName: UMAContractName) => {
         return contracts.get(contractName) as string
     }
 
-    // const addContractAddress = (contractName: UMAContractName, address: EthereumAddress) => {
-    //     setContracts(new Map(contracts.set(contractName, address)))
-    // }
+    const getContractInterface = (contractName: UMAContractName) => {
+        return interfaces.get(contractName) as ethers.utils.Interface
+    }
 
     useEffect(() => {
         console.log("Use uma addresses")
-        const addresses = getUMAAddresses()
-        setContracts(addresses)
+        const umaAddresses = getUMAAddresses()
+        setContracts(umaAddresses)
+
+        const umaInterfaces = getUMAInterfaces()
+        setInterfaces(umaInterfaces)
     }, [])
 
     return (
         <UMAContext.Provider
             value={{
-                getContractAddress
+                getContractAddress,
+                getContractInterface
             }}
         >
             {children}

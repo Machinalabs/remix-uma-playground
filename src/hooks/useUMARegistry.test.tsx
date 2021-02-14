@@ -1,5 +1,5 @@
-import { renderHook, act } from "@testing-library/react-hooks"
-import { BigNumber } from "ethers"
+import { renderHook } from "@testing-library/react-hooks"
+
 import { useUMARegistry, UMARegistryProvider } from "./useUMARegistry"
 
 describe("useUMARegistry tests", () => {
