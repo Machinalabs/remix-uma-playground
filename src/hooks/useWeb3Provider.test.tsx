@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react-hooks'
 import { ethers } from 'ethers'
 import React from 'react'
 
@@ -40,6 +40,23 @@ describe('useWeb3Provider tests', () => {
         const { result } = render()
 
         expect(result.current.block$).toBeDefined()
+    })
+
+    test('address', () => {
+        const { result } = render()
+
+        expect(result.current.address).toEqual("")
+    })
+
+    test('set address', () => {
+        const { result } = render()
+        const newAddress = "0x0000"
+
+        act(() => {
+            result.current.setAddress(newAddress)
+        })
+
+        expect(result.current.address).toEqual(newAddress)
     })
 
     afterAll(async () => {

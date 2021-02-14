@@ -20,13 +20,13 @@ import AddressWhitelistArtifact from '@uma/core/build/contracts/AddressWhitelist
 import ERC20Artifact from '@uma/core/build/contracts/ERC20.json'
 
 interface IUMAProvider {
-    getContractAddress: (contractName: UMAContractName) => EthereumAddress
-    getContractInterface: (contractName: UMAContractName) => ethers.utils.Interface
+    getContractAddress: (contractName: UMAContractName) => EthereumAddress | undefined
+    getContractInterface: (contractName: UMAContractName) => ethers.utils.Interface | undefined
 }
 
 const UMAContext = React.createContext<IUMAProvider>({
-    getContractAddress: (contractName: UMAContractName) => { return "" },
-    getContractInterface: (contractName: UMAContractName) => { return new ethers.utils.Interface('[]') }
+    getContractAddress: (contractName: UMAContractName) => { return undefined },
+    getContractInterface: (contractName: UMAContractName) => { return undefined }
 })
 
 export const getUMAInterfaces = () => {

@@ -1,6 +1,4 @@
-import { formatUnits, parseBytes32String } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
-import { fromWei } from "web3-utils";
 import { EthereumAddress } from "../types";
 import { useEMPData } from "./useEMPData";
 

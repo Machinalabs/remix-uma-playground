@@ -13,3 +13,5 @@ export type Signer = ethers.Signer;
 export type Block = ethers.providers.Block;
 
 export type DateAsString = string
+
+export type NumberAsString = string
