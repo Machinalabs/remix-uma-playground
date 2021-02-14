@@ -63,7 +63,7 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
       const accounts = await web3Provider.listAccounts()
       debug("Accounts", accounts[0])
 
-      const storeAddress = getContractAddress("Store")
+      const storeAddress = getContractAddress("Store") as string
       const collateralTokenAddress = selectedCollateralToken?.address as string// collateralTokens[0].address as string
       debug("Collateral address", collateralTokenAddress)
 
@@ -78,6 +78,9 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
       try {
         const dateTimestamp = values.expirationTimestamp
         const expiringMultiPartyCreatorAddress = getContractAddress("ExpiringMultiPartyCreator")
+        if (!expiringMultiPartyCreatorAddress) {
+          throw new Error("UMARegistryProvider not defined")
+        }
         debug("expiringMultiPartyCreatorAddress", expiringMultiPartyCreatorAddress)
 
         const identifierBytes = utils.formatBytes32String(priceIdentifiers[0])
@@ -97,7 +100,11 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
         debug("Mock Oracle deployed")
 
         const mockOracleInterfaceName = utils.formatBytes32String(InterfaceName.Oracle)
-        const finderContract = new ethers.Contract(getContractAddress("Finder"), FinderArtifact.abi, signer)
+        const finderAddress = getContractAddress("Finder")
+        if (!finderAddress) {
+          throw new Error("UMARegistry provider not defined")
+        }
+        const finderContract = new ethers.Contract(finderAddress, FinderArtifact.abi, signer)
         await finderContract.changeImplementationAddress(mockOracleInterfaceName, mockOracleContract.address)
         debug("Implementation updated")
 

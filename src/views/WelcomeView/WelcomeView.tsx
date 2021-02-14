@@ -43,7 +43,11 @@ export const WelcomeView: React.FC = () => {
 
         try {
           // TODO: Verify all contracts...
-          const finderCode = await web3Provider.getCode(getContractAddress("Finder"))
+          const finderAddress = getContractAddress("Finder")
+          if (!finderAddress) {
+            throw new Error("UMARegistryProvider not defined")
+          }
+          const finderCode = await web3Provider.getCode(finderAddress)
           debug("finderCode", finderCode)
         } catch (error) {
           setError(

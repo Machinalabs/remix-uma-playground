@@ -2,10 +2,14 @@ import React, { useEffect, useState } from "react"
 import Card from "react-bootstrap/Card"
 import styled from "styled-components"
 
+import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
+
 import { useRemix } from "../../../hooks"
 import { debug } from "../../../utils"
 
 import { useContract } from "../hooks"
+import { BigNumber, ethers } from "ethers"
+import { formatUnits } from "ethers/lib/utils"
 
 const Paragraph = styled.p`
   font-size: 0.9em;
@@ -14,9 +18,10 @@ const Paragraph = styled.p`
 `
 
 export const RightPanel: React.FC = () => {
-  const { clientInstance } = useRemix()
+  const { clientInstance, signer } = useRemix()
   const [account, setAccount] = useState("")
-  const { selectedCollateralToken, selectedPriceIdentifier } = useContract() // collateralBalance TODO
+  const { selectedCollateralToken, selectedPriceIdentifier } = useContract()
+  const [collateralBalance, setCollateralBalance] = useState("0")
 
   useEffect(() => {
     const getAccount = async () => {
@@ -28,6 +33,21 @@ export const RightPanel: React.FC = () => {
     getAccount()
   }, [clientInstance])
 
+  useEffect(() => {
+    if (selectedCollateralToken && selectedCollateralToken.address) {
+      const getBalance = async () => {
+        const testnetERC20Contract = new ethers.Contract(
+          selectedCollateralToken.address as string,
+          TestnetERC20Artifact.abi,
+          signer
+        )
+        const account = await signer.getAddress()
+        const balance: BigNumber = await testnetERC20Contract.balanceOf(account)
+        setCollateralBalance(`${formatUnits(balance, "ether").toString()}`)
+      }
+    }
+
+  }, [selectedCollateralToken])
   return (
     <React.Fragment>
       <Paragraph>

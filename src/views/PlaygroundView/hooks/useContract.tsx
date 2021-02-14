@@ -92,6 +92,9 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
   const getEMPs = async () => {
     const expiringMultipartyCreatorInterface = new ethers.utils.Interface(ExpiringMultiPartyCreatorArtifact.abi)
     const expiringMultiPartyCreatorAddress = getContractAddress("ExpiringMultiPartyCreator")
+    if (!expiringMultiPartyCreatorAddress) {
+      throw new Error("UMARegistryProvider not defined")
+    }
     const expiringMultipartyCreator = new ethers.Contract(
       expiringMultiPartyCreatorAddress,
       expiringMultipartyCreatorInterface,
@@ -112,6 +115,9 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
 
   const getCollateralTokens = async () => {
     const address = getContractAddress("AddressWhitelist")
+    if (!address) {
+      throw new Error("UMARegistryProvider not defined")
+    }
     console.log("address", address)
 
     const erc20Interface = new ethers.utils.Interface(TestnetERC20Artifact.abi)
@@ -136,6 +142,9 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
 
   const getPriceIdentifiers = async () => {
     const address = getContractAddress("IdentifierWhitelist")
+    if (!address) {
+      throw new Error("UMARegistryProvider not defined")
+    }
     const identifierWhitelistInterface = new ethers.utils.Interface(IdentifierWhitelistArtifact.abi)
     const identifierWhitelistContract = new ethers.Contract(address, identifierWhitelistInterface, signer);
     const supportedIdentifierFilter = await identifierWhitelistContract.filters.SupportedIdentifierAdded()
