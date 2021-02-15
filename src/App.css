@@ -38,3 +38,8 @@ input.form-control.form-control-sm:-moz-placeholder { /* Firefox 18- */
 .form-group.col .custom {
     color: #999999;
 }
+
+/* Tabs */
+.nav-tabs .nav-link{
+    text-decoration: none;
+}

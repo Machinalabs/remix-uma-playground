@@ -8,19 +8,18 @@ import { useERC20At } from "./useERC20At";
 import { useToken } from "./useToken";
 
 interface Totals {
-    totalCollateral: NumberAsString
-    totalSyntheticTokens: NumberAsString
+    totalCollateral: number | undefined
+    totalSyntheticTokens: number | undefined
+    gcr: number | undefined
 }
 
 const fromWei = ethers.utils.formatUnits;
 const weiToNum = (x: BigNumberish, u = 18) => parseFloat(fromWei(x, u));
 
-export const useTotals = (empAddress: EthereumAddress) => {
+export const useTotals = (empAddress: EthereumAddress): Totals => {
     const { state: empState } = useEMPData(empAddress)
     const { decimals: collateralDecimals } = useToken(empState.collateralCurrency)
     const { decimals: syntheticDecimals } = useToken(empState.tokenCurrency)
-    // const { decimals: collateralDecimals } = useCollateralToken(empAddress)
-    // const { decimals: syntheticDecimals } = useSyntheticToken(empAddress)
 
     const [totalCollateral, setTotalCollateral] = useState<number | undefined>(undefined);
     const [totalTokens, setTotalTokens] = useState<number | undefined>(undefined);
@@ -40,13 +39,16 @@ export const useTotals = (empAddress: EthereumAddress) => {
                 setTotalTokens(totalTokens);
                 setGCR(gcr);
             }
-
+        } else {
+            setTotalCollateral(0);
+            setTotalTokens(0);
+            setGCR(0);
         }
     }, [empState, collateralDecimals, syntheticDecimals])
 
     return {
+        totalSyntheticTokens: totalTokens,
         totalCollateral,
-        totalTokens,
         gcr
     }
 }

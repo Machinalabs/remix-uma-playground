@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab'
 import { GeneralInfoSection, ManagePositionSection } from './sections';
+import { Container, Col } from 'react-bootstrap';
 
 const GENERAL_INFO_KEY = "general_info"
 
@@ -11,15 +12,20 @@ export const EMPBody: React.FC = () => {
     const [key, setKey] = useState<string>(GENERAL_INFO_KEY);
 
     return (
-
-        <Tabs id="controlled-tab" activeKey={key} onSelect={(k: any) => setKey(k)}>
-            <Tab eventKey={GENERAL_INFO_KEY} title="General Info">
-                <GeneralInfoSection />
-            </Tab>
-            <Tab eventKey={MANAGE_POSITION_KEY} title="Manage Position">
-                <ManagePositionSection />
-            </Tab>
-        </Tabs>
+        <Container fluid={true} style={{ padding: "2em 0" }}>
+            <div style={{ display: "flex", justifyContent: "left" }}>
+                <Col md={10} lg={8} className="align-items-left">
+                    <Tabs id="controlled-tab" activeKey={key} onSelect={(k: any) => setKey(k)}>
+                        <Tab eventKey={GENERAL_INFO_KEY} title="General Info">
+                            <GeneralInfoSection />
+                        </Tab>
+                        <Tab eventKey={MANAGE_POSITION_KEY} title="Manage Position">
+                            <ManagePositionSection />
+                        </Tab>
+                    </Tabs>
+                </Col>
+            </div>
+        </Container>
     )
 }
 

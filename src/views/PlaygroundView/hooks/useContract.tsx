@@ -63,7 +63,7 @@ const ContractContext = React.createContext<IContractProvider>({
   selectedCollateralToken: defaultToken,
   setSelectedCollateralToken: () => { },
   setSelectedPriceIdentifier: () => { },
-  selectedEMPAddress: "0x000000",
+  selectedEMPAddress: "0",
   setSelectedEMPAddress: (newEMP: string) => { }
 })
 /* tslint:enable */
@@ -79,7 +79,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
   const [empAddresses, setEmpAddresses] = useState<string[]>([])
   const [selectedPriceIdentifier, setSelectedPriceIdentifier] = useState<string>("")
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<Token | undefined>(undefined)
-  const [selectedEMPAddress, setSelectedEMPAddress] = useState<string>("")
+  const [selectedEMPAddress, setSelectedEMPAddress] = useState<string>("0")
 
   const [block$, setBlock$] = useState<Observable<Block> | null>(null);
   const { getContractAddress } = useUMARegistry()

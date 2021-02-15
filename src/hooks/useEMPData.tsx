@@ -118,6 +118,8 @@ export const useEMPData = (empAddress: EthereumAddress) => {
                 .catch((error) => {
                     console.log("Error on getAllEMPData", error)
                 })
+        } else {
+            setState(initState)
         }
     }, [instance]);
 

@@ -21,11 +21,16 @@ export const useDisputeParams = (empAddress: EthereumAddress): DisputeParams => 
         if (empState) {
             const { liquidationLiveness: liqLiveness, withdrawalLiveness: withLiveness } = empState
 
-            const withdrawalLivenessInMinutes = (Number(withLiveness) / 60).toFixed(2)
-            const liquidationLivenessInMinutes = (Number(liqLiveness) / 60).toFixed(2);
+            if (liqLiveness && withLiveness) {
+                const withdrawalLivenessInMinutes = (Number(withLiveness) / 60).toFixed(2)
+                const liquidationLivenessInMinutes = (Number(liqLiveness) / 60).toFixed(2);
 
-            setLiquidationLiveness(liquidationLivenessInMinutes)
-            setWithdrawalLiveness(withdrawalLivenessInMinutes)
+                setLiquidationLiveness(liquidationLivenessInMinutes)
+                setWithdrawalLiveness(withdrawalLivenessInMinutes)
+            } else {
+                setLiquidationLiveness("")
+                setWithdrawalLiveness("")
+            }
         }
     }, [empState])
 

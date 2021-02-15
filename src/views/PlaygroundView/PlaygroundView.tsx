@@ -65,8 +65,7 @@ const useStyles = makeStyles((theme) => ({
 export const PlaygroundView: React.FC = () => {
   const theme = useTheme();
   const { signer, web3Provider } = useRemix()
-  const { resetModalData, empAddresses } = useContract()
-  const [empAddress, setEmpAddress] = useState<string | null>(null);
+  const { resetModalData, empAddresses, setSelectedEMPAddress, selectedEMPAddress } = useContract()
   const [isLoading, setIsLoading] = useState(false)
 
   const [emps, setEmps] = useState<Emp[]>([])
@@ -121,7 +120,7 @@ export const PlaygroundView: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<{ value: unknown }>) => {
     const value = e.target.value;
-    setEmpAddress(value === 0 ? null : (value as string));
+    setSelectedEMPAddress(value === 0 ? "0" : (value as string))
   };
 
   const noEmpsOrLoading = emps.length === 0 || isLoading;
@@ -135,10 +134,10 @@ export const PlaygroundView: React.FC = () => {
       <h2>{TITLE}</h2>
       <Container fluid={true} style={{ padding: "2em 0" }}>
         {/* EMP Selector */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Col md={10} className="align-items-center">
+        <div style={{ display: "flex", justifyContent: "left" }}>
+          <Col sm={8} md={9} lg={8} className="align-items-left">
             <Select
-              value={isLoading || empAddress === null ? 0 : empAddress}
+              value={isLoading || selectedEMPAddress === null ? 0 : selectedEMPAddress}
               onChange={handleChange}
               input={<BootstrapInput />}
               disabled={noEmpsOrLoading}>
@@ -163,7 +162,7 @@ export const PlaygroundView: React.FC = () => {
               })}
             </Select>
           </Col>
-          <Col md="auto">
+          <Col sm={4} md={3}>
             <Button variant="primary" onClick={handleShow} style={{ padding: "0.7em 1em" }}>
               <FontAwesomeIcon icon={faPlus} />
               {'  '}
@@ -173,11 +172,11 @@ export const PlaygroundView: React.FC = () => {
 
         </div>
 
-        {/* EMP Body */}
+        {/* EMP Body
+       */}
         <ReactWeb3Provider injectedProvider={web3Provider}>
           <EMPBody />
         </ReactWeb3Provider>
-
         {/* EMP Dialog */}
         <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
           {open && <React.Fragment><DialogHeader onCloseClick={handleClose} />

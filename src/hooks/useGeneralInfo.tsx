@@ -19,7 +19,6 @@ export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo => {
     const { state: empState } = useEMPData(empAddress)
     const { symbol } = useCollateralToken(empAddress)
     // const { symbol } = useSyntheticToken(empAddress)
-
     const [expireDate, setExpireDate] = useState<string>("")
     const [isExpired, setIsExpired] = useState<string>("")
     const [priceIdentifier, setPriceIdentifier] = useState<string>("")
@@ -30,7 +29,6 @@ export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo => {
     useEffect(() => {
         if (empState) {
             const { expirationTimestamp, priceIdentifier, collateralRequirement, minSponsorTokens, isExpired } = empState;
-
             if (expirationTimestamp && priceIdentifier && collateralRequirement && minSponsorTokens) {
                 const expiryDate = new Date(expirationTimestamp.toNumber() * 1000).toLocaleString("en-GB", { timeZone: "UTC" });
                 // const prettyLatestPrice = Number(latestPrice).toFixed(8);
@@ -45,6 +43,13 @@ export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo => {
                 setCollateralRequirement(collateralRequirementPercentage)
                 setIsExpired(isExpired ? "YES" : "NO")
                 setMinimumSponsorTokens(fromWei(minSponsorTokens.toString()))
+            } else {
+                setExpireDate("")
+                setIsExpired("")
+                setPriceIdentifier("")
+                setGlobalCollateralRatio("")
+                setCollateralRequirement("")
+                setMinimumSponsorTokens("")
             }
         }
     }, [empState])

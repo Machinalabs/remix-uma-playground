@@ -12,10 +12,14 @@ export const useEMPAt = (empAddress: EthereumAddress) => {
 
     useEffect(() => {
         if (signer) {
-            const newInstance = new ethers.Contract(empAddress, ExpiringMultiPartyArtifact.abi, signer)
-            setInstance(newInstance)
+            if (empAddress === "0") {
+                setInstance(null)
+            } else {
+                const newInstance = new ethers.Contract(empAddress, ExpiringMultiPartyArtifact.abi, signer)
+                setInstance(newInstance)
+            }
         }
-    }, [signer])
+    }, [signer, empAddress])
 
     return {
         instance

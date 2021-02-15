@@ -1,4 +1,5 @@
-const Docker = require('dockerode');
+// const Docker = require('dockerode');
+const Docker = {} as any
 
 export const CONTAINER_PORT = 8548;
 

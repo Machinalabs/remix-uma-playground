@@ -10,7 +10,7 @@ type Block = ethers.providers.Block;
 
 interface IWeb3Provider {
     signer: Signer | undefined
-    provider: ethers.providers.Web3Provider | undefined
+    provider: Web3Provider | undefined
     block$: Observable<Block> | undefined
     address: EthereumAddress
     setAddress: (newAddress: EthereumAddress) => void
@@ -37,7 +37,7 @@ export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProp
     useEffect(() => {
         if (injectedProvider) {
             // web3 provider
-            const ethersJSProvider = new ethers.providers.Web3Provider(injectedProvider)
+            const ethersJSProvider = injectedProvider
             setWeb3Provider(ethersJSProvider)
 
             // signer
