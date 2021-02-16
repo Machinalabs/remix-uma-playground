@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import Tabs from 'react-bootstrap/Tabs';
-import Tab from 'react-bootstrap/Tab'
+import { Container, Col, Tabs, Tab } from 'react-bootstrap';
+
 import { GeneralInfoSection, ManagePositionSection } from './sections';
-import { Container, Col } from 'react-bootstrap';
 
 const GENERAL_INFO_KEY = "general_info"
 

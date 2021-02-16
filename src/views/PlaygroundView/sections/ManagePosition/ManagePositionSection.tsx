@@ -2,11 +2,17 @@ import React from 'react'
 import { Card, Col, Container, Row } from 'react-bootstrap'
 import styled from 'styled-components'
 
+import { useContract } from '../../hooks'
+
+import { ActionsSection } from '../ManagePosition'
+
 const StyledCol = styled(Col)`
     padding: 0;
     padding-top: 1em;
 `
+
 export const ManagePositionSection: React.FC = () => {
+    const { selectedEMPAddress } = useContract()
     return (
         <Container fluid={true}>
             <Row>
@@ -42,6 +48,9 @@ export const ManagePositionSection: React.FC = () => {
                 </StyledCol>
 
             </Row>
+
+            <ActionsSection empAddress={selectedEMPAddress} />
+
         </Container>
     )
 }
