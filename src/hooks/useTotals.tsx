@@ -8,9 +8,9 @@ import { useERC20At } from "./useERC20At";
 import { useToken } from "./useToken";
 
 interface Totals {
-    totalCollateral: number | undefined
-    totalSyntheticTokens: number | undefined
-    gcr: number | undefined
+    totalCollateral: NumberAsString
+    totalSyntheticTokens: NumberAsString
+    gcr: NumberAsString
 }
 
 const fromWei = ethers.utils.formatUnits;
@@ -21,10 +21,9 @@ export const useTotals = (empAddress: EthereumAddress): Totals => {
     const { decimals: collateralDecimals } = useToken(empState.collateralCurrency)
     const { decimals: syntheticDecimals } = useToken(empState.tokenCurrency)
 
-    const [totalCollateral, setTotalCollateral] = useState<number | undefined>(undefined);
-    const [totalTokens, setTotalTokens] = useState<number | undefined>(undefined);
-    const [gcr, setGCR] = useState<number | undefined>(undefined);
-
+    const [totalCollateral, setTotalCollateral] = useState<NumberAsString>("");
+    const [totalTokens, setTotalTokens] = useState<NumberAsString>("");
+    const [gcr, setGCR] = useState<NumberAsString>("");
 
     useEffect(() => {
         if (empState && collateralDecimals && syntheticDecimals) {
@@ -35,14 +34,14 @@ export const useTotals = (empAddress: EthereumAddress): Totals => {
                 const totalTokens = weiToNum(totalTokensOutstanding, syntheticDecimals);
                 const gcr = totalTokens > 0 ? totalCollateral / totalTokens : 0;
 
-                setTotalCollateral(totalCollateral);
-                setTotalTokens(totalTokens);
-                setGCR(gcr);
+                setTotalCollateral(`${totalCollateral}`);
+                setTotalTokens(`${totalTokens}`);
+                setGCR(`${gcr}`);
             }
         } else {
-            setTotalCollateral(0);
-            setTotalTokens(0);
-            setGCR(0);
+            setTotalCollateral("");
+            setTotalTokens("");
+            setGCR("");
         }
     }, [empState, collateralDecimals, syntheticDecimals])
 

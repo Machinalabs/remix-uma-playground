@@ -13,7 +13,7 @@ describe('useWeb3Provider tests', () => {
 
     beforeAll(async () => {
         umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
-        injectedProvider = getInjectedProvider(PROVIDER_URL)
+        injectedProvider = new ethers.providers.Web3Provider(getInjectedProvider(PROVIDER_URL));
     })
 
     const render = () => {

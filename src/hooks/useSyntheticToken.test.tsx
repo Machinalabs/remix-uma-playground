@@ -13,13 +13,12 @@ import { deploySampleEMP } from './utils'
 describe('useSyntheticToken tests', () => {
     let empAddress: EthereumAddress
     let umaSnapshotContainer: UMASnapshotContainer | undefined
-    let injectedProvider: ethers.providers.Provider
+    let injectedProvider: ethers.providers.Web3Provider
 
     beforeAll(async () => {
         umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
-        injectedProvider = getInjectedProvider(PROVIDER_URL)
-        const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
-        const signer = ethersJSProvider.getSigner()
+        injectedProvider = new ethers.providers.Web3Provider(getInjectedProvider(PROVIDER_URL));
+        const signer = injectedProvider.getSigner()
 
         // deploy token
         empAddress = await deploySampleEMP(signer)

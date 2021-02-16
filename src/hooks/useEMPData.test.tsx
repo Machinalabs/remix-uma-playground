@@ -11,16 +11,13 @@ import { deploySampleEMP } from './utils'
 
 describe('useEMPData tests', () => {
     let umaSnapshotContainer: UMASnapshotContainer | undefined
-    let injectedProvider: ethers.providers.Provider
+    let injectedProvider: ethers.providers.Web3Provider
     let empAddress: EthereumAddress
 
     beforeAll(async () => {
         umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
-        await delay(10000)
-
-        injectedProvider = getInjectedProvider(PROVIDER_URL)
-        const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
-        const signer = ethersJSProvider.getSigner()
+        injectedProvider = new ethers.providers.Web3Provider(getInjectedProvider(PROVIDER_URL));
+        const signer = injectedProvider.getSigner()
 
         // create sample EMP
         empAddress = await deploySampleEMP(signer)

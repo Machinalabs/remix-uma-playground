@@ -8,24 +8,24 @@ import { UMASnapshotContainer, getInjectedProvider, PROVIDER_URL, stopUMASnapsho
 import { ReactWeb3Provider } from './useWeb3Provider'
 import { useERC20At } from './useERC20At'
 import { deployERC20 } from './utils'
+import { UMARegistryProvider } from './useUMARegistry'
 
 describe('useERC20At tests', () => {
     let tokenAddress: EthereumAddress
     let umaSnapshotContainer: UMASnapshotContainer | undefined
-    let injectedProvider: ethers.providers.Provider
+    let injectedProvider: ethers.providers.Web3Provider
 
     beforeAll(async () => {
         umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
-        injectedProvider = getInjectedProvider(PROVIDER_URL)
-        const ethersJSProvider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
-        const signer = ethersJSProvider.getSigner()
+        injectedProvider = new ethers.providers.Web3Provider(getInjectedProvider(PROVIDER_URL));
+        const signer = injectedProvider.getSigner()
 
         // deploy token
         tokenAddress = await deployERC20(signer)
     })
 
     const render = () => {
-        const wrapper = ({ children }: any) => <ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider>
+        const wrapper = ({ children }: any) => <UMARegistryProvider><ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider></UMARegistryProvider>
         const result = renderHook(() => useERC20At(tokenAddress), { wrapper })
         return result
     }
