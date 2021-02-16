@@ -5,6 +5,7 @@ import { EthereumAddress, NumberAsString } from "../types";
 
 import { useEMPData } from "./useEMPData";
 import { useERC20At } from "./useERC20At";
+import { fromWei } from "../utils";
 
 interface CollateralToken {
     symbol: string
@@ -14,9 +15,7 @@ interface CollateralToken {
     allowance: NumberAsString | "Infinity"
 }
 
-const fromWei = ethers.utils.formatUnits;
-
-export const useCollateralToken = (empAddress: EthereumAddress, address: EthereumAddress): CollateralToken => {
+export const useCollateralToken = (empAddress: EthereumAddress, address?: EthereumAddress): CollateralToken => {
     const { state: empState } = useEMPData(empAddress)
     const tokenAddress = empState.tokenCurrency;
     const { instance } = useERC20At(tokenAddress)
@@ -55,13 +54,15 @@ export const useCollateralToken = (empAddress: EthereumAddress, address: Ethereu
         setName(name)
         setDecimals(decimals)
 
-        const [balance, allowance] = await Promise.all([
-            getBalance(contractInstance, address),
-            getAllowance(contractInstance, address)
-        ])
+        if (address) {
+            const [balance, allowance] = await Promise.all([
+                getBalance(contractInstance, address),
+                getAllowance(contractInstance, address)
+            ])
 
-        setBalance(balance)
-        setAllowance(allowance)
+            setBalance(balance)
+            setAllowance(allowance)
+        }
     };
 
     useEffect(() => {
