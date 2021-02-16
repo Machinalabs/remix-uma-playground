@@ -14,19 +14,21 @@ describe('useCollateralToken tests', () => {
     let empAddress: EthereumAddress
     let umaSnapshotContainer: UMASnapshotContainer | undefined
     let injectedProvider: ethers.providers.Web3Provider
+    let userAddress: EthereumAddress
 
     beforeAll(async () => {
         umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
         injectedProvider = new ethers.providers.Web3Provider(getInjectedProvider(PROVIDER_URL));
         const signer = injectedProvider.getSigner()
+        userAddress = await signer.getAddress()
 
-        // deploy token
+        // deploy sampleEMP
         empAddress = await deploySampleEMP(signer)
     })
 
     const render = () => {
         const wrapper = ({ children }: any) => <UMARegistryProvider><ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider></UMARegistryProvider>
-        const result = renderHook(() => useCollateralToken(empAddress), { wrapper })
+        const result = renderHook(() => useCollateralToken(empAddress, empAddress), { wrapper })
         return result
     }
 

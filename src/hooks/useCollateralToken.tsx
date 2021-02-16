@@ -1,35 +1,49 @@
-import { BigNumber, ethers } from "ethers";
-import { formatUnits, parseBytes32String } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
-import { fromWei } from "web3-utils";
-import { DateAsString, EthereumAddress } from "../types";
+import { BigNumber, ethers } from "ethers";
+
+import { EthereumAddress, NumberAsString } from "../types";
+
 import { useEMPData } from "./useEMPData";
 import { useERC20At } from "./useERC20At";
-import { useUMARegistry } from "./useUMARegistry";
 
 interface CollateralToken {
     symbol: string
     name: string
-    decimals: number
-    // balanceRaw: BigNumber
-    // allowanceRaw: BigNumber
-    // balance: string
-    // allowance: string
+    decimals: NumberAsString
+    balance: NumberAsString
+    allowance: NumberAsString | "Infinity"
 }
 
-export const useCollateralToken = (empAddress: EthereumAddress): CollateralToken => {
+const fromWei = ethers.utils.formatUnits;
+
+export const useCollateralToken = (empAddress: EthereumAddress, address: EthereumAddress): CollateralToken => {
     const { state: empState } = useEMPData(empAddress)
     const tokenAddress = empState.tokenCurrency;
     const { instance } = useERC20At(tokenAddress)
 
     const [symbol, setSymbol] = useState<string>("");
     const [name, setName] = useState<string>("");
-    const [decimals, setDecimals] = useState<number>(0);
+    const [decimals, setDecimals] = useState<NumberAsString>("");
+    const [balance, setBalance] = useState<NumberAsString>("");
+    const [allowance, setAllowance] = useState<NumberAsString | "Infinity">("");
 
-    // TODO: Remove nulls
-    const [allowance, setAllowance] = useState<number | "Infinity" | null>(null);
-    const [balance, setBalance] = useState<number | null>(null);
-    const [balanceBN, setBalanceBN] = useState<BigNumber | null>(null);
+    const getBalance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress) => {
+        const balanceRaw: BigNumber = await contractInstance.balanceOf(addressParam);
+        const balance = fromWei(balanceRaw, decimals);
+        return balance
+    }
+
+    const getAllowance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress) => {
+        const allowanceRaw: BigNumber = await contractInstance.allowance(
+            addressParam,
+            empAddress
+        );
+        const allowance = allowanceRaw.eq(ethers.constants.MaxUint256)
+            ? "Infinity"
+            : fromWei(allowanceRaw, decimals);
+
+        return allowance
+    }
 
     const getTokenInfo = async (contractInstance: ethers.Contract) => {
         const [symbol, name, decimals] = await Promise.all([
@@ -37,48 +51,28 @@ export const useCollateralToken = (empAddress: EthereumAddress): CollateralToken
             contractInstance.name(),
             contractInstance.decimals()
         ])
-        // const balanceRaw: BigNumber = await contractInstance.balanceOf(address);
-        // const allowanceRaw: BigNumber = await contractInstance.allowance(
-        //     address, // probably has to be provider.getAccounts[0]
-        //     empAddress
-        // );
-
-        // calculate readable balance and allowance
-        // const balance = parseFloat(fromWei(balanceRaw, decimals));
-        // const allowance = allowanceRaw.eq(ethers.constants.MaxUint256)
-        //     ? "Infinity"
-        //     : parseFloat(fromWei(allowanceRaw, decimals));
-
-        // set states
-
         setSymbol(symbol)
         setName(name)
         setDecimals(decimals)
-        // setBalance(balance);
-        // setBalanceBN(balanceRaw);
-        // setAllowance(allowance);
-        // return {
-        //     symbol,
-        //     name,
-        //     decimals
-        // }
+
+        const [balance, allowance] = await Promise.all([
+            getBalance(contractInstance, address),
+            getAllowance(contractInstance, address)
+        ])
+
+        setBalance(balance)
+        setAllowance(allowance)
     };
 
     useEffect(() => {
         if (instance) {
             setSymbol("");
             setName("");
-            setDecimals(0);
+            setDecimals("");
+            setBalance("");
+            setAllowance("");
 
-            setBalance(null);
-            setBalanceBN(null);
-            setAllowance(null);
             getTokenInfo(instance)
-                // .then(({ symbol, name, decimals }) => {
-                //     setSymbol(symbol);
-                //     setName(name);
-                //     setDecimals(decimals);
-                // })
                 .catch((error) => console.log("error getting token info", error))
         }
     }, [instance]);
@@ -87,6 +81,8 @@ export const useCollateralToken = (empAddress: EthereumAddress): CollateralToken
     return {
         name,
         decimals,
-        symbol
+        symbol,
+        balance,
+        allowance
     }
 }
