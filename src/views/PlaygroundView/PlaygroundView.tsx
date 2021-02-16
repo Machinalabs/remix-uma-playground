@@ -137,7 +137,7 @@ export const PlaygroundView: React.FC = () => {
         <div style={{ display: "flex", justifyContent: "left" }}>
           <Col sm={8} md={9} lg={8} className="align-items-left">
             <Select
-              value={isLoading || selectedEMPAddress === null ? 0 : selectedEMPAddress}
+              value={isLoading || selectedEMPAddress === "0" ? 0 : selectedEMPAddress}
               onChange={handleChange}
               input={<BootstrapInput />}
               disabled={noEmpsOrLoading}>

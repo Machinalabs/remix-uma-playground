@@ -46,7 +46,7 @@ interface Props {
 
 export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback }) => {
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { priceIdentifiers, selectedCollateralToken, setSelectedEMPAddress } = useContract()
+  const { selectedPriceIdentifier, selectedCollateralToken, setSelectedEMPAddress } = useContract()
   const { getContractAddress } = useUMARegistry()
 
   const { setCurrentStepCompleted, getStepBefore, goStepBefore } = useStep()
@@ -83,7 +83,7 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
         }
         debug("expiringMultiPartyCreatorAddress", expiringMultiPartyCreatorAddress)
 
-        const identifierBytes = utils.formatBytes32String(priceIdentifiers[0])
+        const identifierBytes = utils.formatBytes32String(selectedPriceIdentifier)
         debug("price identifier", identifierBytes)
 
         const expiringMultipartyCreatorInterface = new ethers.utils.Interface(ExpiringMultiPartyCreatorArtifact.abi)
