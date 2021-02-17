@@ -2,6 +2,8 @@ import { ethers } from "ethers"
 import { buildFakeEMP } from "./faker"
 import { getUMAAddresses, getUMAInterfaces } from "./useUMARegistry"
 import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
+import { EthereumAddress } from "../types"
+import { toWei } from "web3-utils"
 
 export const deploySampleEMP = async (signer) => {
     const fakeEMP = buildFakeEMP()
@@ -44,4 +46,24 @@ export const deployERC20 = async (signer) => {
 
     await collateralTokenContract.deployTransaction.wait()
     return collateralTokenContract.address
+}
+
+export const createPosition = async (empAddress: EthereumAddress, collateralAmount, syntheticTokens, signer) => {
+    const allUMAInterfaces = getUMAInterfaces()
+    const expiringMultipartyInterface = allUMAInterfaces.get('ExpiringMultiParty') as ethers.utils.Interface
+
+    const contract = new ethers.Contract(
+        empAddress,
+        expiringMultipartyInterface,
+        signer
+    )
+
+    const receipt = await contract.create(
+        { rawValue: toWei(`${collateralAmount}`) },
+        { rawValue: toWei(`${syntheticTokens}`) }
+    )
+
+    await receipt.wait()
+
+    return Promise.resolve(receipt)
 }
