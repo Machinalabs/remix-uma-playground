@@ -13,7 +13,7 @@ import { formatUnits } from "ethers/lib/utils"
 
 const Paragraph = styled.p`
   font-size: 0.9em;
-  color: ${props => props.theme.modalFontColor};
+  color: ${(props) => props.theme.modalFontColor};
   font-weight: 300;
 `
 
@@ -46,7 +46,6 @@ export const RightPanel: React.FC = () => {
         setCollateralBalance(`${formatUnits(balance, "ether").toString()}`)
       }
     }
-
   }, [selectedCollateralToken])
   return (
     <React.Fragment>

@@ -1,11 +1,11 @@
 import React, { useEffect } from "react"
 import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom"
-import { CREATE_EXPIRING_MULTIPARTY, SELECT_COLLATERAL_TOKEN, SELECT_PRICE_IDENTIFIER_ROUTE } from "../../../constants";
+import { CREATE_EXPIRING_MULTIPARTY, SELECT_COLLATERAL_TOKEN, SELECT_PRICE_IDENTIFIER_ROUTE } from "../../../constants"
 
 // steps
 import { DeployCollateralToken } from "./1_Deploy_Collateral_Token"
 import { DeployPriceIdentifier } from "./2_Deploy_Price_Identifier"
-import { CreateExpiringMultiParty } from "./3_CreateExpiringMultiParty";
+import { CreateExpiringMultiParty } from "./3_CreateExpiringMultiParty"
 
 interface Props {
   closeModalTrigger: () => void

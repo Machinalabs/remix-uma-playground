@@ -7,8 +7,8 @@ import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhi
 import ExpiringMultiPartyCreatorArtifact from "@uma/core/build/contracts/ExpiringMultiPartyCreator.json"
 
 import { useRemix } from "../../../hooks"
-import { Observable } from "rxjs";
-import { debounceTime } from "rxjs/operators";
+import { Observable } from "rxjs"
+import { debounceTime } from "rxjs/operators"
 import { useUMARegistry } from "../../../hooks/useUMARegistry"
 import { Block } from "../../../types"
 
@@ -58,13 +58,13 @@ const ContractContext = React.createContext<IContractProvider>({
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
   empAddresses: ["0x000000"],
-  resetModalData: () => { },
+  resetModalData: () => {},
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
-  setSelectedCollateralToken: () => { },
-  setSelectedPriceIdentifier: () => { },
+  setSelectedCollateralToken: () => {},
+  setSelectedPriceIdentifier: () => {},
   selectedEMPAddress: "0",
-  setSelectedEMPAddress: (newEMP: string) => { }
+  setSelectedEMPAddress: (newEMP: string) => {},
 })
 /* tslint:enable */
 
@@ -81,7 +81,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<Token | undefined>(undefined)
   const [selectedEMPAddress, setSelectedEMPAddress] = useState<string>("0")
 
-  const [block$, setBlock$] = useState<Observable<Block> | null>(null);
+  const [block$, setBlock$] = useState<Observable<Block> | null>(null)
   const { getContractAddress } = useUMARegistry()
 
   const resetModalData = () => {
@@ -102,15 +102,15 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     )
 
     const empCreatedFilter = await expiringMultipartyCreator.filters.CreatedExpiringMultiParty()
-    const events = await expiringMultipartyCreator.queryFilter(empCreatedFilter, 0, 'latest');
+    const events = await expiringMultipartyCreator.queryFilter(empCreatedFilter, 0, "latest")
 
     const empAddresses = events.map((event) => {
       if (event.args) {
         return event.args[0]
       }
     })
-    const identifiersFiltered: string[] = empAddresses.filter(s => s != undefined) as string[]
-    setEmpAddresses(identifiersFiltered);
+    const identifiersFiltered: string[] = empAddresses.filter((s) => s != undefined) as string[]
+    setEmpAddresses(identifiersFiltered)
   }
 
   const getCollateralTokens = async () => {
@@ -122,8 +122,8 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
 
     const erc20Interface = new ethers.utils.Interface(TestnetERC20Artifact.abi)
     const whitelistInterface = new ethers.utils.Interface(AddressWhitelistArtifact.abi)
-    const whitelistContract = new ethers.Contract(address, whitelistInterface, signer);
-    const addressesWhitelisted = await whitelistContract.getWhitelist();
+    const whitelistContract = new ethers.Contract(address, whitelistInterface, signer)
+    const addressesWhitelisted = await whitelistContract.getWhitelist()
     console.log("addressesWhitelisted", addressesWhitelisted)
 
     const promises = addressesWhitelisted.map(async (collateralAddressItem) => {
@@ -133,7 +133,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         symbol: await instance.symbol(),
         decimals: await instance.decimals(),
         totalSupply: await instance.totalSupply(),
-        address: collateralAddressItem
+        address: collateralAddressItem,
       }
     })
     const result = await Promise.all(promises)
@@ -146,16 +146,16 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
       throw new Error("UMARegistryProvider not defined")
     }
     const identifierWhitelistInterface = new ethers.utils.Interface(IdentifierWhitelistArtifact.abi)
-    const identifierWhitelistContract = new ethers.Contract(address, identifierWhitelistInterface, signer);
+    const identifierWhitelistContract = new ethers.Contract(address, identifierWhitelistInterface, signer)
     const supportedIdentifierFilter = await identifierWhitelistContract.filters.SupportedIdentifierAdded()
-    const events = await identifierWhitelistContract.queryFilter(supportedIdentifierFilter, 0, 'latest');
+    const events = await identifierWhitelistContract.queryFilter(supportedIdentifierFilter, 0, "latest")
     const identifiers = events.map((event) => {
       if (event.args) {
         return ethers.utils.parseBytes32String(event.args[0])
       }
     })
-    const identifiersFiltered: string[] = identifiers.filter(s => s != undefined) as string[]
-    setPriceIdentifiers(identifiersFiltered);
+    const identifiersFiltered: string[] = identifiers.filter((s) => s != undefined) as string[]
+    setPriceIdentifiers(identifiersFiltered)
   }
 
   useEffect(() => {
@@ -164,14 +164,12 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
       console.log("Web3 Provider Block Listener added")
       const observable = new Observable<Block>((subscriber) => {
         web3Provider.on("block", (blockNumber: number) => {
-          web3Provider
-            .getBlock(blockNumber)
-            .then((block) => subscriber.next(block));
-        });
-      });
+          web3Provider.getBlock(blockNumber).then((block) => subscriber.next(block))
+        })
+      })
       // debounce to prevent subscribers making unnecessary calls
-      const block$ = observable.pipe(debounceTime(1000));
-      setBlock$(block$);
+      const block$ = observable.pipe(debounceTime(1000))
+      setBlock$(block$)
 
       console.log("Use contract middle")
 
@@ -196,10 +194,10 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         await getCollateralTokens()
         await getPriceIdentifiers()
         await getEMPs()
-      });
-      return () => sub.unsubscribe();
+      })
+      return () => sub.unsubscribe()
     }
-  }, [block$]);
+  }, [block$])
 
   return (
     <ContractContext.Provider
@@ -213,7 +211,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         selectedCollateralToken,
         setSelectedCollateralToken,
         setSelectedEMPAddress,
-        selectedEMPAddress
+        selectedEMPAddress,
       }}
     >
       {children}

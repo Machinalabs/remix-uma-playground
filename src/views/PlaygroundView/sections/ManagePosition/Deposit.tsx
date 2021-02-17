@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react"
 
-interface Props {
-
-}
+interface Props {}
 
 export const Deposit: React.FC<Props> = () => {
-    return (
-        <h1>Deposit</h1>
-    )
+  return <h1>Deposit</h1>
 }

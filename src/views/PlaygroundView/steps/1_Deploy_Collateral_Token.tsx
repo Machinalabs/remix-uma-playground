@@ -15,8 +15,8 @@ import { useContract, useStep } from "../hooks"
 import { FormItem } from "../components"
 import { SuccessMessage, ErrorMessage } from "../components"
 import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { useHistory } from "react-router-dom"
 import { DELAY_AFTER_FORM_CREATION } from "../../../constants"
 
@@ -36,7 +36,7 @@ const initialValues: FormProps = {
 
 enum MODE {
   SelectCollateralToken = "SelectCollateralToken",
-  DeployCollateralToken = "DeployCollateralToken"
+  DeployCollateralToken = "DeployCollateralToken",
 }
 
 export const DeployCollateralToken: React.FC = () => {
@@ -75,39 +75,51 @@ export const DeployCollateralToken: React.FC = () => {
 
   return (
     <React.Fragment>
-      {mode === MODE.SelectCollateralToken &&
+      {mode === MODE.SelectCollateralToken && (
         <React.Fragment>
           <h4>Select collateral token</h4>
           <Form>
             <Row>
               <Col md={10}>
-                <Form.Control as="select" disabled={collateralTokens.length === 0} onChange={handleSelectChange} value={selectedCollateralToken?.address || "0"}>
+                <Form.Control
+                  as="select"
+                  disabled={collateralTokens.length === 0}
+                  onChange={handleSelectChange}
+                  value={selectedCollateralToken?.address || "0"}
+                >
                   {collateralTokens.length === 0 && <option>No collateral tokens</option>}
                   <option value="0">Select an option</option>
-                  {collateralTokens.length > 0 && collateralTokens.map((item, index) => {
-                    return (<option key={index} value={item.address}>{item.name}</option>)
-                  })}
+                  {collateralTokens.length > 0 &&
+                    collateralTokens.map((item, index) => {
+                      return (
+                        <option key={index} value={item.address}>
+                          {item.name}
+                        </option>
+                      )
+                    })}
                 </Form.Control>
               </Col>
               <BootstrapButton size="sm" variant="primary" onClick={handleOnDeployClick}>
                 <FontAwesomeIcon icon={faPlus} />
-              </BootstrapButton>{' '}
+              </BootstrapButton>{" "}
             </Row>
 
             <div style={{ marginTop: "1em" }}>
               <StyledButton
                 disabled={selectedCollateralToken === undefined}
                 variant="success"
-                onClick={handleOnNextClick}>Next</StyledButton>
+                onClick={handleOnNextClick}
+              >
+                Next
+              </StyledButton>
             </div>
-
           </Form>
+        </React.Fragment>
+      )}
 
-        </React.Fragment>}
-
-      {mode === MODE.DeployCollateralToken &&
-        <DeployCollateralView onCancelCallback={handleOnCancelClick} onSuccessCallback={onSuccessCallback} />}
-
+      {mode === MODE.DeployCollateralToken && (
+        <DeployCollateralView onCancelCallback={handleOnCancelClick} onSuccessCallback={onSuccessCallback} />
+      )}
     </React.Fragment>
   )
 }
@@ -196,7 +208,7 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
           resetForm()
           setTimeout(() => {
             onSuccessCallback()
-          }, DELAY_AFTER_FORM_CREATION);
+          }, DELAY_AFTER_FORM_CREATION)
         })
         .catch((e) => {
           console.log("Error", e)
@@ -235,9 +247,9 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
             }
             resolve(errors)
           })
-        }
-        }
-        onSubmit={handleSubmit}>
+        }}
+        onSubmit={handleSubmit}
+      >
         {({ isSubmitting }) => (
           <FormikForm>
             <FormItem label="Name" field="name" placeHolder="WETH" />
@@ -261,28 +273,36 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
               helptext="The initial number of collateral tokens that are going to be minted and assigned to you"
             />
 
+            {!tokenHasBeenCreated && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  paddingRight: "2.5em",
+                  marginTop: "1em",
+                  marginBottom: "2em",
+                }}
+              >
+                <Button
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  disabled={isSubmitting}
+                  isloading={isSubmitting}
+                  loadingText="Deploying..."
+                  text="Deploy"
+                />
 
-            {!tokenHasBeenCreated && <div style={{ display: "flex", justifyContent: "space-between", paddingRight: "2.5em", marginTop: "1em", marginBottom: "2em" }}>
-
-              <Button
-                variant="primary"
-                type="submit"
-                size="sm"
-                disabled={isSubmitting}
-                isloading={isSubmitting}
-                loadingText="Deploying..."
-                text="Deploy"
-              />
-
-              <Button
-                variant="danger"
-                size="sm"
-                isloading={false}
-                loadingText=""
-                text="Cancel"
-                onClick={onCancelCallback}
-              />
-            </div>}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  isloading={false}
+                  loadingText=""
+                  text="Cancel"
+                  onClick={onCancelCallback}
+                />
+              </div>
+            )}
 
             <SuccessMessage show={tokenHasBeenCreated}>
               You have successfully deployed the collateral token at {newCollateralTokenAddress}.
@@ -294,4 +314,3 @@ const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCal
     </React.Fragment>
   )
 }
-

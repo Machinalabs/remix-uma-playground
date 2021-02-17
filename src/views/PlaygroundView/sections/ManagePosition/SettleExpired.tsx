@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react"
 
-interface Props {
-
-}
+interface Props {}
 
 export const SettleExpired: React.FC<Props> = () => {
-    return (
-        <h1>SettleExpired</h1>
-    )
+  return <h1>SettleExpired</h1>
 }

@@ -12,8 +12,8 @@ import { RemixClient } from "./RemixClient"
 
 export type RemixClientInstanceType = PluginApi<Readonly<IRemixApi>> & PluginClient<Api, Readonly<IRemixApi>>
 
-type Web3Provider = ethers.providers.Web3Provider;
-type Signer = ethers.Signer;
+type Web3Provider = ethers.providers.Web3Provider
+type Signer = ethers.Signer
 
 interface IRemixProvider {
   clientInstance: RemixClientInstanceType
@@ -27,7 +27,7 @@ const RemixContext = React.createContext<IRemixProvider>({
   clientInstance: {} as RemixClientInstanceType,
   themeType: "dark" as ThemeType,
   web3Provider: {} as Web3Provider,
-  signer: {} as ethers.Signer
+  signer: {} as ethers.Signer,
 })
 /* tslint:enable */
 
@@ -51,9 +51,7 @@ export const RemixProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => 
 
       // web3 provider
       const remixProvider = getProvider(client)
-      const ethersJSProvider = new ethers.providers.Web3Provider(
-        remixProvider
-      )
+      const ethersJSProvider = new ethers.providers.Web3Provider(remixProvider)
       setWeb3Provider(ethersJSProvider)
 
       // signer
@@ -88,7 +86,7 @@ export const RemixProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => 
         clientInstance,
         themeType,
         web3Provider,
-        signer
+        signer,
       }}
     >
       {children}

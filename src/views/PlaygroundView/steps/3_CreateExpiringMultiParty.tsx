@@ -64,7 +64,7 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
       debug("Accounts", accounts[0])
 
       const storeAddress = getContractAddress("Store") as string
-      const collateralTokenAddress = selectedCollateralToken?.address as string// collateralTokens[0].address as string
+      const collateralTokenAddress = selectedCollateralToken?.address as string // collateralTokens[0].address as string
       debug("Collateral address", collateralTokenAddress)
 
       const collateralTokenInterface = new ethers.utils.Interface(TestnetERC20Artifact.abi)
@@ -152,11 +152,7 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
         const receipt = await txn.wait()
         debug("Receipt", receipt)
 
-        const collateralToken = new ethers.Contract(
-          collateralTokenAddress,
-          TestnetERC20Artifact.abi,
-          signer
-        )
+        const collateralToken = new ethers.Contract(collateralTokenAddress, TestnetERC20Artifact.abi, signer)
         debug("Total supply", await collateralToken.totalSupply())
         await collateralToken.approve(expiringMultiPartyAddress, await collateralToken.totalSupply())
         debug("Approved EMP allowance on collateral")
@@ -179,8 +175,7 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
           setCurrentStepCompleted()
           setTimeout(() => {
             onCreatedCallback()
-
-          }, DELAY_AFTER_FORM_CREATION);
+          }, DELAY_AFTER_FORM_CREATION)
         })
         .catch((e) => {
           debug(e)
@@ -245,8 +240,7 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
           }
 
           return errors
-        }
-        }
+        }}
         onSubmit={handleSubmit}
       >
         {({ isSubmitting }) => (
@@ -321,23 +315,23 @@ export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback })
               helptext="Amount of time in seconds for pending liquidation before expiry."
             />
 
-            {!empHasBeenCreated && <div style={{ display: "flex", paddingRight: "2.5em", marginTop: "1em", marginBottom: "2em" }}>
+            {!empHasBeenCreated && (
+              <div style={{ display: "flex", paddingRight: "2.5em", marginTop: "1em", marginBottom: "2em" }}>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  disabled={isSubmitting}
+                  isloading={isSubmitting}
+                  loadingText="Creating..."
+                  text="Create"
+                />
 
-              <Button
-                variant="primary"
-                type="submit"
-                size="sm"
-                disabled={isSubmitting}
-                isloading={isSubmitting}
-                loadingText="Creating..."
-                text="Create"
-              />
-
-              <StyledButton
-                variant="link"
-                onClick={handleOnBackClick}>Back</StyledButton>
-
-            </div>}
+                <StyledButton variant="link" onClick={handleOnBackClick}>
+                  Back
+                </StyledButton>
+              </div>
+            )}
 
             <SuccessMessage show={empHasBeenCreated}>
               You have successfully deployed the expiring multiparty contract {newEMPAddress}

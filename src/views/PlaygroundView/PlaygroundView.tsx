@@ -1,60 +1,51 @@
 import React, { useEffect, useState } from "react"
 import { Button, Col, Container, Row } from "react-bootstrap"
-import {
-  useMediaQuery,
-  InputBase,
-  MenuItem,
-  ListItemText,
-  Select,
-  Dialog
-} from "@material-ui/core";
-import { withStyles, useTheme } from "@material-ui/core/styles";
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import { makeStyles } from '@material-ui/core/styles';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useMediaQuery, InputBase, MenuItem, ListItemText, Select, Dialog } from "@material-ui/core"
+import { withStyles, useTheme } from "@material-ui/core/styles"
+import AppBar from "@material-ui/core/AppBar"
+import Toolbar from "@material-ui/core/Toolbar"
+import IconButton from "@material-ui/core/IconButton"
+import CloseIcon from "@material-ui/icons/Close"
+import { makeStyles } from "@material-ui/core/styles"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import ExpiringMultiPartyArtifact from "@uma/core/build/contracts/ExpiringMultiParty.json"
 import ExpandedIERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json"
-
 
 import { TITLE } from "../../text"
 
 import { StepProvider, useContract } from "./hooks"
 import { Stepmanager } from "./steps"
 import { NavMenu, RightPanel } from "./sections"
-import { ethers } from "ethers";
-import { ReactWeb3Provider, useRemix } from "../../hooks";
-import { EMPBody } from "./EMPBody";
+import { ethers } from "ethers"
+import { ReactWeb3Provider, useRemix } from "../../hooks"
+import { EMPBody } from "./EMPBody"
 
 const BootstrapInput = withStyles((theme) => ({
   root: {
     backgroundColor: theme.selectBackgroundColor,
-    width: `100%`
+    width: `100%`,
   },
   input: {
     display: "flex",
     paddingLeft: "16px",
     alignItems: "center",
   },
-}))(InputBase);
+}))(InputBase)
 
-const BLUE_COLOR = '#222336';
+const BLUE_COLOR = "#222336"
 
 export interface Emp {
-  name: string;
-  symbol: string;
-  address: string;
+  name: string
+  symbol: string
+  address: string
 }
-
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    position: 'relative',
+    position: "relative",
     backgroundColor: `${BLUE_COLOR}`,
-    color: 'white'
+    color: "white",
   },
   title: {
     marginLeft: theme.spacing(2),
@@ -63,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const PlaygroundView: React.FC = () => {
-  const theme = useTheme();
+  const theme = useTheme()
   const { signer, web3Provider } = useRemix()
   const { resetModalData, empAddresses, setSelectedEMPAddress, selectedEMPAddress } = useContract()
   const [isLoading, setIsLoading] = useState(false)
@@ -89,7 +80,7 @@ export const PlaygroundView: React.FC = () => {
         return {
           name: syntheticToken.name,
           symbol: syntheticToken.symbol,
-          address: expiringMultiPartyAddress
+          address: expiringMultiPartyAddress,
         }
       })
       const result = Promise.all(empMapped)
@@ -102,32 +93,31 @@ export const PlaygroundView: React.FC = () => {
         setIsLoading(false)
       })
       .catch((error) => console.log("Error"))
-
   }, [empAddresses])
 
   useEffect(() => {
     setIsLoading(true)
   }, [])
 
-  const largeScreen = useMediaQuery(theme.breakpoints.up("sm"));
-  const [open, setOpen] = React.useState(false);
+  const largeScreen = useMediaQuery(theme.breakpoints.up("sm"))
+  const [open, setOpen] = React.useState(false)
 
   const handleClose = () => {
     setOpen(false)
     resetModalData()
-  };
-  const handleShow = () => setOpen(true);
+  }
+  const handleShow = () => setOpen(true)
 
   const handleChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    const value = e.target.value;
+    const value = e.target.value
     setSelectedEMPAddress(value === 0 ? "0" : (value as string))
-  };
+  }
 
-  const noEmpsOrLoading = emps.length === 0 || isLoading;
+  const noEmpsOrLoading = emps.length === 0 || isLoading
 
   const prettyAddress = (x: string) => {
-    return x.substr(0, 6) + "..." + x.substr(x.length - 6, x.length);
-  };
+    return x.substr(0, 6) + "..." + x.substr(x.length - 6, x.length)
+  }
 
   return (
     <React.Fragment>
@@ -140,11 +130,17 @@ export const PlaygroundView: React.FC = () => {
               value={isLoading || selectedEMPAddress === "0" ? 0 : selectedEMPAddress}
               onChange={handleChange}
               input={<BootstrapInput />}
-              disabled={noEmpsOrLoading}>
-
+              disabled={noEmpsOrLoading}
+            >
               <MenuItem value={0}>
                 <ListItemText
-                  primary={isLoading ? "Please wait. Loading list of EMPs..." : emps.length == 0 ? "There are not existing EMPs" : "Select an EMP"}
+                  primary={
+                    isLoading
+                      ? "Please wait. Loading list of EMPs..."
+                      : emps.length == 0
+                      ? "There are not existing EMPs"
+                      : "Select an EMP"
+                  }
                 />
               </MenuItem>
 
@@ -153,48 +149,52 @@ export const PlaygroundView: React.FC = () => {
                   <MenuItem value={emp.address} key={emp.address}>
                     <ListItemText
                       primary={largeScreen ? emp.name : emp.symbol}
-                      secondary={
-                        largeScreen ? emp.address : prettyAddress(emp.address)
-                      }
+                      secondary={largeScreen ? emp.address : prettyAddress(emp.address)}
                     />
                   </MenuItem>
-                );
+                )
               })}
             </Select>
           </Col>
           <Col sm={4} md={3}>
             <Button variant="primary" onClick={handleShow} style={{ padding: "0.7em 1em" }}>
               <FontAwesomeIcon icon={faPlus} />
-              {'  '}
+              {"  "}
               Create EMP
-              </Button>{' '}
+            </Button>{" "}
           </Col>
-
         </div>
 
         {/* EMP Body
-       */}
+         */}
         <ReactWeb3Provider injectedProvider={web3Provider}>
           <EMPBody />
         </ReactWeb3Provider>
         {/* EMP Dialog */}
         <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
-          {open && <React.Fragment><DialogHeader onCloseClick={handleClose} />
-            <StepProvider>
-              <Container fluid={true} style={{ padding: "2em", height: "900px", overflow: "scroll", backgroundColor: `${BLUE_COLOR}` }}>
-                <Row>
-                  <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
-                    <NavMenu />
-                  </Col>
-                  <Col md={5} style={{ padding: "0", display: "flex", flexDirection: "column" }}>
-                    <Stepmanager closeModalTrigger={handleClose} />
-                  </Col>
-                  <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
-                    <RightPanel />
-                  </Col>
-                </Row>
-              </Container>
-            </StepProvider></React.Fragment>}
+          {open && (
+            <React.Fragment>
+              <DialogHeader onCloseClick={handleClose} />
+              <StepProvider>
+                <Container
+                  fluid={true}
+                  style={{ padding: "2em", height: "900px", overflow: "scroll", backgroundColor: `${BLUE_COLOR}` }}
+                >
+                  <Row>
+                    <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
+                      <NavMenu />
+                    </Col>
+                    <Col md={5} style={{ padding: "0", display: "flex", flexDirection: "column" }}>
+                      <Stepmanager closeModalTrigger={handleClose} />
+                    </Col>
+                    <Col md={3} style={{ paddingLeft: "0", paddingRight: "0" }}>
+                      <RightPanel />
+                    </Col>
+                  </Row>
+                </Container>
+              </StepProvider>
+            </React.Fragment>
+          )}
         </Dialog>
       </Container>
     </React.Fragment>
@@ -206,7 +206,7 @@ interface DialogHeaderProps {
 }
 
 const DialogHeader: React.FC<DialogHeaderProps> = ({ onCloseClick }) => {
-  const classes = useStyles();
+  const classes = useStyles()
   return (
     <AppBar className={classes.appBar}>
       <Toolbar>

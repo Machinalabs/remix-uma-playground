@@ -1,4 +1,1 @@
-
-export const GlobalStateProvider = () => {
-
-}
+export const GlobalStateProvider = () => {}

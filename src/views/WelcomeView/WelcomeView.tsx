@@ -10,7 +10,6 @@ import { useRemix, useUMARegistry } from "../../hooks"
 import { TITLE } from "../../text"
 import { debug } from "../../utils"
 
-
 export const WelcomeView: React.FC = () => {
   const { clientInstance, web3Provider, themeType } = useRemix()
   const [isStarting, setIsStarting] = useState(false)
@@ -23,9 +22,7 @@ export const WelcomeView: React.FC = () => {
       const validateAndRedirectIfOk = async () => {
         const provider = await clientInstance.call("network", "getNetworkProvider")
         if (provider === "vm") {
-          setError(
-            "Invalid provider selected. Please be ensure the provider is correct."
-          )
+          setError("Invalid provider selected. Please be ensure the provider is correct.")
           setIsStarting(false)
           return
         }

@@ -32,9 +32,11 @@ export const Button: React.FC<Props> = ({ isloading, loadingText, text, show = t
           />
           <span>{loadingText}</span>
         </React.Fragment>
-      ) : <span>{text}</span>}
+      ) : (
+        <span>{text}</span>
+      )}
     </StyledButton>
   ) : (
-      <React.Fragment />
-    )
+    <React.Fragment />
+  )
 }

@@ -29,7 +29,7 @@ const STEPS: Step = [
     order: 3,
     route: "create_expiring_multiparty",
     name: "Create expiring multiparty",
-  }
+  },
 ]
 
 interface IStepProvider {
@@ -54,11 +54,11 @@ const StepContext = React.createContext<IStepProvider>({
   currentStep: STEPS[DEFAULT_STEP],
   getStepBefore: () => STEPS[DEFAULT_STEP],
   isLastStep: () => false,
-  goNextStep: () => { },
-  goStepBefore: () => { },
+  goNextStep: () => {},
+  goStepBefore: () => {},
   isCurrentStepCompleted: false,
-  setCurrentStepCompleted: () => { },
-  restart: () => { },
+  setCurrentStepCompleted: () => {},
+  restart: () => {},
   getDefaultStep: () => STEPS[DEFAULT_STEP],
 })
 /* tslint:enable */

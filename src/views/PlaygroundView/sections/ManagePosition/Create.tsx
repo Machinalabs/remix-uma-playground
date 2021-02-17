@@ -1,42 +1,39 @@
-import React, { useState } from 'react'
-import { Box, Button, Grid, InputAdornment, TextField, Tooltip, Typography } from '@material-ui/core'
-import styled from 'styled-components';
+import React, { useState } from "react"
+import { Box, Button, Grid, InputAdornment, TextField, Tooltip, Typography } from "@material-ui/core"
+import styled from "styled-components"
 
-import { useEMPData, useToken } from '../../../../hooks'
-import { fromWei } from '../../../../utils';
+import { useEMPData, useToken } from "../../../../hooks"
+import { fromWei } from "../../../../utils"
 
-import { useContract } from '../../hooks'
+import { useContract } from "../../hooks"
 
-interface Props {
-
-}
+interface Props {}
 
 const MinLink = styled.div`
   text-decoration-line: underline;
-`;
+`
 
 export const Create: React.FC<Props> = () => {
-    const { selectedEMPAddress } = useContract()
-    const { state: empState } = useEMPData(selectedEMPAddress)
-    const { symbol: tokenSymbol, decimals: tokenDecimals } = useToken(empState.tokenCurrency)
+  const { selectedEMPAddress } = useContract()
+  const { state: empState } = useEMPData(selectedEMPAddress)
+  const { symbol: tokenSymbol, decimals: tokenDecimals } = useToken(empState.tokenCurrency)
 
-    const { collateralRequirement, priceIdentifier, minSponsorTokens } = empState
+  const { collateralRequirement, priceIdentifier, minSponsorTokens } = empState
 
-    const [tokens, setTokens] = useState<string>("0");
+  const [tokens, setTokens] = useState<string>("0")
 
+  if (collateralRequirement && priceIdentifier && minSponsorTokens) {
+    // const minSponsorTokensFromWei = parseFloat(fromWei(minSponsorTokens, tokenDecimals));
+    // const tokensToCreate = Number(tokens) || 0;
+    // const resultantCollateral = posCollateral + collateralToDeposit;
+    // const resultantTokens = posTokens + tokensToCreate;
+    // const resultantTokensBelowMin = resultantTokens < minSponsorTokensFromWei && resultantTokens !== 0;
 
-    if (collateralRequirement && priceIdentifier && minSponsorTokens) {
-        // const minSponsorTokensFromWei = parseFloat(fromWei(minSponsorTokens, tokenDecimals));
-        // const tokensToCreate = Number(tokens) || 0;
-        // const resultantCollateral = posCollateral + collateralToDeposit;
-        // const resultantTokens = posTokens + tokensToCreate;
-        // const resultantTokensBelowMin = resultantTokens < minSponsorTokensFromWei && resultantTokens !== 0;
-
-        return (
-            <Box>
-                <Grid container spacing={3}>
-                    <Grid item md={4} sm={6} xs={12}>
-                        {/* <TextField
+    return (
+      <Box>
+        <Grid container spacing={3}>
+          <Grid item md={4} sm={6} xs={12}>
+            {/* <TextField
                             fullWidth
                             type="number"
                             variant="outlined"
@@ -78,8 +75,8 @@ export const Create: React.FC<Props> = () => {
                                 ),
                             }}
                         /> */}
-                    </Grid>
-                    {/* <Grid item md={4} sm={6} xs={12}>
+          </Grid>
+          {/* <Grid item md={4} sm={6} xs={12}>
                         <TextField
                             fullWidth
                             type="number"
@@ -153,20 +150,20 @@ export const Create: React.FC<Props> = () => {
                             )}
                         </Box>
                     </Grid>*/}
-                </Grid>
-            </Box>
+        </Grid>
+      </Box>
 
-            // 1 input text for number of tokens
-            // 1 input for collateral
-            // 
-        )
-    } else {
-        return (
-            <Box py={2}>
-                <Typography>
-                    <i>Please select an EMP from the dropdown above.</i>
-                </Typography>
-            </Box>
-        );
-    }
+      // 1 input text for number of tokens
+      // 1 input for collateral
+      //
+    )
+  } else {
+    return (
+      <Box py={2}>
+        <Typography>
+          <i>Please select an EMP from the dropdown above.</i>
+        </Typography>
+      </Box>
+    )
+  }
 }

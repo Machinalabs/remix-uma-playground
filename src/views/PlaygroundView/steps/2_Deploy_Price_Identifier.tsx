@@ -3,8 +3,8 @@ import { Formik, FormikErrors, Form as FormikForm } from "formik"
 import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
 import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhitelist.json"
 import { useHistory } from "react-router-dom"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
 
 import { useRemix, useUMARegistry } from "../../../hooks"
 import { debug, defaultTransactionValues } from "../../../utils"
@@ -26,7 +26,7 @@ const initialValues: FormProps = {
 
 enum MODE {
   SelectPriceIdentifier = "SelectPriceIdentifier",
-  DeployPriceIdentifier = "DeployPriceIdentifier"
+  DeployPriceIdentifier = "DeployPriceIdentifier",
 }
 
 export const DeployPriceIdentifier: React.FC = () => {
@@ -71,46 +71,51 @@ export const DeployPriceIdentifier: React.FC = () => {
 
   return (
     <React.Fragment>
-      {mode === MODE.SelectPriceIdentifier &&
+      {mode === MODE.SelectPriceIdentifier && (
         <React.Fragment>
           <h4>Select price identifier</h4>
           <Form>
             <Row>
               <Col md={10}>
-                <Form.Control as="select" value={selectedPriceIdentifier || "0"} disabled={priceIdentifiers.length === 0} onChange={handleSelectChange}>
+                <Form.Control
+                  as="select"
+                  value={selectedPriceIdentifier || "0"}
+                  disabled={priceIdentifiers.length === 0}
+                  onChange={handleSelectChange}
+                >
                   {priceIdentifiers.length === 0 && <option value="0">No price identifiers</option>}
                   <option value="0">Select an option</option>
-                  {priceIdentifiers.length > 0 && priceIdentifiers.map((item, index) => {
-                    return (<option key={index} value={item}>{item}</option>)
-                  })}
+                  {priceIdentifiers.length > 0 &&
+                    priceIdentifiers.map((item, index) => {
+                      return (
+                        <option key={index} value={item}>
+                          {item}
+                        </option>
+                      )
+                    })}
                 </Form.Control>
               </Col>
               <BootstrapButton size="sm" variant="primary" onClick={handleOnDeployClick}>
                 <FontAwesomeIcon icon={faPlus} />
-              </BootstrapButton>{' '}
+              </BootstrapButton>{" "}
             </Row>
 
             <div style={{ marginTop: "1em" }}>
+              <StyledButton disabled={selectedPriceIdentifier === ""} variant="success" onClick={handleOnNextClick}>
+                Next
+              </StyledButton>
 
-              <StyledButton
-                disabled={selectedPriceIdentifier === ""}
-                variant="success"
-                onClick={handleOnNextClick}>Next</StyledButton>
-
-              <StyledButton
-                variant="link"
-                onClick={handleOnBackClick}>Back</StyledButton>
-
-
+              <StyledButton variant="link" onClick={handleOnBackClick}>
+                Back
+              </StyledButton>
             </div>
-
           </Form>
+        </React.Fragment>
+      )}
 
-        </React.Fragment>}
-
-      {mode === MODE.DeployPriceIdentifier &&
-        <DeployPriceIdentifierView onCancelCallback={handleOnCancelClick} onSuccessCallback={onSuccessCallback} />}
-
+      {mode === MODE.DeployPriceIdentifier && (
+        <DeployPriceIdentifierView onCancelCallback={handleOnCancelClick} onSuccessCallback={onSuccessCallback} />
+      )}
     </React.Fragment>
   )
 }
@@ -120,7 +125,10 @@ interface DeployPriceIdentifierViewProps {
   onSuccessCallback: () => void
 }
 
-const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
+const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({
+  onCancelCallback,
+  onSuccessCallback,
+}) => {
   const { setSelectedPriceIdentifier } = useContract()
   const { getContractAddress } = useUMARegistry()
   const { clientInstance } = useRemix()
@@ -166,7 +174,7 @@ const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ o
           resetForm({})
           setTimeout(() => {
             onSuccessCallback()
-          }, DELAY_AFTER_FORM_CREATION);
+          }, DELAY_AFTER_FORM_CREATION)
         })
         .catch((e) => {
           debug(e)
@@ -186,44 +194,48 @@ const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({ o
             errors.priceIdentifier = "Required"
           }
           return errors
-        }
-        }
+        }}
         onSubmit={handleSubmit}
       >
         {({ isSubmitting }) => (
           <FormikForm>
-            <FormItem
-              label="Price Identifier"
-              field="priceIdentifier"
-              placeHolder="ETH/USD"
-            />
+            <FormItem label="Price Identifier" field="priceIdentifier" placeHolder="ETH/USD" />
 
-            {!priceIdentifierHasBeenCreated && <div style={{ display: "flex", justifyContent: "space-between", paddingRight: "2.5em", marginTop: "0em", marginBottom: "2em" }}>
-              <Button
-                variant="primary"
-                type="submit"
-                size="sm"
-                disabled={isSubmitting}
-                isloading={isSubmitting}
-                loadingText="Deploying..."
-                text="Deploy"
-              />
+            {!priceIdentifierHasBeenCreated && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  paddingRight: "2.5em",
+                  marginTop: "0em",
+                  marginBottom: "2em",
+                }}
+              >
+                <Button
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  disabled={isSubmitting}
+                  isloading={isSubmitting}
+                  loadingText="Deploying..."
+                  text="Deploy"
+                />
 
-              <Button
-                variant="danger"
-                size="sm"
-                isloading={false}
-                loadingText=""
-                text="Cancel"
-                onClick={onCancelCallback}
-              />
-            </div>}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  isloading={false}
+                  loadingText=""
+                  text="Cancel"
+                  onClick={onCancelCallback}
+                />
+              </div>
+            )}
 
             <SuccessMessage show={priceIdentifierHasBeenCreated}>
               You have successfully deployed the price identifier.
             </SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
           </FormikForm>
         )}
       </Formik>

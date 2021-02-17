@@ -6,7 +6,7 @@ import { DefaultLayout } from "./layouts"
 import { PLAYGROUND_ROUTE } from "./constants"
 import { useRemix } from "./hooks"
 import { ThemeProvider } from "styled-components"
-import { ThemeProvider as MaterialUIProvider, createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider as MaterialUIProvider, createMuiTheme } from "@material-ui/core/styles"
 import { ContractProvider } from "./views/PlaygroundView/hooks"
 
 import { getTheme } from "./theme"
@@ -25,10 +25,10 @@ const RouteWithDefaultLayout = ({ component: Component, ...rest }: Props) => {
         palette: {
           type: themeType,
         },
-        selectBackgroundColor: themeType === 'dark' ? "rgba(255, 255, 255, 0.09)" : "rgb(0 0 0 / 9%)"
+        selectBackgroundColor: themeType === "dark" ? "rgba(255, 255, 255, 0.09)" : "rgb(0 0 0 / 9%)",
       }),
-    [themeType],
-  );
+    [themeType]
+  )
 
   return (
     <Route
