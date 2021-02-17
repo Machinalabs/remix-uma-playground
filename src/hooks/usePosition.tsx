@@ -7,20 +7,6 @@ import { useEMPData } from "./useEMPData"
 import { useToken } from "./useToken"
 import { useWeb3Provider } from "./useWeb3Provider"
 
-// interface Liquidation {
-// liquidationId: id,
-//                 liquidationTime: liq.liquidationTime.toNumber(),
-//                 liquidationTimeRemaining: liquidationTimeRemaining,
-//                 liquidator: liq.liquidator,
-//                 liquidatedCollateral: weiToNum(
-//                     liq.liquidatedCollateral[0],
-//                     collDec
-//                 ),
-//                 lockedCollateral: weiToNum(liq.lockedCollateral[0], collDec),
-//                 tokensOutstanding: weiToNum(liq.tokensOutstanding[0], tokenDec),
-//                 state: liq.state,
-// }
-
 interface PositionData {
     collateral: NumberAsString
     backingCollateral: NumberAsString
@@ -30,16 +16,6 @@ interface PositionData {
     withdrawalPassTime: NumberAsString
     pendingWithdraw: NumberAsString
     pendingTransfer: NumberAsString
-    // liquidations: Liquidation[]
-    // setCollateral(collateral);
-    // setBackingCollateral(backingCollateral);
-    // setTokens(tokens);
-    // setCRatio(cRatio);
-    // setWithdrawAmt(withdrawAmt);
-    // setWithdrawPassTime(withdrawPassTime);
-    // setPendingWithdraw(pendingWithdraw);
-    // setPendingTransfer(pendingTransfer);
-    // setLiquidations(updatedLiquidations);
 }
 
 export const usePosition = (empAddress: EthereumAddress, address: EthereumAddress): PositionData => {
@@ -95,30 +71,6 @@ export const usePosition = (empAddress: EthereumAddress, address: EthereumAddres
         setWithdrawalPassTime(toNumberAsString(withdrawPassTime));
         setPendingWithdraw(pendingWithdraw);
         setPendingTransfer(pendingTransfer);
-        //     // Only store unexpired liquidations in state
-        //     const updatedLiquidations: LiquidationState[] = [];
-        //     liquidations.forEach((liq: any, id: number) => {
-        //         const liquidationTimeRemaining =
-        //             liq.liquidationTime.toNumber() +
-        //             liquidationLiveness.toNumber() -
-        //             Math.floor(Date.now() / 1000);
-        //         if (liquidationTimeRemaining > 0) {
-        //             updatedLiquidations.push({
-        //                 liquidationId: id,
-        //                 liquidationTime: liq.liquidationTime.toNumber(),
-        //                 liquidationTimeRemaining: liquidationTimeRemaining,
-        //                 liquidator: liq.liquidator,
-        //                 liquidatedCollateral: weiToNum(
-        //                     liq.liquidatedCollateral[0],
-        //                     collDec
-        //                 ),
-        //                 lockedCollateral: weiToNum(liq.lockedCollateral[0], collDec),
-        //                 tokensOutstanding: weiToNum(liq.tokensOutstanding[0], tokenDec),
-        //                 state: liq.state,
-        //             });
-        //         }
-        //     });
-
     }
 
     useEffect(() => {
