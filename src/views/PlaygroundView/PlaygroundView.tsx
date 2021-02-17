@@ -144,7 +144,7 @@ export const PlaygroundView: React.FC = () => {
 
               <MenuItem value={0}>
                 <ListItemText
-                  primary={isLoading ? "Please wait. Loading list of EMPs..." : "Select an EMP"}
+                  primary={isLoading ? "Please wait. Loading list of EMPs..." : emps.length == 0 ? "There are not existing EMPs" : "Select an EMP"}
                 />
               </MenuItem>
 
