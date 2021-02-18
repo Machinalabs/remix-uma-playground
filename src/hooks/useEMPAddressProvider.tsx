@@ -1,1 +1,1 @@
-export const GlobalStateProvider = () => { } // tslint:disable-line
+export const GlobalStateProvider = () => {} // tslint:disable-line

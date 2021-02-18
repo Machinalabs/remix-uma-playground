@@ -58,13 +58,13 @@ const ContractContext = React.createContext<IContractProvider>({
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
   empAddresses: ["0x000000"],
-  resetModalData: () => { },
+  resetModalData: () => {},
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
-  setSelectedCollateralToken: () => { },
-  setSelectedPriceIdentifier: () => { },
+  setSelectedCollateralToken: () => {},
+  setSelectedPriceIdentifier: () => {},
   selectedEMPAddress: "0",
-  setSelectedEMPAddress: (newEMP: string) => { },
+  setSelectedEMPAddress: (newEMP: string) => {},
 })
 /* tslint:enable */
 
