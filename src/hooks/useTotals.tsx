@@ -26,14 +26,14 @@ export const useTotals = (empAddress: EthereumAddress): Totals => {
       const { cumulativeFeeMultiplier, rawTotalPositionCollateral, totalTokensOutstanding } = empState
 
       if (cumulativeFeeMultiplier && totalTokensOutstanding && rawTotalPositionCollateral) {
-        const totalCollateral =
+        const newTotalCollateral =
           weiToNum(cumulativeFeeMultiplier) * weiToNum(rawTotalPositionCollateral, collateralDecimals)
-        const totalTokens = weiToNum(totalTokensOutstanding, syntheticDecimals)
-        const gcr = totalTokens > 0 ? totalCollateral / totalTokens : 0
+        const newTotalTokens = weiToNum(totalTokensOutstanding, syntheticDecimals)
+        const newGcr = newTotalTokens > 0 ? newTotalCollateral / newTotalTokens : 0
 
-        setTotalCollateral(`${totalCollateral}`)
-        setTotalTokens(`${totalTokens}`)
-        setGCR(`${gcr}`)
+        setTotalCollateral(`${newTotalCollateral}`)
+        setTotalTokens(`${newTotalTokens}`)
+        setGCR(`${newGcr}`)
       }
     } else {
       setTotalCollateral("")

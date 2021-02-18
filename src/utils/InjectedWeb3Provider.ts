@@ -1,5 +1,5 @@
-const http = require("http")
-const Web3HttpProvider = require("web3-providers-http")
+const http = require("http") // tslint:disable-line 
+const Web3HttpProvider = require("web3-providers-http") // tslint:disable-line
 
 export const getInjectedProvider = (url: string) => {
   const options = {

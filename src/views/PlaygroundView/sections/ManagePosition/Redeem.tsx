@@ -1,7 +1,5 @@
 import React from "react"
 
-interface Props {}
-
-export const Redeem: React.FC<Props> = () => {
+export const Redeem: React.FC<{}> = () => {
   return <h1>Redeem</h1>
 }

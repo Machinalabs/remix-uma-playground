@@ -54,7 +54,7 @@ export function getPricefeedParamsFromTokenSymbol(symbol: string | null) {
   }
 }
 export const getOffchainPriceFromTokenSymbol = async (symbol: string) => {
-  let identifierParams = getPricefeedParamsFromTokenSymbol(symbol)
+  const identifierParams = getPricefeedParamsFromTokenSymbol(symbol)
   if (identifierParams === null) {
     console.error(`Missing identifier parameters for token with symbol ${symbol}`)
     return null

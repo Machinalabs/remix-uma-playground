@@ -58,13 +58,13 @@ const ContractContext = React.createContext<IContractProvider>({
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
   empAddresses: ["0x000000"],
-  resetModalData: () => {},
+  resetModalData: () => { },
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
-  setSelectedCollateralToken: () => {},
-  setSelectedPriceIdentifier: () => {},
+  setSelectedCollateralToken: () => { },
+  setSelectedPriceIdentifier: () => { },
   selectedEMPAddress: "0",
-  setSelectedEMPAddress: (newEMP: string) => {},
+  setSelectedEMPAddress: (newEMP: string) => { },
 })
 /* tslint:enable */
 
@@ -104,12 +104,12 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     const empCreatedFilter = await expiringMultipartyCreator.filters.CreatedExpiringMultiParty()
     const events = await expiringMultipartyCreator.queryFilter(empCreatedFilter, 0, "latest")
 
-    const empAddresses = events.map((event) => {
+    const newEmpAddresses = events.map((event) => {
       if (event.args) {
         return event.args[0]
       }
     })
-    const identifiersFiltered: string[] = empAddresses.filter((s) => s != undefined) as string[]
+    const identifiersFiltered: string[] = newEmpAddresses.filter((s) => s !== undefined) as string[]
     setEmpAddresses(identifiersFiltered)
   }
 
@@ -154,7 +154,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         return ethers.utils.parseBytes32String(event.args[0])
       }
     })
-    const identifiersFiltered: string[] = identifiers.filter((s) => s != undefined) as string[]
+    const identifiersFiltered: string[] = identifiers.filter((s) => s !== undefined) as string[]
     setPriceIdentifiers(identifiersFiltered)
   }
 
@@ -168,8 +168,8 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         })
       })
       // debounce to prevent subscribers making unnecessary calls
-      const block$ = observable.pipe(debounceTime(1000))
-      setBlock$(block$)
+      const blockInstance = observable.pipe(debounceTime(1000))
+      setBlock$(blockInstance)
 
       console.log("Use contract middle")
 
@@ -205,7 +205,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         priceIdentifiers,
         collateralTokens,
         empAddresses,
-        resetModalData: resetModalData,
+        resetModalData,
         selectedPriceIdentifier,
         setSelectedPriceIdentifier,
         selectedCollateralToken,

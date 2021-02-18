@@ -46,8 +46,8 @@ export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProp
       setWeb3Provider(ethersJSProvider)
 
       // signer
-      const signer = ethersJSProvider.getSigner()
-      setSigner(signer)
+      const newSigner = ethersJSProvider.getSigner()
+      setSigner(newSigner)
 
       // block
       const observable = new Observable<Block>((subscriber) => {
@@ -56,8 +56,8 @@ export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProp
         })
       })
       // debounce to prevent subscribers making unnecessary calls
-      const block$ = observable.pipe(debounceTime(1000))
-      setBlock$(block$)
+      const newBlock$ = observable.pipe(debounceTime(1000))
+      setBlock$(newBlock$)
     }
   }, [injectedProvider])
 

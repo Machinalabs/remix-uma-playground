@@ -28,21 +28,27 @@ export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo => {
 
   useEffect(() => {
     if (empState) {
-      const { expirationTimestamp, priceIdentifier, collateralRequirement, minSponsorTokens, isExpired } = empState
-      if (expirationTimestamp && priceIdentifier && collateralRequirement && minSponsorTokens) {
-        const expiryDate = new Date(expirationTimestamp.toNumber() * 1000).toLocaleString("en-GB", { timeZone: "UTC" })
+      const {
+        expirationTimestamp: expTimestamp,
+        priceIdentifier: priceId,
+        collateralRequirement: collReq,
+        minSponsorTokens: minSpons,
+        isExpired: isExp,
+      } = empState
+      if (expTimestamp && priceId && collReq && minSpons) {
+        const expiryDate = new Date(expTimestamp.toNumber() * 1000).toLocaleString("en-GB", { timeZone: "UTC" })
         // const prettyLatestPrice = Number(latestPrice).toFixed(8);
         // const pricedGcr = (gcr / latestPrice).toFixed(8);
-        const priceIdentifierParsed = parseBytes32String(priceIdentifier)
-        const collateralRequirementPercentage = parseFloat(formatUnits(collateralRequirement)).toString()
+        const priceIdentifierParsed = parseBytes32String(priceId)
+        const collateralRequirementPercentage = parseFloat(formatUnits(collReq)).toString()
         // const minSponsorTokensSymbol = `${formatUnits(
         //     minSponsorTokens
         // )} ${tokenSymbol}`;
         setPriceIdentifier(priceIdentifierParsed)
         setExpireDate(expiryDate)
         setCollateralRequirement(collateralRequirementPercentage)
-        setIsExpired(isExpired ? "YES" : "NO")
-        setMinimumSponsorTokens(fromWei(minSponsorTokens.toString()))
+        setIsExpired(isExp ? "YES" : "NO")
+        setMinimumSponsorTokens(fromWei(minSpons.toString()))
       } else {
         setExpireDate("")
         setIsExpired("")

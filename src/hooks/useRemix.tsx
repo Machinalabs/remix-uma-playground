@@ -55,8 +55,8 @@ export const RemixProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => 
       setWeb3Provider(ethersJSProvider)
 
       // signer
-      const signer = ethersJSProvider.getSigner()
-      setSigner(signer)
+      const newSigner = ethersJSProvider.getSigner()
+      setSigner(newSigner)
 
       const currentTheme = await client.call("theme", "currentTheme")
       log("Current theme", currentTheme)
@@ -68,11 +68,11 @@ export const RemixProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => 
         setThemeType(theme.quality)
       })
 
-      if (!signer) {
+      if (!newSigner) {
         throw new Error("Signer not set")
       }
 
-      if (!web3Provider) {
+      if (!ethersJSProvider) {
         throw new Error("Web3 provider not set")
       }
     }

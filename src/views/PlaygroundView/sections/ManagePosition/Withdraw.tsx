@@ -1,7 +1,5 @@
 import React from "react"
 
-interface Props {}
-
-export const Withdraw: React.FC<Props> = () => {
+export const Withdraw: React.FC<{}> = () => {
   return <h1>Withdraw</h1>
 }

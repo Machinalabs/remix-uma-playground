@@ -41,8 +41,8 @@ export const RightPanel: React.FC = () => {
           TestnetERC20Artifact.abi,
           signer
         )
-        const account = await signer.getAddress()
-        const balance: BigNumber = await testnetERC20Contract.balanceOf(account)
+        const currentAccount = await signer.getAddress()
+        const balance: BigNumber = await testnetERC20Contract.balanceOf(currentAccount)
         setCollateralBalance(`${formatUnits(balance, "ether").toString()}`)
       }
     }

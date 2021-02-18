@@ -49,23 +49,23 @@ export const usePosition = (empAddress: EthereumAddress, address: EthereumAddres
     const withdrawReqAmt: BigNumber = position.withdrawalRequestAmount[0]
     const withdrawReqPassTime: BigNumber = position.withdrawalRequestPassTimestamp
     const transferPositionRequestPassTimestamp: BigNumber = position.transferPositionRequestPassTimestamp
-    const collateral: number = weiToNum(collRaw, collateralDecimals)
-    const backingCollateral: number = weiToNum(collRaw.sub(withdrawReqAmt), collateralDecimals)
+    const newCollateral: number = weiToNum(collRaw, collateralDecimals)
+    const newBackingCollateral: number = weiToNum(collRaw.sub(withdrawReqAmt), collateralDecimals)
     const tokens: number = weiToNum(tokensOutstanding, syntheticTokenDecimals)
     const cRatio = Number(tokens) > 0 ? Number(backingCollateral) / Number(tokens) : 0
-    const withdrawalAmount: number = weiToNum(withdrawReqAmt, collateralDecimals)
+    const newWithdrawalAmount: number = weiToNum(withdrawReqAmt, collateralDecimals)
     const withdrawPassTime: number = withdrawReqPassTime.toNumber()
-    const pendingWithdraw: string = withdrawReqPassTime.toString() !== "0" ? "Yes" : "No"
-    const pendingTransfer: string = transferPositionRequestPassTimestamp.toString() !== "0" ? "Yes" : "No"
+    const newPendingWithdraw: string = withdrawReqPassTime.toString() !== "0" ? "Yes" : "No"
+    const newPendingTransfer: string = transferPositionRequestPassTimestamp.toString() !== "0" ? "Yes" : "No"
 
-    setCollateral(toNumberAsString(collateral))
-    setBackingCollateral(toNumberAsString(backingCollateral))
+    setCollateral(toNumberAsString(newCollateral))
+    setBackingCollateral(toNumberAsString(newBackingCollateral))
     setSyntheticTokens(toNumberAsString(tokens))
     setCollateralRatio(toNumberAsString(cRatio))
-    setWithdrawalAmount(toNumberAsString(withdrawalAmount))
+    setWithdrawalAmount(toNumberAsString(newWithdrawalAmount))
     setWithdrawalPassTime(toNumberAsString(withdrawPassTime))
-    setPendingWithdraw(pendingWithdraw)
-    setPendingTransfer(pendingTransfer)
+    setPendingWithdraw(newPendingWithdraw)
+    setPendingTransfer(newPendingTransfer)
   }
 
   useEffect(() => {

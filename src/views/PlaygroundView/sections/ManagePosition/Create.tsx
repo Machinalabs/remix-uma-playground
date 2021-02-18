@@ -7,13 +7,11 @@ import { fromWei } from "../../../../utils"
 
 import { useContract } from "../../hooks"
 
-interface Props {}
-
 const MinLink = styled.div`
   text-decoration-line: underline;
 `
 
-export const Create: React.FC<Props> = () => {
+export const Create: React.FC<{}> = () => {
   const { selectedEMPAddress } = useContract()
   const { state: empState } = useEMPData(selectedEMPAddress)
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useToken(empState.tokenCurrency)
@@ -31,8 +29,8 @@ export const Create: React.FC<Props> = () => {
 
     return (
       <Box>
-        <Grid container spacing={3}>
-          <Grid item md={4} sm={6} xs={12}>
+        <Grid container={true} spacing={3}>
+          <Grid item={true} md={4} sm={6} xs={12}>
             {/* <TextField
                             fullWidth
                             type="number"

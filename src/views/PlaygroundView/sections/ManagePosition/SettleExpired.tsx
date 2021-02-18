@@ -1,7 +1,5 @@
 import React from "react"
 
-interface Props {}
-
-export const SettleExpired: React.FC<Props> = () => {
+export const SettleExpired: React.FC<{}> = () => {
   return <h1>SettleExpired</h1>
 }

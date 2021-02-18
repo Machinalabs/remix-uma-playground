@@ -32,7 +32,7 @@ export const useSyntheticToken = (empAddress: EthereumAddress): SyntheticToken =
   const [balanceBN, setBalanceBN] = useState<BigNumber | null>(null)
 
   const getTokenInfo = async (contractInstance: ethers.Contract) => {
-    const [symbol, name, decimals] = await Promise.all([
+    const [newSymbol, newName, newDecimals] = await Promise.all([
       contractInstance.symbol(),
       contractInstance.name(),
       contractInstance.decimals(),
@@ -51,9 +51,9 @@ export const useSyntheticToken = (empAddress: EthereumAddress): SyntheticToken =
 
     // set states
 
-    setSymbol(symbol)
-    setName(name)
-    setDecimals(decimals)
+    setSymbol(newSymbol)
+    setName(newName)
+    setDecimals(newDecimals)
     // setBalance(balance);
     // setBalanceBN(balanceRaw);
     // setAllowance(allowance);

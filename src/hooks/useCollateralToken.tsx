@@ -28,35 +28,35 @@ export const useCollateralToken = (empAddress: EthereumAddress, address?: Ethere
 
   const getBalance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress) => {
     const balanceRaw: BigNumber = await contractInstance.balanceOf(addressParam)
-    const balance = fromWei(balanceRaw, decimals)
-    return balance
+    const newBalance = fromWei(balanceRaw, decimals)
+    return newBalance
   }
 
   const getAllowance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress) => {
     const allowanceRaw: BigNumber = await contractInstance.allowance(addressParam, empAddress)
-    const allowance = allowanceRaw.eq(ethers.constants.MaxUint256) ? "Infinity" : fromWei(allowanceRaw, decimals)
+    const newAllowance = allowanceRaw.eq(ethers.constants.MaxUint256) ? "Infinity" : fromWei(allowanceRaw, decimals)
 
-    return allowance
+    return newAllowance
   }
 
   const getTokenInfo = async (contractInstance: ethers.Contract) => {
-    const [symbol, name, decimals] = await Promise.all([
+    const [newSymbol, newName, newDecimals] = await Promise.all([
       contractInstance.symbol(),
       contractInstance.name(),
       contractInstance.decimals(),
     ])
-    setSymbol(symbol)
-    setName(name)
-    setDecimals(decimals)
+    setSymbol(newSymbol)
+    setName(newName)
+    setDecimals(newDecimals)
 
     if (address) {
-      const [balance, allowance] = await Promise.all([
+      const [newBalance, newAllowance] = await Promise.all([
         getBalance(contractInstance, address),
         getAllowance(contractInstance, address),
       ])
 
-      setBalance(balance)
-      setAllowance(allowance)
+      setBalance(newBalance)
+      setAllowance(newAllowance)
     }
   }
 

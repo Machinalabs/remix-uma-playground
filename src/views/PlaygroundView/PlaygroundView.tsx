@@ -137,7 +137,7 @@ export const PlaygroundView: React.FC = () => {
                   primary={
                     isLoading
                       ? "Please wait. Loading list of EMPs..."
-                      : emps.length == 0
+                      : emps.length === 0
                       ? "There are not existing EMPs"
                       : "Select an EMP"
                   }
