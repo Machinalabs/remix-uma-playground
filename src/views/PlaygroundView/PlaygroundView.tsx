@@ -63,6 +63,7 @@ export const PlaygroundView: React.FC = () => {
 
   useEffect(() => {
     const getAllEmpData = async () => {
+      setIsLoading(true)
       const empMapped = empAddresses.map(async (expiringMultiPartyAddress) => {
         const empContract = new ethers.Contract(expiringMultiPartyAddress, ExpiringMultiPartyArtifact.abi, signer)
         const syntheticTokenAddress = await empContract.tokenCurrency()
@@ -138,8 +139,8 @@ export const PlaygroundView: React.FC = () => {
                     isLoading
                       ? "Please wait. Loading list of EMPs..."
                       : emps.length === 0
-                      ? "There are not existing EMPs"
-                      : "Select an EMP"
+                        ? "There are not existing EMPs"
+                        : "Select an EMP"
                   }
                 />
               </MenuItem>
