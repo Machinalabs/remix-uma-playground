@@ -2,7 +2,7 @@ import { BigNumber, ethers } from "ethers"
 import { formatUnits, parseBytes32String } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
 import { fromWei } from "web3-utils"
-import { DateAsString, EthereumAddress } from "../types"
+import { DateAsString, EthereumAddress, NumberAsString } from "../types"
 import { useEMPData } from "./useEMPData"
 import { useERC20At } from "./useERC20At"
 import { useUMARegistry } from "./useUMARegistry"
@@ -11,6 +11,7 @@ interface Token {
   symbol: string
   name: string
   decimals: number
+  totalSupply: BigNumber | undefined
   // balanceRaw: BigNumber
   // allowanceRaw: BigNumber
   // balance: string
@@ -23,6 +24,7 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
   const [symbol, setSymbol] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [decimals, setDecimals] = useState<number>(0)
+  const [totalSupply, setTotalSupply] = useState<BigNumber | undefined>(undefined);
 
   // TODO: Remove nulls
   const [allowance, setAllowance] = useState<number | "Infinity" | null>(null)
@@ -30,10 +32,11 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
   const [balanceBN, setBalanceBN] = useState<BigNumber | null>(null)
 
   const getTokenInfo = async (contractInstance: ethers.Contract) => {
-    const [newSymbol, newName, newDecimals] = await Promise.all([
+    const [newSymbol, newName, newDecimals, newTotalSupply] = await Promise.all([
       contractInstance.symbol(),
       contractInstance.name(),
       contractInstance.decimals(),
+      contractInstance.totalSupply()
     ])
     // const balanceRaw: BigNumber = await contractInstance.balanceOf(address);
     // const allowanceRaw: BigNumber = await contractInstance.allowance(
@@ -52,6 +55,7 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
     setSymbol(newSymbol)
     setName(newName)
     setDecimals(newDecimals)
+    setTotalSupply(newTotalSupply)
     // setBalance(balance);
     // setBalanceBN(balanceRaw);
     // setAllowance(allowance);
@@ -67,6 +71,7 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
       setSymbol("")
       setName("")
       setDecimals(0)
+      setTotalSupply(undefined)
 
       setBalance(null)
       setBalanceBN(null)
@@ -85,5 +90,6 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
     name,
     decimals,
     symbol,
+    totalSupply
   }
 }
