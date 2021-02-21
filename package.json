@@ -41,7 +41,8 @@
   "scripts": {
     "start": "PORT=8080 react-scripts start",
     "build": "CI=true react-scripts build",
-    "test": "react-scripts test --env=jsdom --verbose --silent=false --runInBand",
+    "test": "react-scripts test App.test.tsx --env=jsdom --verbose --silent=false --runInBand",
+    "test:real": "react-scripts test --env=jsdom --verbose --silent=false --runInBand",
     "test:empData": "react-scripts test useEMPData.test.tsx --env=jsdom --verbose --silent=false --runInBand",
     "test:generalInfo": "react-scripts test useGeneralInfo.test.tsx --env=jsdom --verbose --silent=false --runInBand",
     "test:disputeParams": "react-scripts test useDisputeParams.test.tsx --env=jsdom --verbose --silent=false --runInBand",
