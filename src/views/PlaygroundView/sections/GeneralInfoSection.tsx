@@ -15,7 +15,7 @@ export const GeneralInfoSection: React.FC = () => {
   const { selectedEMPAddress } = useGlobalState()
   const useTotalState = useTotals()
   const generalInfo = useGeneralInfo()
-  const { liquidationLiveness, withdrawalLiveness } = useDisputeParams(selectedEMPAddress)
+  const { liquidationLiveness, withdrawalLiveness } = useDisputeParams()
   console.log("selectedEMPAddress", selectedEMPAddress)
 
   if (generalInfo && useTotalState) {

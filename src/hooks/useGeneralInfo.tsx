@@ -1,7 +1,8 @@
 import { formatUnits, parseBytes32String } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
 import { fromWei } from "web3-utils"
-import { DateAsString, EthereumAddress } from "../types"
+
+import { DateAsString } from "../types"
 import { useEMPProvider } from "./useEMPProvider"
 
 interface GeneralInfo {
