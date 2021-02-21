@@ -1,43 +1,24 @@
 import { BigNumber, ContractReceipt, ethers } from "ethers"
 import { useEffect, useState } from "react"
-import { EthereumAddress, NumberAsString } from "../types"
+import { EMPState, EthereumAddress, NumberAsString, TokenState } from "../types"
 import { fromWei } from "../utils"
 import { useEMPProvider } from "./useEMPProvider"
 import { useERC20At } from "./useERC20At"
+import { useWeb3Provider } from "./useWeb3Provider"
 
-interface SyntheticToken {
-  symbol: string
-  name: string
-  decimals: number | undefined
-  balance: NumberAsString
-  allowance: NumberAsString | "Infinity"
-  totalSupply: BigNumber | undefined
-  setMaxAllowance: () => Promise<ContractReceipt>
-}
-
-export const useSyntheticToken = (empAddress: EthereumAddress, address?: EthereumAddress): SyntheticToken => {
-  const { empState } = useEMPProvider()
+export const useSyntheticToken = (empAddress: EthereumAddress, address: EthereumAddress, empState?: EMPState): TokenState | undefined => {
+  const { block$ } = useWeb3Provider()
   const tokenAddress = empState ? empState.tokenCurrency : undefined
-
-  // const tokenAddress = empState.tokenCurrency
   const { instance } = useERC20At(tokenAddress)
+  const [collateralState, setCollateralState] = useState<TokenState | undefined>(undefined)
 
-  const [symbol, setSymbol] = useState<string>("")
-  const [name, setName] = useState<string>("")
-  const [decimals, setDecimals] = useState<number | undefined>(undefined)
-  const [balance, setBalance] = useState<NumberAsString>("")
-  const [allowance, setAllowance] = useState<NumberAsString | "Infinity">("")
-  const [totalSupply, setTotalSupply] = useState<BigNumber | undefined>(undefined);
+  console.log("Instance", instance, tokenAddress)
 
   const getBalance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress, newDecimals: number) => {
     const balanceRaw: BigNumber = await contractInstance.balanceOf(addressParam)
-    console.log("balanceRaw", balanceRaw)
-    console.log("decimals", decimals)
-
     const newBalance = fromWei(balanceRaw, newDecimals)
     return newBalance
   }
-
 
   const setMaxAllowance = async () => {
     if (instance) {
@@ -47,6 +28,7 @@ export const useSyntheticToken = (empAddress: EthereumAddress, address?: Ethereu
     }
   };
 
+
   const getAllowance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress, newDecimals: number) => {
     const allowanceRaw: BigNumber = await contractInstance.allowance(addressParam, empAddress)
     const newAllowance = allowanceRaw.eq(ethers.constants.MaxUint256) ? "Infinity" : fromWei(allowanceRaw, newDecimals)
@@ -54,7 +36,7 @@ export const useSyntheticToken = (empAddress: EthereumAddress, address?: Ethereu
     return newAllowance
   }
 
-  const getTokenInfo = async (contractInstance: ethers.Contract) => {
+  const getCollateralInfo = async (contractInstance: ethers.Contract) => {
     const [newSymbol, newName, newDecimals, newTotalSupply] = await Promise.all([
       contractInstance.symbol(),
       contractInstance.name(),
@@ -62,46 +44,57 @@ export const useSyntheticToken = (empAddress: EthereumAddress, address?: Ethereu
       contractInstance.totalSupply()
     ])
     console.log("decimals", newDecimals)
-    setSymbol(newSymbol)
-    setName(newName)
-    setDecimals(newDecimals)
-    setTotalSupply(newTotalSupply)
+    // setSymbol(newSymbol)
+    // setName(newName)
+    // setDecimals(newDecimals)
+    // setTotalSupply(newTotalSupply)
 
-    console.log("getTokenInfo", address)
-    if (address) {
-      const [newBalance, newAllowance] = await Promise.all([
-        getBalance(contractInstance, address, newDecimals),
-        getAllowance(contractInstance, address, newDecimals),
-      ])
+    // if (address) {
+    console.log("Address", address)
+    const [newBalance, newAllowance] = await Promise.all([
+      getBalance(contractInstance, address, newDecimals),
+      getAllowance(contractInstance, address, newDecimals),
+    ])
 
-      console.log("newBalance", newBalance)
+    console.log("newBalance", newBalance)
 
-      console.log("newAllowance", newAllowance)
-      setBalance(newBalance)
-      setAllowance(newAllowance)
-    }
+    console.log("newAllowance", newAllowance)
+    // setBalance(newBalance)
+    // setAllowance(newAllowance)
+    // }
+
+    setCollateralState({
+      symbol: newSymbol,
+      name: newName,
+      decimals: newDecimals,
+      totalSupply: newTotalSupply,
+      allowance: newAllowance,
+      balance: newBalance,
+      setMaxAllowance
+    })
   }
 
   useEffect(() => {
     if (instance) {
-      console.log("Calling useSynthetic token")
-      setSymbol("")
-      setName("")
-      setDecimals(undefined)
-      setBalance("")
-      setAllowance("")
-      setTotalSupply(undefined)
-      getTokenInfo(instance).catch((error) => console.log("error getting token info", error))
+      console.log("Calling useCollateral token")
+      // setSymbol("")
+      // setName("")
+      // setDecimals(undefined)
+      // setBalance("")
+      // setAllowance("")
+      // setTotalSupply(undefined)
+      setCollateralState(undefined)
+      getCollateralInfo(instance).catch((error) => console.log("error getting token info", error))
     }
   }, [instance, address])
 
-  return {
-    name,
-    decimals,
-    symbol,
-    balance,
-    allowance,
-    totalSupply,
-    setMaxAllowance
-  }
+  // get collateral info on each new block
+  useEffect(() => {
+    if (block$ && instance) {
+      const sub = block$.subscribe(() => getCollateralInfo(instance).catch((error) => console.log("Error getCollateralInfo", error)));
+      return () => sub.unsubscribe();
+    }
+  }, [block$, instance]);
+
+  return collateralState;
 }

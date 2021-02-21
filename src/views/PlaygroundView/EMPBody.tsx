@@ -23,7 +23,6 @@ export const EMPBody: React.FC<Props> = ({ empAdress }) => {
     <Container fluid={true} style={{ padding: "2em 0" }}>
       <div style={{ display: "flex", justifyContent: "left" }}>
         <Col md={10} lg={8} className="align-items-left">
-
           {instance ?
             <EMPProvider empInstance={instance}>
               <Tabs id="controlled-tab" activeKey={key} onSelect={(k: any) => setKey(k)}>

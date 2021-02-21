@@ -10,8 +10,6 @@ interface CollateralInfo {
 
 export const useCollateralInfo = (empAddress: EthereumAddress): CollateralInfo => {
   const { empState } = useEMPProvider()
-  // const { symbol } = useCollateralToken(empAddress)
-  // const { symbol } = useSyntheticToken(empAddress)
 
   const [symbol, setSymbol] = useState<string>("")
 

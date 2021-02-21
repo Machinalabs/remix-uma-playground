@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Card, Col, Container, Row, Button as BootstrapButton } from "react-bootstrap"
 import styled from "styled-components"
-import { useCollateralToken, useEMPProvider, usePosition, useSyntheticToken, useTotals, useUMARegistry, useWeb3Provider } from "../../../../hooks"
+import { useEMPProvider, usePosition, useTotals, useUMARegistry, useWeb3Provider } from "../../../../hooks"
 import { AppBar, Box, Dialog, Grid, IconButton, makeStyles, Toolbar } from "@material-ui/core"
 import { useGlobalState } from "../../hooks"
 import CloseIcon from "@material-ui/icons/Close"
@@ -9,8 +9,9 @@ import { ethers } from 'ethers'
 import { ActionsSection } from "../ManagePosition"
 import { Formik, Form, FormikErrors } from "formik"
 import { ErrorMessage, FormItem, SuccessMessage } from "../../components"
-import { Button } from "../../../../components"
+import { Button, Loader } from "../../../../components"
 import { toWeiSafe } from "../../../../utils"
+import { TokenState } from "../../../../types"
 
 const StyledCol = styled(Col)`
   padding: 0;
@@ -20,13 +21,19 @@ const StyledCol = styled(Col)`
 export const ManagePositionSection: React.FC = () => {
   const { selectedEMPAddress } = useGlobalState()
   const { address } = useWeb3Provider()
-  const { balance: collateralBalance, symbol: collateralSymbol, decimals: collateralDecimals } = useCollateralToken(selectedEMPAddress, address)
-  const { balance: syntheticBalance, symbol: syntheticSymbol, decimals: syntheticDecimals } = useSyntheticToken(selectedEMPAddress, address)
+  const { collateralState, syntheticState } = useEMPProvider()
   const { syntheticTokens, collateral, backingCollateral, collateralRatio } = usePosition(selectedEMPAddress, address)
 
   const { gcr } = useTotals(selectedEMPAddress)
 
   const [isMintModalOpen, setIsMintModalOpen] = useState(false)
+
+  if (!collateralState && !syntheticState) {
+    return <Loader />
+  }
+
+  const { balance: syntheticBalance, symbol: syntheticSymbol, decimals: syntheticDecimals } = syntheticState as TokenState
+  const { balance: collateralBalance, symbol: collateralSymbol, decimals: collateralDecimals } = collateralState as TokenState
 
   const openMintModal = () => {
     setIsMintModalOpen(true)
@@ -57,35 +64,21 @@ export const ManagePositionSection: React.FC = () => {
           <Card>
             <Card.Body>
               <Card.Text>
-                <div style={{ display: "flex" }}>
-                  <StyledCol style={{ paddingRight: "1em" }}>
-                    <h5>Your Position</h5>
-                    <p>
-                      Collateral supplied: <span>{`${collateral} ${collateralSymbol}`}</span>
-                    </p>
-                    <p>
-                      Collateral backing debt: <span>{`${backingCollateral} ${collateralSymbol}`}</span>
-                    </p>
-                    <p>
-                      Token debt: <span>{`${syntheticTokens} ${syntheticSymbol}`}</span>
-                    </p>
-                    <p>
-                      Collateral ratio (CR): <span>{gcr}</span>
-                    </p>
-                  </StyledCol>
-                  <StyledCol style={{ paddingLeft: "1em" }}>
-                    {/* <h5>Contract Info</h5> */}
-                    {/* <p>
-                      Identifier price: <span>{expireDate}</span>
-                    </p> */}
-                    {/* <p>
-                      Global collateral ratio (GCR): <span>{expireDate}</span>
-                    </p>
-                    <p>
-                      Collateral requirement: <span>{expireDate}</span>
-                    </p> */}
-                  </StyledCol>
-                </div>
+                <StyledCol style={{ paddingRight: "1em", display: "flex", flexDirection: "column" }}>
+                  <h5>Your Position</h5>
+                  <p>
+                    Collateral supplied: <span>{`${collateral} ${collateralSymbol}`}</span>
+                  </p>
+                  <p>
+                    Collateral backing debt: <span>{`${backingCollateral} ${collateralSymbol}`}</span>
+                  </p>
+                  <p>
+                    Token debt: <span>{`${syntheticTokens} ${syntheticSymbol}`}</span>
+                  </p>
+                  <p>
+                    Collateral ratio (CR): <span>{gcr}</span>
+                  </p>
+                </StyledCol>
               </Card.Text>
             </Card.Body>
           </Card>
@@ -115,11 +108,15 @@ const initialValues: FormProps = {
 const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => {
   const [error, setError] = useState<string | undefined>(undefined)
   const { selectedEMPAddress } = useGlobalState()
-  const { empState } = useEMPProvider()
+  const { empState, collateralState } = useEMPProvider()
   const { getContractInterface } = useUMARegistry()
   const { signer, address } = useWeb3Provider()
-  const { decimals: collateralDecimals } = useCollateralToken(selectedEMPAddress)
 
+  if (!collateralState) {
+    return <Loader />
+  }
+
+  const { decimals: collateralDecimals } = collateralState
   const handleSubmit = (values: FormProps, { setSubmitting }) => {
 
     const mint = () => {
@@ -193,6 +190,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
       {/* </Row> */}
     </Container>
   </Dialog>)
+
 }
 const BLUE_COLOR = "#222336"
 

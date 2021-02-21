@@ -1,16 +1,22 @@
 import React, { PropsWithChildren, useContext, useEffect, useState } from "react"
 import { BigNumber, Bytes, ethers } from "ethers"
 
-import { EMPState, EthereumAddress } from "../types"
+import { EMPState, EthereumAddress, TokenState } from "../types"
 
 import { useWeb3Provider } from "./useWeb3Provider"
+import { useCollateralToken } from "./useCollateralToken"
+import { useSyntheticToken } from "./useSyntheticToken"
 
 interface IEMPProvider {
   empState: EMPState | undefined
+  collateralState: TokenState | undefined
+  syntheticState: TokenState | undefined
 }
 
 const EMPContext = React.createContext<IEMPProvider>({
-  empState: undefined
+  empState: undefined,
+  collateralState: undefined,
+  syntheticState: undefined
 })
 
 interface EMPProviderProps {
@@ -19,7 +25,13 @@ interface EMPProviderProps {
 
 export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ children, empInstance }) => {
   const [empState, setEMPState] = useState<EMPState | undefined>(undefined)
-  const { block$ } = useWeb3Provider()
+  const [collateralState, setCollateralState] = useState<TokenState | undefined>(undefined)
+  const [syntheticState, setSyntheticState] = useState<TokenState | undefined>(undefined)
+
+  const { block$, address } = useWeb3Provider()
+
+  const collateralStateResult = useCollateralToken(empInstance.address, address, empState)
+  const syntheticStateResult = useSyntheticToken(empInstance.address, address, empState)
 
   const getAllEMPData = async () => {
     console.log("Calling EMPProvider#getAllEMPData")
@@ -81,18 +93,34 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
       })
   }, [empInstance])
 
-  // TODO: get state on each block
+  // get state on each block
   useEffect(() => {
     if (block$ && empInstance) {
-      const sub = block$.subscribe(() => getAllEMPData())
+      const sub = block$.subscribe(() => getAllEMPData().catch((error) => console.log("error getAllEMPData", error)))
       return () => sub.unsubscribe()
     }
   }, [block$, empInstance])
 
+  useEffect(() => {
+    if (collateralStateResult) {
+      console.log("updating collateral state")
+      setCollateralState(collateralStateResult)
+    }
+  }, [collateralStateResult])
+
+  useEffect(() => {
+    if (syntheticStateResult) {
+      console.log("updating synthetic state")
+      setSyntheticState(syntheticStateResult)
+    }
+  }, [syntheticStateResult])
+
   return (
     <EMPContext.Provider
       value={{
-        empState
+        empState,
+        collateralState,
+        syntheticState
       }}
     >
       {children}

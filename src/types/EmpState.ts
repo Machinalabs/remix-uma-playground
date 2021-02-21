@@ -1,4 +1,5 @@
-import { BigNumber, Bytes } from "ethers"
+import { BigNumber, Bytes, ContractReceipt } from "ethers"
+import { NumberAsString } from "./types";
 
 export interface EMPState {
     expirationTimestamp: BigNumber
@@ -21,4 +22,14 @@ export interface EMPState {
     contractState: number
     finderAddress: string
     expiryPrice: BigNumber
+}
+
+export interface TokenState {
+    symbol: string
+    name: string
+    decimals: number
+    balance: NumberAsString
+    allowance: NumberAsString | "Infinity"
+    totalSupply: BigNumber
+    setMaxAllowance: () => Promise<ContractReceipt>
 }

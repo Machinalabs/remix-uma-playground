@@ -62,6 +62,7 @@ export const PlaygroundView: React.FC = () => {
   const [emps, setEmps] = useState<Emp[]>([])
 
   useEffect(() => {
+    console.log("getAllEmpData playground running")
     const getAllEmpData = async () => {
       setIsLoading(true)
       const empMapped = empAddresses.map(async (expiringMultiPartyAddress) => {
