@@ -51,7 +51,7 @@ export const ManagePositionSection: React.FC = () => {
             <Card>
               <Card.Body>
                 <Card.Title>Your Wallet</Card.Title>
-                <Card.Text>
+                <Card.Text as="div">
                   <span>
                     Collateral Balance: {collateralBalance} {collateralSymbol}
                     <BootstrapButton onClick={openMintModal} variant="link">
@@ -71,7 +71,7 @@ export const ManagePositionSection: React.FC = () => {
           <StyledCol>
             <Card>
               <Card.Body>
-                <Card.Text>
+                <Card.Text as="div">
                   <StyledCol style={{ paddingRight: "1em", display: "flex", flexDirection: "column" }}>
                     <h5>Your Position</h5>
                     <p>
@@ -121,11 +121,15 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
   const { empState, collateralState } = useEMPProvider()
   const { getContractInterface } = useUMARegistry()
   const { signer, address } = useWeb3Provider()
+  const [successful, setIsSuccessful] = useState(false)
 
   if (collateralState) {
     const { decimals: collateralDecimals, setMaxAllowance } = collateralState
 
     const handleSubmit = (values: FormProps, { setSubmitting }) => {
+      setIsSuccessful(false)
+      setError(undefined)
+
       const mint = () => {
         return new Promise(async (resolve) => {
           const instance = new ethers.Contract(
@@ -146,10 +150,19 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
 
       mint()
         .then(() => {
+          setIsSuccessful(true)
           setSubmitting(false)
-          onClose()
+          setTimeout(() => {
+            setIsSuccessful(false)
+            onClose()
+          }, 2000)
+
         })
-        .catch((err) => console.log("Fallo", err))
+        .catch((e) => {
+          console.log("error", e)
+          setSubmitting(false)
+          setError(e.message.replace("VM Exception while processing transaction: revert", "").trim())
+        })
     }
 
     return (
@@ -159,7 +172,6 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
           fluid={true}
           style={{ padding: "1em 2em", height: "400px", width: "400px", backgroundColor: `${BLUE_COLOR}` }}
         >
-          {/* <Row> */}
           <Formik
             initialValues={initialValues}
             validate={(values) => {
@@ -196,14 +208,15 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
                   loadingText="Minting tokens..."
                   text="Mint tokens"
                 />
-
-                {/* TODO */}
-                <SuccessMessage show={false}>You have successfully created a position.</SuccessMessage>
-                <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
               </Form>
             )}
           </Formik>
-          {/* </Row> */}
+
+          <div style={{ marginTop: "1em" }}>
+            <SuccessMessage show={successful}>You have successfully minting tokens.</SuccessMessage>
+            <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
+          </div>
+
         </Container>
       </Dialog>
     )
