@@ -14,7 +14,7 @@ interface GeneralInfo {
   minimunSponsorTokens: string
 }
 
-export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo | undefined => {
+export const useGeneralInfo = (): GeneralInfo | undefined => {
   const { empState } = useEMPProvider()
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo | undefined>(undefined)
 

@@ -14,37 +14,48 @@ import {
 import { ReactWeb3Provider } from "./useWeb3Provider"
 import { useGeneralInfo } from "./useGeneralInfo"
 import { deploySampleEMP } from "./utils"
+import { EMPProvider } from "./useEMPProvider"
+import { getUMAInterfaces, UMARegistryProvider } from "./useUMARegistry"
 
 describe("useGeneralInfo tests", () => {
   let umaSnapshotContainer: UMASnapshotContainer | undefined
   let injectedProvider: ethers.providers.Web3Provider
   let empAddress: EthereumAddress
+  let empInstance: ethers.Contract
 
   beforeAll(async () => {
     umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
     injectedProvider = new ethers.providers.Web3Provider(getInjectedProvider(PROVIDER_URL))
     const signer = injectedProvider.getSigner()
 
-    // deploy sample EMP
+    const allInterfaces = getUMAInterfaces()
+
+    // create sample EMP
     empAddress = await deploySampleEMP(signer)
+    empInstance = new ethers.Contract(empAddress, allInterfaces.get('ExpiringMultiParty') as ethers.utils.Interface, signer)
   })
 
   const render = () => {
     const wrapper = ({ children }: any) => (
-      <ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider>
-    )
-    const result = renderHook(() => useGeneralInfo(empAddress), { wrapper })
+      <UMARegistryProvider>
+        <ReactWeb3Provider injectedProvider={injectedProvider}>
+          <EMPProvider empInstance={empInstance}>
+            {children}
+          </EMPProvider>
+        </ReactWeb3Provider>
+      </UMARegistryProvider>)
+    const result = renderHook(() => useGeneralInfo(), { wrapper })
     return result
   }
 
   test("properties are defined", async () => {
     const { result, waitForNextUpdate } = render()
 
-    console.log("Result", result.current.expireDate)
-
+    await waitForNextUpdate()
+    await waitForNextUpdate()
     await waitForNextUpdate()
 
-    expect(result.current.expireDate).toBeDefined()
+    expect(result.current).toBeDefined()
 
     console.log("Result", result.current)
   })

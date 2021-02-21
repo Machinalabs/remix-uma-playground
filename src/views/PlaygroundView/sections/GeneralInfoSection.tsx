@@ -14,7 +14,7 @@ const StyledCol = styled(Col)`
 export const GeneralInfoSection: React.FC = () => {
   const { selectedEMPAddress } = useGlobalState()
   const useTotalState = useTotals()
-  const generalInfo = useGeneralInfo(selectedEMPAddress)
+  const generalInfo = useGeneralInfo()
   const { liquidationLiveness, withdrawalLiveness } = useDisputeParams(selectedEMPAddress)
   console.log("selectedEMPAddress", selectedEMPAddress)
 
