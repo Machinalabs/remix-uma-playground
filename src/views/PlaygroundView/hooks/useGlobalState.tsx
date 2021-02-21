@@ -42,13 +42,13 @@ const GlobalStateContext = React.createContext<IGlobalStateProvider>({
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
   empAddresses: ["0x000000"],
-  resetModalData: () => {},
+  resetModalData: () => { },
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
-  setSelectedCollateralToken: () => {},
-  setSelectedPriceIdentifier: () => {},
+  setSelectedCollateralToken: () => { },
+  setSelectedPriceIdentifier: () => { },
   selectedEMPAddress: "0",
-  setSelectedEMPAddress: (newEMP: string) => {},
+  setSelectedEMPAddress: (newEMP: string) => { },
 })
 /* tslint:enable */
 
@@ -61,6 +61,7 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
   const [selectedCollateralToken, setSelectedCollateralToken] = useState<Token | undefined>(undefined)
   const [selectedEMPAddress, setSelectedEMPAddress] = useState<string>("0")
 
+  const [empCreator$, setEMPCreator$] = useState<Observable<ethers.Contract> | null>(null)
   const [block$, setBlock$] = useState<Observable<Block> | null>(null)
   const { getContractAddress } = useUMARegistry()
 
@@ -89,8 +90,8 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
         return event.args[0]
       }
     })
-    const identifiersFiltered: string[] = newEmpAddresses.filter((s) => s !== undefined) as string[]
-    setEmpAddresses(identifiersFiltered)
+    const empsFiltered: string[] = newEmpAddresses.filter((s) => s !== undefined) as string[]
+    setEmpAddresses(empsFiltered)
   }
 
   const getCollateralTokens = async () => {
@@ -151,7 +152,29 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       const blockInstance = observable.pipe(debounceTime(1000))
       setBlock$(blockInstance)
 
-      console.log("Use contract middle")
+
+      // emp creator listener
+      const expiringMultiPartyCreatorAddress = getContractAddress("ExpiringMultiPartyCreator")
+      if (!expiringMultiPartyCreatorAddress) {
+        throw new Error("UMARegistryProvider not defined")
+      }
+
+      // event CreatedExpiringMultiParty(address indexed expiringMultiPartyAddress, address indexed deployerAddress);
+      const empCreatedFilter = {
+        address: expiringMultiPartyCreatorAddress,
+        topics: [
+          ethers.utils.id("CreatedExpiringMultiParty(address,address)")
+        ]
+      }
+      const observableEMPCreator = new Observable<ethers.Contract>((subscriber) => {
+        web3Provider.on(empCreatedFilter, (log, event) => {
+          console.log("Event received EMP Created", log, event)
+          subscriber.next(event)
+        })
+      })
+
+      const empObservableInstance = observableEMPCreator.pipe(debounceTime(1000))
+      setEMPCreator$(empObservableInstance)
 
       getCollateralTokens()
         .then(() => console.log("Collateral retrieved"))
@@ -173,11 +196,23 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
         console.log("New block observable arrived")
         await getCollateralTokens()
         await getPriceIdentifiers()
-        await getEMPAddresses()
+        // await getEMPAddresses()
       })
       return () => sub.unsubscribe()
     }
   }, [block$])
+
+  useEffect(() => {
+    if (empCreator$ && web3Provider && signer) {
+      const sub = empCreator$.subscribe(async () => {
+        console.log("New EMP observable arrived")
+        // await getCollateralTokens()
+        // await getPriceIdentifiers()
+        await getEMPAddresses()
+      })
+      return () => sub.unsubscribe()
+    }
+  }, [empCreator$])
 
   return (
     <GlobalStateContext.Provider
