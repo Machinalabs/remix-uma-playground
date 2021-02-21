@@ -48,7 +48,6 @@ export const getAllEMPData = async (empInstance: ethers.Contract) => {
     // empInstance.disputerDisputeRewardPercentage(),
     // empInstance.sponsorDisputeRewardPercentage(),
   ])
-  console.log("Finished")
 
   const newState: Partial<EMPState> = {
     expirationTimestamp: res[0] as BigNumber,
@@ -72,7 +71,6 @@ export const getAllEMPData = async (empInstance: ethers.Contract) => {
     // disputerDisputeRewardPct: res[18] as BigNumber,
     // sponsorDisputeRewardPct: res[19] as BigNumber,
   }
-  console.log("Finished EMPPRovider")
 
   return newState
 }
