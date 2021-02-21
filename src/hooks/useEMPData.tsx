@@ -105,16 +105,12 @@ export const useEMPData = (empAddress: EthereumAddress) => {
       // disputerDisputeRewardPct: res[18] as BigNumber,
       // sponsorDisputeRewardPct: res[19] as BigNumber,
     }
-    // console.log("New state", newState)
-    return newState
+    setState(newState as any) // TODO: fix partial 
   }
 
   useEffect(() => {
     if (instance) {
       getAllEMPData(instance)
-        .then((result) => {
-          setState(result as any)
-        })
         .catch((error) => {
           console.log("Error on getAllEMPData", error)
         })

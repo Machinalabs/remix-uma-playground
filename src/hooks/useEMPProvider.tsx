@@ -83,14 +83,11 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
       // sponsorDisputeRewardPct: res[19] as BigNumber,
     }
     // console.log("New state", newState)
-    return newState
+    setEMPState(newState as any) // TODO: Remove this any..
   }
 
   useEffect(() => {
     getAllEMPData()
-      .then((result) => {
-        setEMPState(result as any) // TODO: Remove this any..
-      })
       .catch((error) => {
         console.log("Error on getAllEMPData", error)
       })
@@ -99,7 +96,7 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
   // get state on each block
   useEffect(() => {
     if (block$ && empInstance) {
-      const sub = block$.subscribe(() => getAllEMPData().then((result) => setEMPState(result as any)).catch((error) => console.log("error getAllEMPData", error)))
+      const sub = block$.subscribe(() => getAllEMPData().catch((error) => console.log("error getAllEMPData", error)))
       return () => sub.unsubscribe()
     }
   }, [block$, empInstance])
