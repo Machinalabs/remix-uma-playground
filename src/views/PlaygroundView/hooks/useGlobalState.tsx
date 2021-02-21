@@ -42,13 +42,13 @@ const GlobalStateContext = React.createContext<IGlobalStateProvider>({
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
   empAddresses: ["0x000000"],
-  resetModalData: () => { },
+  resetModalData: () => {},
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
-  setSelectedCollateralToken: () => { },
-  setSelectedPriceIdentifier: () => { },
+  setSelectedCollateralToken: () => {},
+  setSelectedPriceIdentifier: () => {},
   selectedEMPAddress: "0",
-  setSelectedEMPAddress: (newEMP: string) => { },
+  setSelectedEMPAddress: (newEMP: string) => {},
 })
 /* tslint:enable */
 
@@ -152,7 +152,6 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       const blockInstance = observable.pipe(debounceTime(1000))
       setBlock$(blockInstance)
 
-
       // emp creator listener
       const expiringMultiPartyCreatorAddress = getContractAddress("ExpiringMultiPartyCreator")
       if (!expiringMultiPartyCreatorAddress) {
@@ -162,9 +161,7 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       // event CreatedExpiringMultiParty(address indexed expiringMultiPartyAddress, address indexed deployerAddress);
       const empCreatedFilter = {
         address: expiringMultiPartyCreatorAddress,
-        topics: [
-          ethers.utils.id("CreatedExpiringMultiParty(address,address)")
-        ]
+        topics: [ethers.utils.id("CreatedExpiringMultiParty(address,address)")],
       }
       const observableEMPCreator = new Observable<ethers.Contract>((subscriber) => {
         web3Provider.on(empCreatedFilter, (log, event) => {

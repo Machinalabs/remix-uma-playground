@@ -31,16 +31,8 @@ export const ManagePositionSection: React.FC = () => {
 
   if (collateralState && syntheticState && positionData && useTotalsState) {
     const { gcr } = useTotalsState
-    const {
-      balance: syntheticBalance,
-      symbol: syntheticSymbol,
-      decimals: syntheticDecimals,
-    } = syntheticState
-    const {
-      balance: collateralBalance,
-      symbol: collateralSymbol,
-      decimals: collateralDecimals,
-    } = collateralState
+    const { balance: syntheticBalance, symbol: syntheticSymbol, decimals: syntheticDecimals } = syntheticState
+    const { balance: collateralBalance, symbol: collateralSymbol, decimals: collateralDecimals } = collateralState
 
     const { syntheticTokens, collateral, backingCollateral, collateralRatio } = positionData as PositionData
 
@@ -107,7 +99,7 @@ export const ManagePositionSection: React.FC = () => {
       </Container>
     )
   } else {
-    return (<Loader />)
+    return <Loader />
   }
 }
 

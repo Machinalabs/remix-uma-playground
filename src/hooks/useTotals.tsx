@@ -23,7 +23,7 @@ export const useTotals = (): Totals | undefined => {
         setTotalState({
           gcr: `${newGcr}`,
           totalCollateral: `${newTotalCollateral}`,
-          totalSyntheticTokens: `${newTotalTokens}`
+          totalSyntheticTokens: `${newTotalTokens}`,
         })
       }
     }

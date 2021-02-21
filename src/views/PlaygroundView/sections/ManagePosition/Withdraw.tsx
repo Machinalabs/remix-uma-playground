@@ -35,11 +35,17 @@ export const Withdraw: React.FC<{}> = () => {
       setIsSuccessful(false)
 
       const sendTx = async () => {
-        const tx1 = await instance.requestWithdrawal({ rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals) })
+        const tx1 = await instance.requestWithdrawal({
+          rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals),
+        })
         await tx1.wait()
 
         // Create an instance of the `Timer` Contract
-        const timerInstance = new ethers.Contract(getContractAddress('Timer') as string, getContractInterface('Timer') as ethers.utils.Interface, signer)
+        const timerInstance = new ethers.Contract(
+          getContractAddress("Timer") as string,
+          getContractInterface("Timer") as ethers.utils.Interface,
+          signer
+        )
         const currentTime = (await timerInstance.getCurrentTime()).toNumber()
 
         const tx2 = await timerInstance.setCurrentTime(currentTime + empState.withdrawalLiveness.toNumber())
@@ -57,7 +63,7 @@ export const Withdraw: React.FC<{}> = () => {
 
             setTimeout(() => {
               setIsSuccessful(false)
-            }, 3000);
+            }, 3000)
           })
           .catch((e) => {
             console.log(e)
@@ -81,14 +87,14 @@ export const Withdraw: React.FC<{}> = () => {
                     errors.collateralAmount = "Required"
                   } else if (parseInt(`${values.collateralAmount}`, 10) < 0) {
                     errors.collateralAmount = "Value cannot be negative"
-                  } else if (BigNumber.from(values.collateralAmount).gt(collateralTotalSupply)) { // TODO: verify conversions
+                  } else if (BigNumber.from(values.collateralAmount).gt(collateralTotalSupply)) {
+                    // TODO: verify conversions
                     errors.collateralAmount = `The collateral desired is bigger than the total supply`
                   }
 
                   resolve(errors)
                 })
-              }
-              }
+              }}
               onSubmit={handleSubmit}
             >
               {({ isSubmitting }) => (
@@ -111,7 +117,6 @@ export const Withdraw: React.FC<{}> = () => {
                     loadingText="Withdrawing..."
                     text="Withdraw"
                   />
-
                 </Form>
               )}
             </Formik>
@@ -119,11 +124,9 @@ export const Withdraw: React.FC<{}> = () => {
         </Grid>
         <SuccessMessage show={successful}>You have successfully withdraw collateral.</SuccessMessage>
         <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
-      </Box >
+      </Box>
     )
   } else {
     return <Loader />
-
   }
 }

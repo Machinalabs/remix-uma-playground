@@ -34,13 +34,14 @@ export const Deposit: React.FC<{}> = () => {
       allowance: collateralAllowance,
     } = collateralState
 
-
     const handleSubmit = (values: FormProps, { setSubmitting }) => {
       setError(undefined)
       setIsSuccessful(false)
 
       const sendTx = async () => {
-        const receipt = await instance.deposit({ rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals) })
+        const receipt = await instance.deposit({
+          rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals),
+        })
 
         await receipt.wait()
       }
@@ -53,7 +54,7 @@ export const Deposit: React.FC<{}> = () => {
 
             setTimeout(() => {
               setIsSuccessful(false)
-            }, 3000);
+            }, 3000)
           })
           .catch((e) => {
             console.log(e)
@@ -77,14 +78,14 @@ export const Deposit: React.FC<{}> = () => {
                     errors.collateralAmount = "Required"
                   } else if (parseInt(`${values.collateralAmount}`, 10) < 0) {
                     errors.collateralAmount = "Value cannot be negative"
-                  } else if (BigNumber.from(values.collateralAmount).gt(collateralTotalSupply)) { // TODO: verify conversions
+                  } else if (BigNumber.from(values.collateralAmount).gt(collateralTotalSupply)) {
+                    // TODO: verify conversions
                     errors.collateralAmount = `The collateral desired is bigger than the total supply`
                   }
 
                   resolve(errors)
                 })
-              }
-              }
+              }}
               onSubmit={handleSubmit}
             >
               {({ isSubmitting }) => (
@@ -107,7 +108,6 @@ export const Deposit: React.FC<{}> = () => {
                     loadingText="Depositing..."
                     text="Deposit"
                   />
-
                 </Form>
               )}
             </Formik>
@@ -116,11 +116,9 @@ export const Deposit: React.FC<{}> = () => {
 
         <SuccessMessage show={successful}>You have successfully deposited collateral.</SuccessMessage>
         <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
-      </Box >
+      </Box>
     )
   } else {
     return <Loader />
-
   }
 }

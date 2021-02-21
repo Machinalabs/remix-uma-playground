@@ -28,7 +28,7 @@ export const Redeem: React.FC<{}> = () => {
       totalSupply: syntheticTotalSupply,
       decimals: syntheticDecimals,
       allowance: syntheticAllowance,
-      instance: syntheticInstance
+      instance: syntheticInstance,
     } = syntheticState
 
     const handleSubmit = (values: FormProps, { setSubmitting }) => {
@@ -52,7 +52,7 @@ export const Redeem: React.FC<{}> = () => {
 
             setTimeout(() => {
               setIsSuccessful(false)
-            }, 3000);
+            }, 3000)
           })
           .catch((e: Error) => {
             console.log(e)
@@ -84,8 +84,7 @@ export const Redeem: React.FC<{}> = () => {
 
                   resolve(errors)
                 })
-              }
-              }
+              }}
               onSubmit={handleSubmit}
             >
               {({ isSubmitting }) => (
@@ -108,18 +107,16 @@ export const Redeem: React.FC<{}> = () => {
                     loadingText="Redeeming..."
                     text="Redeem"
                   />
-
                 </Form>
               )}
-
             </Formik>
           </Grid>
         </Grid>
 
         <SuccessMessage show={successful}>You have successfully redeemed tokens.</SuccessMessage>
         <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
-      </Box >)
+      </Box>
+    )
   } else {
     return <Loader />
   }

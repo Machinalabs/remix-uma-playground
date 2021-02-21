@@ -18,7 +18,7 @@ const EMPContext = React.createContext<IEMPProvider>({
   empState: undefined,
   collateralState: undefined,
   syntheticState: undefined,
-  instance: {} as ethers.Contract
+  instance: {} as ethers.Contract,
 })
 
 interface EMPProviderProps {
@@ -87,10 +87,9 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
   }
 
   useEffect(() => {
-    getAllEMPData()
-      .catch((error) => {
-        console.log("Error on getAllEMPData", error)
-      })
+    getAllEMPData().catch((error) => {
+      console.log("Error on getAllEMPData", error)
+    })
   }, [empInstance])
 
   // get state on each block
@@ -125,7 +124,7 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
         empState,
         collateralState,
         syntheticState,
-        instance
+        instance,
       }}
     >
       {children}

@@ -33,8 +33,6 @@ export const Create: React.FC<{}> = () => {
   const [successful, setIsSuccessful] = useState(false)
 
   if (empState && collateralState && syntheticState) {
-
-
     const {
       symbol: collateralSymbol,
       totalSupply,
@@ -84,7 +82,7 @@ export const Create: React.FC<{}> = () => {
 
           setTimeout(() => {
             setIsSuccessful(false)
-          }, 3000);
+          }, 3000)
         })
         .catch((e) => {
           console.log("error", e)
@@ -102,7 +100,10 @@ export const Create: React.FC<{}> = () => {
               validate={(values) => {
                 return new Promise((resolve, reject) => {
                   console.log("totalSupply", totalSupply.toString())
-                  console.log("values.collateralAmount", toWeiSafe(`${values.collateralAmount}`, collateralDecimals).toString())
+                  console.log(
+                    "values.collateralAmount",
+                    toWeiSafe(`${values.collateralAmount}`, collateralDecimals).toString()
+                  )
                   const errors: FormikErrors<FormProps> = {}
                   if (!values.collateralAmount) {
                     errors.collateralAmount = "Required"
@@ -160,7 +161,6 @@ export const Create: React.FC<{}> = () => {
 
         <SuccessMessage show={successful}>You have successfully minted new synthetic tokens.</SuccessMessage>
         <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-
       </Box>
     )
   } else {
