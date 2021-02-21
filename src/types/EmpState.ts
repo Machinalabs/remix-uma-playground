@@ -33,3 +33,20 @@ export interface TokenState {
   totalSupply: BigNumber
   setMaxAllowance: () => Promise<ContractReceipt>
 }
+
+export interface PositionData {
+  collateral: NumberAsString
+  backingCollateral: NumberAsString
+  syntheticTokens: NumberAsString
+  collateralRatio: NumberAsString
+  withdrawalAmount: NumberAsString
+  withdrawalPassTime: NumberAsString
+  pendingWithdraw: NumberAsString
+  pendingTransfer: NumberAsString
+}
+
+export interface Totals {
+  totalCollateral: NumberAsString
+  totalSyntheticTokens: NumberAsString
+  gcr: NumberAsString
+}

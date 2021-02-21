@@ -1,45 +1,18 @@
 import { BigNumber, ethers } from "ethers"
 import { useEffect, useState } from "react"
-import { EthereumAddress, NumberAsString } from "../types"
+
+import { EthereumAddress, NumberAsString, PositionData, TokenState } from "../types"
 import { toNumberAsString, weiToNum } from "../utils"
-import { useEMPAt } from "./useEMPAt"
+
 import { useEMPProvider } from "./useEMPProvider"
-import { useToken } from "./useToken"
 import { useWeb3Provider } from "./useWeb3Provider"
 
-interface PositionData {
-  collateral: NumberAsString
-  backingCollateral: NumberAsString
-  syntheticTokens: NumberAsString
-  collateralRatio: NumberAsString
-  withdrawalAmount: NumberAsString
-  withdrawalPassTime: NumberAsString
-  pendingWithdraw: NumberAsString
-  pendingTransfer: NumberAsString
-}
-
-export const usePosition = (empAddress: EthereumAddress, address: EthereumAddress): PositionData => {
-  const { instance } = useEMPAt(empAddress)
-
-  const { empState } = useEMPProvider()
-  // const tokenAddress = empState ? empState.collateralCurrency : undefined
-
-  const { decimals: collateralDecimals } = useToken(empState ? empState.collateralCurrency : undefined)
-  const { decimals: syntheticTokenDecimals } = useToken(empState ? empState.tokenCurrency : undefined)
+export const usePosition = (address: EthereumAddress): PositionData | undefined => {
   const { block$ } = useWeb3Provider()
+  const { collateralState, syntheticState, instance } = useEMPProvider()
+  const [positionData, setPositionData] = useState<PositionData | undefined>(undefined)
 
-  // position data
-  const [collateral, setCollateral] = useState<NumberAsString>("")
-  const [backingCollateral, setBackingCollateral] = useState<NumberAsString>("")
-  const [syntheticTokens, setSyntheticTokens] = useState<NumberAsString>("")
-  const [collateralRatio, setCollateralRatio] = useState<NumberAsString>("")
-  const [withdrawalAmount, setWithdrawalAmount] = useState<NumberAsString>("")
-  const [withdrawalPassTime, setWithdrawalPassTime] = useState<NumberAsString>("")
-  const [pendingWithdraw, setPendingWithdraw] = useState<NumberAsString>("")
-  const [pendingTransfer, setPendingTransfer] = useState<NumberAsString>("")
-
-  const getPositionInfo = async (contractInstance: ethers.Contract) => {
-    // Make contract calls in parallel
+  const getPositionInfo = async (contractInstance: ethers.Contract, collateralDecimals: number, syntheticDecimals: number) => {
     const [collRawFixedPoint, position, liquidations] = await Promise.all([
       contractInstance.getCollateral(address),
       contractInstance.positions(address),
@@ -52,56 +25,47 @@ export const usePosition = (empAddress: EthereumAddress, address: EthereumAddres
     const withdrawReqAmt: BigNumber = position.withdrawalRequestAmount[0]
     const withdrawReqPassTime: BigNumber = position.withdrawalRequestPassTimestamp
     const transferPositionRequestPassTimestamp: BigNumber = position.transferPositionRequestPassTimestamp
-    const newCollateral: number = weiToNum(collRaw, collateralDecimals)
-    const newBackingCollateral: number = weiToNum(collRaw.sub(withdrawReqAmt), collateralDecimals)
-    const tokens: number = weiToNum(tokensOutstanding, syntheticTokenDecimals)
-    const cRatio = Number(tokens) > 0 ? Number(backingCollateral) / Number(tokens) : 0
-    const newWithdrawalAmount: number = weiToNum(withdrawReqAmt, collateralDecimals)
-    const withdrawPassTime: number = withdrawReqPassTime.toNumber()
-    const newPendingWithdraw: string = withdrawReqPassTime.toString() !== "0" ? "Yes" : "No"
-    const newPendingTransfer: string = transferPositionRequestPassTimestamp.toString() !== "0" ? "Yes" : "No"
+    const collateral: number = weiToNum(collRaw, collateralDecimals)
+    const backingCollateral: number = weiToNum(collRaw.sub(withdrawReqAmt), collateralDecimals)
+    const syntheticTokens: number = weiToNum(tokensOutstanding, syntheticDecimals)
+    const collateralRatio = Number(syntheticTokens) > 0 ? Number(backingCollateral) / Number(syntheticTokens) : 0
+    const withdrawalAmount: number = weiToNum(withdrawReqAmt, collateralDecimals)
+    const withdrawalPassTime: number = withdrawReqPassTime.toNumber()
+    const pendingWithdraw: string = withdrawReqPassTime.toString() !== "0" ? "Yes" : "No"
+    const pendingTransfer: string = transferPositionRequestPassTimestamp.toString() !== "0" ? "Yes" : "No"
 
-    setCollateral(toNumberAsString(newCollateral))
-    setBackingCollateral(toNumberAsString(newBackingCollateral))
-    setSyntheticTokens(toNumberAsString(tokens))
-    setCollateralRatio(toNumberAsString(cRatio))
-    setWithdrawalAmount(toNumberAsString(newWithdrawalAmount))
-    setWithdrawalPassTime(toNumberAsString(withdrawPassTime))
-    setPendingWithdraw(newPendingWithdraw)
-    setPendingTransfer(newPendingTransfer)
+    setPositionData({
+      syntheticTokens: toNumberAsString(syntheticTokens),
+      collateral: toNumberAsString(collateral),
+      collateralRatio: toNumberAsString(collateralRatio),
+      backingCollateral: toNumberAsString(backingCollateral),
+      withdrawalAmount: toNumberAsString(withdrawalAmount),
+      withdrawalPassTime: toNumberAsString(withdrawalPassTime),
+      pendingWithdraw,
+      pendingTransfer
+    })
   }
 
   useEffect(() => {
-    if (instance) {
-      setCollateral("")
-      setBackingCollateral("")
-      setSyntheticTokens("")
-      setCollateralRatio("")
-      setWithdrawalAmount("")
-      setWithdrawalPassTime("")
-      setPendingWithdraw("")
-      setPendingTransfer("")
+    if (instance && collateralState && syntheticState) {
+      const { decimals: collateralDecimals } = collateralState
+      const { decimals: syntheticDecimals } = syntheticState
 
-      getPositionInfo(instance).catch(() => console.log("There was an error on getPositionInfo"))
+      getPositionInfo(instance, collateralDecimals, syntheticDecimals).catch((err) => console.log("There was an error on getPositionInfo"))
     }
-  }, [instance, address])
+  }, [instance, collateralState, syntheticState, address])
 
   // get position info on each new block
   useEffect(() => {
-    if (block$ && instance) {
-      const sub = block$.subscribe(() => getPositionInfo(instance))
+    console.log("Calling block update on usePosition")
+    if (block$ && instance && collateralState && syntheticState) {
+      const { decimals: collateralDecimals } = collateralState
+      const { decimals: syntheticDecimals } = syntheticState
+
+      const sub = block$.subscribe(() => getPositionInfo(instance, collateralDecimals, syntheticDecimals).catch((err) => console.log("There was an error on getPositionInfo#block")))
       return () => sub.unsubscribe()
     }
-  }, [block$, instance])
+  }, [block$, instance, collateralState, syntheticState])
 
-  return {
-    collateral,
-    backingCollateral,
-    syntheticTokens,
-    collateralRatio,
-    withdrawalAmount,
-    withdrawalPassTime,
-    pendingWithdraw,
-    pendingTransfer,
-  }
+  return positionData
 }

@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import { Box, Grid } from "@material-ui/core"
-import styled from "styled-components"
 import { Formik, Form, FormikErrors } from "formik"
 import { BigNumber, ethers } from "ethers"
 
@@ -10,7 +9,6 @@ import { fromWei, toWeiSafe } from "../../../../utils"
 import { useGlobalState } from "../../hooks"
 import { ErrorMessage, FormItem, SuccessMessage } from "../../components"
 import { Button, Loader } from "../../../../components"
-import { Spinner } from "react-bootstrap"
 import { EMPState, TokenState } from "../../../../types"
 
 interface FormProps {
@@ -24,12 +22,12 @@ const initialValues: FormProps = {
 }
 
 export const Create: React.FC<{}> = () => {
-  const { address, signer } = useWeb3Provider()
+  const { signer } = useWeb3Provider()
   const { selectedEMPAddress } = useGlobalState()
   const { empState, collateralState, syntheticState } = useEMPProvider()
   const { getContractInterface } = useUMARegistry()
 
-  const [tokens, setTokens] = useState<string>("0")
+  // const [tokens, setTokens] = useState<string>("0")
 
   const [error, setError] = useState<string | undefined>(undefined)
 

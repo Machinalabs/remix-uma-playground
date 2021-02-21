@@ -11,12 +11,14 @@ interface IEMPProvider {
   empState: EMPState | undefined
   collateralState: TokenState | undefined
   syntheticState: TokenState | undefined
+  instance: ethers.Contract
 }
 
 const EMPContext = React.createContext<IEMPProvider>({
   empState: undefined,
   collateralState: undefined,
   syntheticState: undefined,
+  instance: {} as ethers.Contract
 })
 
 interface EMPProviderProps {
@@ -27,6 +29,7 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
   const [empState, setEMPState] = useState<EMPState | undefined>(undefined)
   const [collateralState, setCollateralState] = useState<TokenState | undefined>(undefined)
   const [syntheticState, setSyntheticState] = useState<TokenState | undefined>(undefined)
+  const [instance, setInstance] = useState(empInstance)
 
   const { block$, address } = useWeb3Provider()
 
@@ -115,12 +118,17 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
     }
   }, [syntheticStateResult])
 
+  useEffect(() => {
+    setInstance(empInstance)
+  }, [empInstance])
+
   return (
     <EMPContext.Provider
       value={{
         empState,
         collateralState,
         syntheticState,
+        instance
       }}
     >
       {children}

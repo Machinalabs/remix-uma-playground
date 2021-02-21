@@ -1,51 +1,33 @@
 import { useEffect, useState } from "react"
 
-import { EthereumAddress, NumberAsString } from "../types"
+import { Totals } from "../types"
 import { weiToNum } from "../utils"
 
 import { useEMPProvider } from "./useEMPProvider"
-import { useToken } from "./useToken"
 
-interface Totals {
-  totalCollateral: NumberAsString
-  totalSyntheticTokens: NumberAsString
-  gcr: NumberAsString
-}
-
-export const useTotals = (empAddress: EthereumAddress): Totals => {
-  const { empState } = useEMPProvider()
-
-  const { decimals: collateralDecimals } = useToken(empState ? empState.collateralCurrency : undefined)
-  const { decimals: syntheticDecimals } = useToken(empState ? empState.tokenCurrency : undefined)
-
-  const [totalCollateral, setTotalCollateral] = useState<NumberAsString>("")
-  const [totalTokens, setTotalTokens] = useState<NumberAsString>("")
-  const [gcr, setGCR] = useState<NumberAsString>("")
+export const useTotals = (): Totals | undefined => {
+  const { empState, collateralState, syntheticState } = useEMPProvider()
+  const [totalState, setTotalState] = useState<Totals | undefined>(undefined)
 
   useEffect(() => {
-    if (empState && collateralDecimals && syntheticDecimals) {
+    if (empState && collateralState && syntheticState) {
       const { cumulativeFeeMultiplier, rawTotalPositionCollateral, totalTokensOutstanding } = empState
+      const { decimals: collateralDecimals } = collateralState
+      const { decimals: syntheticDecimals } = syntheticState
 
       if (cumulativeFeeMultiplier && totalTokensOutstanding && rawTotalPositionCollateral) {
         const newTotalCollateral =
           weiToNum(cumulativeFeeMultiplier) * weiToNum(rawTotalPositionCollateral, collateralDecimals)
         const newTotalTokens = weiToNum(totalTokensOutstanding, syntheticDecimals)
         const newGcr = newTotalTokens > 0 ? newTotalCollateral / newTotalTokens : 0
-
-        setTotalCollateral(`${newTotalCollateral}`)
-        setTotalTokens(`${newTotalTokens}`)
-        setGCR(`${newGcr}`)
+        setTotalState({
+          gcr: `${newGcr}`,
+          totalCollateral: `${newTotalCollateral}`,
+          totalSyntheticTokens: `${newTotalTokens}`
+        })
       }
-    } else {
-      setTotalCollateral("")
-      setTotalTokens("")
-      setGCR("")
     }
-  }, [empState, collateralDecimals, syntheticDecimals])
+  }, [empState, collateralState, syntheticState])
 
-  return {
-    totalSyntheticTokens: totalTokens,
-    totalCollateral,
-    gcr,
-  }
+  return totalState
 }

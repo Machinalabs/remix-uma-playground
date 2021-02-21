@@ -15,7 +15,7 @@ interface GeneralInfo {
 }
 
 export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo | undefined => {
-  const { empState, collateralState } = useEMPProvider()
+  const { empState } = useEMPProvider()
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo | undefined>(undefined)
 
   useEffect(() => {

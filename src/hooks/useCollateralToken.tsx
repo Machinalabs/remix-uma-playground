@@ -12,12 +12,13 @@ export const useCollateralToken = (
   address: EthereumAddress,
   empState?: EMPState
 ): TokenState | undefined => {
+  // external
   const { block$ } = useWeb3Provider()
   const tokenAddress = empState ? empState.collateralCurrency : undefined
   const { instance } = useERC20At(tokenAddress)
-  const [collateralState, setCollateralState] = useState<TokenState | undefined>(undefined)
 
-  console.log("Instance", instance, tokenAddress)
+  // state
+  const [collateralState, setCollateralState] = useState<TokenState | undefined>(undefined)
 
   const getBalance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress, newDecimals: number) => {
     const balanceRaw: BigNumber = await contractInstance.balanceOf(addressParam)
@@ -51,25 +52,11 @@ export const useCollateralToken = (
       contractInstance.decimals(),
       contractInstance.totalSupply(),
     ])
-    console.log("decimals", newDecimals)
-    // setSymbol(newSymbol)
-    // setName(newName)
-    // setDecimals(newDecimals)
-    // setTotalSupply(newTotalSupply)
 
-    // if (address) {
-    console.log("Address", address)
     const [newBalance, newAllowance] = await Promise.all([
       getBalance(contractInstance, address, newDecimals),
       getAllowance(contractInstance, address, newDecimals),
     ])
-
-    console.log("newBalance", newBalance)
-
-    console.log("newAllowance", newAllowance)
-    // setBalance(newBalance)
-    // setAllowance(newAllowance)
-    // }
 
     setCollateralState({
       symbol: newSymbol,
@@ -84,13 +71,6 @@ export const useCollateralToken = (
 
   useEffect(() => {
     if (instance) {
-      console.log("Calling useCollateral token")
-      // setSymbol("")
-      // setName("")
-      // setDecimals(undefined)
-      // setBalance("")
-      // setAllowance("")
-      // setTotalSupply(undefined)
       setCollateralState(undefined)
       getCollateralInfo(instance).catch((error) => console.log("error getting token info", error))
     }
@@ -107,13 +87,4 @@ export const useCollateralToken = (
   }, [block$, instance])
 
   return collateralState
-  // name,
-  // decimals,
-  // symbol,
-  // balance,
-  // allowance,
-  // totalSupply,
-  // setMaxAllowance
-  // collateralState
-  // }
 }
