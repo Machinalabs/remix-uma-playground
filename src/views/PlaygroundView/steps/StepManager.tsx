@@ -17,7 +17,7 @@ export const Stepmanager: React.FC<Props> = ({ closeModalTrigger }) => {
 
   useEffect(() => {
     history.push(`${match.path}/${SELECT_COLLATERAL_TOKEN}`)
-  }, [])
+  }, []) // eslint-disable-line
 
   return (
     <React.Fragment>

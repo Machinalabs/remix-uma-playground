@@ -23,19 +23,13 @@ export const Redeem: React.FC<{}> = () => {
   const [successful, setIsSuccessful] = useState(false)
 
   if (syntheticState && empState && positionData) {
-    const {
-      symbol: syntheticSymbol,
-      totalSupply: syntheticTotalSupply,
-      decimals: syntheticDecimals,
-      allowance: syntheticAllowance,
-      instance: syntheticInstance,
-    } = syntheticState
+    const { symbol, decimals, instance: syntheticInstance } = syntheticState
 
     const handleSubmit = (values: FormProps, { setSubmitting }) => {
       setError(undefined)
 
       const sendTx = async () => {
-        const syntheticTokens = toWeiSafe(`${values.syntheticTokens}`, syntheticDecimals)
+        const syntheticTokens = toWeiSafe(`${values.syntheticTokens}`, decimals)
 
         await syntheticInstance.approve(instance.address, syntheticTokens)
 
@@ -91,7 +85,7 @@ export const Redeem: React.FC<{}> = () => {
                 <Form>
                   <FormItem
                     key="syntheticTokens"
-                    label={`Tokens (${syntheticSymbol})`}
+                    label={`Tokens (${symbol})`}
                     field="syntheticTokens"
                     labelWidth={3}
                     type="number"

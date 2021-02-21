@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers"
 import { useEffect, useState } from "react"
 
-import { EthereumAddress, NumberAsString, PositionData, TokenState } from "../types"
+import { EthereumAddress, PositionData } from "../types"
 import { toNumberAsString, weiToNum } from "../utils"
 
 import { useEMPProvider } from "./useEMPProvider"
@@ -17,10 +17,10 @@ export const usePosition = (address: EthereumAddress): PositionData | undefined 
     collateralDecimals: number,
     syntheticDecimals: number
   ) => {
-    const [collRawFixedPoint, position, liquidations] = await Promise.all([
+    const [collRawFixedPoint, position] = await Promise.all([
       contractInstance.getCollateral(address),
       contractInstance.positions(address),
-      contractInstance.getLiquidations(address),
+      // contractInstance.getLiquidations(address),
     ])
     const collRaw: BigNumber = collRawFixedPoint[0]
 

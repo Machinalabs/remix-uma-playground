@@ -9,7 +9,6 @@ import { fromWei, toWeiSafe } from "../../../../utils"
 import { useGlobalState } from "../../hooks"
 import { ErrorMessage, FormItem, SuccessMessage } from "../../components"
 import { Button, Loader } from "../../../../components"
-import { EMPState, TokenState } from "../../../../types"
 
 interface FormProps {
   syntheticTokens: number
@@ -37,15 +36,14 @@ export const Create: React.FC<{}> = () => {
       symbol: collateralSymbol,
       totalSupply,
       decimals: collateralDecimals,
-      allowance: collateralAllowance,
     } = collateralState
-    const { collateralRequirement, priceIdentifier, minSponsorTokens } = empState
-    const { symbol: tokenSymbol, decimals: syntheticdecimals, setMaxAllowance } = syntheticState
+    const { collateralRequirement, minSponsorTokens } = empState
+    const { symbol: tokenSymbol, decimals: syntheticdecimals } = syntheticState
 
     // if (collateralRequirement && priceIdentifier && minSponsorTokens && totalSupply && collateralDecimals && syntheticdecimals && collateralDecimals) {
     const minSponsorTokensFromWei = parseFloat(fromWei(minSponsorTokens, syntheticdecimals))
     const collateralRequirementFromWei = parseFloat(fromWei(collateralRequirement, collateralDecimals))
-    const needAllowance = collateralAllowance !== "Infinity"
+    // const needAllowance = collateralAllowance !== "Infinity"
     // const tokensToCreate = Number(tokens) || 0;
     // const resultantCollateral = posCollateral + collateralToDeposit;
     // const resultantTokens = posTokens + tokensToCreate;

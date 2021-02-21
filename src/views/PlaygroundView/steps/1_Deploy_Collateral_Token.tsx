@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Formik, FormikErrors, Form as FormikForm } from "formik"
 
 import { BigNumber, ethers } from "ethers"

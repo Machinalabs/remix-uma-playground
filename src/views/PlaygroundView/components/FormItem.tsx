@@ -3,8 +3,6 @@ import { ErrorMessage, Field, useField } from "formik"
 import BootstrapForm from "react-bootstrap/Form"
 import Datetime from "react-datetime"
 import Col from "react-bootstrap/Col"
-import OverlayTrigger from "react-bootstrap/OverlayTrigger"
-import Tooltip from "react-bootstrap/Tooltip"
 import { useRemix } from "../../../hooks"
 
 interface Props {
@@ -77,7 +75,6 @@ const DateComponent = (props) => {
 }
 
 const CustomInputComponent = (props: Props) => {
-  const popover = <Tooltip id={props.label}>{props.helptext}</Tooltip>
   return (
     <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
       <BootstrapForm.Control

@@ -31,10 +31,10 @@ export const ManagePositionSection: React.FC = () => {
 
   if (collateralState && syntheticState && positionData && useTotalsState) {
     const { gcr } = useTotalsState
-    const { balance: syntheticBalance, symbol: syntheticSymbol, decimals: syntheticDecimals } = syntheticState
-    const { balance: collateralBalance, symbol: collateralSymbol, decimals: collateralDecimals } = collateralState
+    const { balance: syntheticBalance, symbol: syntheticSymbol } = syntheticState
+    const { balance: collateralBalance, symbol: collateralSymbol } = collateralState
 
-    const { syntheticTokens, collateral, backingCollateral, collateralRatio } = positionData as PositionData
+    const { syntheticTokens, collateral, backingCollateral } = positionData as PositionData
 
     const openMintModal = () => {
       setIsMintModalOpen(true)
@@ -118,98 +118,98 @@ const initialValues: FormProps = {
 
 const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => {
   const [error, setError] = useState<string | undefined>(undefined)
-  const { selectedEMPAddress } = useGlobalState()
   const { empState, collateralState } = useEMPProvider()
   const { getContractInterface } = useUMARegistry()
   const { signer, address } = useWeb3Provider()
 
-  if (!collateralState) {
-    return <Loader />
-  }
+  if (collateralState) {
+    const { decimals: collateralDecimals, setMaxAllowance } = collateralState
 
-  const { decimals: collateralDecimals, setMaxAllowance } = collateralState
-  const handleSubmit = (values: FormProps, { setSubmitting }) => {
-    const mint = () => {
-      return new Promise(async (resolve) => {
-        const instance = new ethers.Contract(
-          empState!.collateralCurrency as string,
-          getContractInterface("TestnetERC20") as ethers.utils.Interface,
-          signer
-        )
-        const receipt = await instance.allocateTo(address, toWeiSafe(values.amount, collateralDecimals))
-        await receipt.wait()
+    const handleSubmit = (values: FormProps, { setSubmitting }) => {
+      const mint = () => {
+        return new Promise(async (resolve) => {
+          const instance = new ethers.Contract(
+            empState!.collateralCurrency as string,
+            getContractInterface("TestnetERC20") as ethers.utils.Interface,
+            signer
+          )
+          const receipt = await instance.allocateTo(address, toWeiSafe(values.amount, collateralDecimals))
+          await receipt.wait()
 
-        await setMaxAllowance()
+          await setMaxAllowance()
 
-        setTimeout(() => {
-          resolve(true)
-        }, 2000)
-      })
+          setTimeout(() => {
+            resolve(true)
+          }, 2000)
+        })
+      }
+
+      mint()
+        .then(() => {
+          setSubmitting(false)
+          onClose()
+        })
+        .catch((err) => console.log("Fallo", err))
     }
 
-    mint()
-      .then(() => {
-        setSubmitting(false)
-        onClose()
-      })
-      .catch((err) => console.log("Fallo", err))
-  }
-
-  return (
-    <Dialog maxWidth="md" open={isMintModalOpen} onClose={onClose}>
-      <DialogHeader onCloseClick={onClose} />
-      <Container
-        fluid={true}
-        style={{ padding: "1em 2em", height: "400px", width: "400px", backgroundColor: `${BLUE_COLOR}` }}
-      >
-        {/* <Row> */}
-        <Formik
-          initialValues={initialValues}
-          validate={(values) => {
-            return new Promise((resolve, reject) => {
-              const errors: FormikErrors<FormProps> = {}
-              if (!values.amount) {
-                errors.amount = "Required"
-              } else if (parseInt(values.amount, 10) < 0) {
-                errors.amount = "Value cannot be negative"
-              }
-              resolve(errors)
-            })
-          }}
-          onSubmit={handleSubmit}
+    return (
+      <Dialog maxWidth="md" open={isMintModalOpen} onClose={onClose}>
+        <DialogHeader onCloseClick={onClose} />
+        <Container
+          fluid={true}
+          style={{ padding: "1em 2em", height: "400px", width: "400px", backgroundColor: `${BLUE_COLOR}` }}
         >
-          {({ isSubmitting }) => (
-            <Form>
-              <FormItem
-                key="amount"
-                label="Number of tokens to mint"
-                field="amount"
-                labelWidth={6}
-                placeHolder="Amount of tokens"
-                size="sm"
-                type="number"
-              />
+          {/* <Row> */}
+          <Formik
+            initialValues={initialValues}
+            validate={(values) => {
+              return new Promise((resolve, reject) => {
+                const errors: FormikErrors<FormProps> = {}
+                if (!values.amount) {
+                  errors.amount = "Required"
+                } else if (parseInt(values.amount, 10) < 0) {
+                  errors.amount = "Value cannot be negative"
+                }
+                resolve(errors)
+              })
+            }}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <FormItem
+                  key="amount"
+                  label="Number of tokens to mint"
+                  field="amount"
+                  labelWidth={6}
+                  placeHolder="Amount of tokens"
+                  size="sm"
+                  type="number"
+                />
 
-              <Button
-                variant="primary"
-                type="submit"
-                size="sm"
-                disabled={isSubmitting}
-                isloading={isSubmitting}
-                loadingText="Minting tokens..."
-                text="Mint tokens"
-              />
+                <Button
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  disabled={isSubmitting}
+                  isloading={isSubmitting}
+                  loadingText="Minting tokens..."
+                  text="Mint tokens"
+                />
 
-              {/* TODO */}
-              <SuccessMessage show={false}>You have successfully created a position.</SuccessMessage>
-              <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-            </Form>
-          )}
-        </Formik>
-        {/* </Row> */}
-      </Container>
-    </Dialog>
-  )
+                {/* TODO */}
+                <SuccessMessage show={false}>You have successfully created a position.</SuccessMessage>
+                <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
+              </Form>
+            )}
+          </Formik>
+          {/* </Row> */}
+        </Container>
+      </Dialog>
+    )
+  } else {
+    return <Loader />
+  }
 }
 const BLUE_COLOR = "#222336"
 

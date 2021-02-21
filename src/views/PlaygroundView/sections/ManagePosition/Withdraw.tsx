@@ -27,7 +27,6 @@ export const Withdraw: React.FC<{}> = () => {
       symbol: collateralSymbol,
       totalSupply: collateralTotalSupply,
       decimals: collateralDecimals,
-      allowance: collateralAllowance,
     } = collateralState
 
     const handleSubmit = (values: FormProps, { setSubmitting }) => {

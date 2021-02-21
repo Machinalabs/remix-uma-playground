@@ -1,14 +1,12 @@
 import React, { useState } from "react"
 import { Box, Grid } from "@material-ui/core"
 import { Formik, Form, FormikErrors } from "formik"
-import { BigNumber, ethers } from "ethers"
+import { BigNumber } from "ethers"
 
-import { useEMPProvider, useUMARegistry, useWeb3Provider } from "../../../../hooks"
-import { fromWei, toWeiSafe } from "../../../../utils"
-import { useGlobalState } from "../../hooks"
+import { useEMPProvider } from "../../../../hooks"
+import { toWeiSafe } from "../../../../utils"
 import { ErrorMessage, FormItem, SuccessMessage } from "../../components"
 import { Button, Loader } from "../../../../components"
-import { EMPState, TokenState } from "../../../../types"
 
 interface FormProps {
   collateralAmount: number
@@ -19,10 +17,7 @@ const initialValues: FormProps = {
 }
 
 export const Deposit: React.FC<{}> = () => {
-  const { signer } = useWeb3Provider()
-  const { selectedEMPAddress } = useGlobalState()
-  const { empState, collateralState, syntheticState, instance } = useEMPProvider()
-  const { getContractInterface } = useUMARegistry()
+  const { collateralState, instance } = useEMPProvider()
   const [error, setError] = useState<string | undefined>(undefined)
   const [successful, setIsSuccessful] = useState(false)
 
@@ -31,7 +26,6 @@ export const Deposit: React.FC<{}> = () => {
       symbol: collateralSymbol,
       totalSupply: collateralTotalSupply,
       decimals: collateralDecimals,
-      allowance: collateralAllowance,
     } = collateralState
 
     const handleSubmit = (values: FormProps, { setSubmitting }) => {

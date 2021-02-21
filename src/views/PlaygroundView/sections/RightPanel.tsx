@@ -34,7 +34,7 @@ export const RightPanel: React.FC = () => {
   }, [clientInstance])
 
   useEffect(() => {
-    if (selectedCollateralToken && selectedCollateralToken.address) {
+    if (selectedCollateralToken && selectedCollateralToken.address && signer) {
       const getBalance = async () => {
         const testnetERC20Contract = new ethers.Contract(
           selectedCollateralToken.address as string,
@@ -45,8 +45,10 @@ export const RightPanel: React.FC = () => {
         const balance: BigNumber = await testnetERC20Contract.balanceOf(currentAccount)
         setCollateralBalance(`${formatUnits(balance, "ether").toString()}`)
       }
+      getBalance()
     }
-  }, [selectedCollateralToken])
+  }, [selectedCollateralToken, signer])
+
   return (
     <React.Fragment>
       <Paragraph>
