@@ -4,11 +4,9 @@ import { Formik, Form, FormikErrors } from "formik"
 import { BigNumber, ethers } from "ethers"
 
 import { useEMPProvider, useUMARegistry, useWeb3Provider } from "../../../../hooks"
-import { fromWei, toWeiSafe } from "../../../../utils"
-import { useGlobalState } from "../../hooks"
+import { toWeiSafe } from "../../../../utils"
 import { ErrorMessage, FormItem, SuccessMessage } from "../../components"
 import { Button, Loader } from "../../../../components"
-import { EMPState, TokenState } from "../../../../types"
 
 interface FormProps {
   collateralAmount: number
@@ -19,11 +17,12 @@ const initialValues: FormProps = {
 }
 
 export const Withdraw: React.FC<{}> = () => {
+  const { signer } = useWeb3Provider()
   const { empState, collateralState, instance } = useEMPProvider()
   const [error, setError] = useState<string | undefined>(undefined)
   const [successful, setIsSuccessful] = useState(false)
-
-  if (collateralState) {
+  const { getContractInterface, getContractAddress } = useUMARegistry()
+  if (collateralState && empState) {
     const {
       symbol: collateralSymbol,
       totalSupply: collateralTotalSupply,
@@ -31,14 +30,22 @@ export const Withdraw: React.FC<{}> = () => {
       allowance: collateralAllowance,
     } = collateralState
 
-
     const handleSubmit = (values: FormProps, { setSubmitting }) => {
       setError(undefined)
       setIsSuccessful(false)
 
       const sendTx = async () => {
-        const receipt = await instance.deposit({ rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals) })
+        const tx1 = await instance.requestWithdrawal({ rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals) })
+        await tx1.wait()
 
+        // Create an instance of the `Timer` Contract
+        const timerInstance = new ethers.Contract(getContractAddress('Timer') as string, getContractInterface('Timer') as ethers.utils.Interface, signer)
+        const currentTime = (await timerInstance.getCurrentTime()).toNumber()
+
+        const tx2 = await timerInstance.setCurrentTime(currentTime + empState.withdrawalLiveness.toNumber())
+        await tx2.wait()
+
+        const receipt = await instance.withdrawPassedRequest()
         await receipt.wait()
       }
 
@@ -101,8 +108,8 @@ export const Withdraw: React.FC<{}> = () => {
                     size="sm"
                     disabled={isSubmitting}
                     isloading={isSubmitting}
-                    loadingText="Depositing..."
-                    text="Deposit"
+                    loadingText="Withdrawing..."
+                    text="Withdraw"
                   />
 
                 </Form>
