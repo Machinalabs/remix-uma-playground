@@ -14,29 +14,37 @@ import {
 import { ReactWeb3Provider } from "./useWeb3Provider"
 import { deploySampleEMP } from "./utils"
 import { useTotals } from "./useTotals"
-import { UMARegistryProvider } from "./useUMARegistry"
+import { EMPProvider } from "./useEMPProvider"
+import { getUMAInterfaces, UMARegistryProvider } from "./useUMARegistry"
 
 describe("useTotals tests", () => {
   let umaSnapshotContainer: UMASnapshotContainer | undefined
   let injectedProvider: ethers.providers.Web3Provider
   let empAddress: EthereumAddress
+  let empInstance: ethers.Contract
 
   beforeAll(async () => {
     umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
     injectedProvider = new ethers.providers.Web3Provider(getInjectedProvider(PROVIDER_URL))
     const signer = injectedProvider.getSigner()
+    const allInterfaces = getUMAInterfaces()
 
     // create sample EMP
     empAddress = await deploySampleEMP(signer)
+    empInstance = new ethers.Contract(empAddress, allInterfaces.get('ExpiringMultiParty') as ethers.utils.Interface, signer)
   })
 
   const render = () => {
     const wrapper = ({ children }: any) => (
       <UMARegistryProvider>
-        <ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider>
+        <ReactWeb3Provider injectedProvider={injectedProvider}>
+          <EMPProvider empInstance={empInstance}>
+            {children}
+          </EMPProvider>
+        </ReactWeb3Provider>
       </UMARegistryProvider>
     )
-    const result = renderHook(() => useTotals(empAddress), { wrapper })
+    const result = renderHook(() => useTotals(), { wrapper })
     return result
   }
 
@@ -49,9 +57,11 @@ describe("useTotals tests", () => {
 
     await waitForNextUpdate()
 
-    expect(result.current.gcr).toBeDefined()
-    expect(result.current.totalCollateral).toBeDefined()
-    expect(result.current.totalSyntheticTokens).toBeDefined()
+    await waitForNextUpdate()
+
+    expect(result.current!.gcr).toBeDefined()
+    expect(result.current!.totalCollateral).toBeDefined()
+    expect(result.current!.totalSyntheticTokens).toBeDefined()
   })
 
   afterAll(async () => {

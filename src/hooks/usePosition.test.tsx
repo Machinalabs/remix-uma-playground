@@ -14,13 +14,15 @@ import {
 import { ReactWeb3Provider } from "./useWeb3Provider"
 import { createPosition, deploySampleEMP } from "./utils"
 import { usePosition } from "./usePosition"
-import { UMARegistryProvider } from "./useUMARegistry"
+import { EMPProvider } from "./useEMPProvider"
+import { getUMAInterfaces, UMARegistryProvider } from "./useUMARegistry"
 
 describe("usePosition tests", () => {
   let umaSnapshotContainer: UMASnapshotContainer | undefined
   let injectedProvider: ethers.providers.Web3Provider
   let empAddress: EthereumAddress
   let ownerAddress: EthereumAddress
+  let empInstance: ethers.Contract
 
   beforeAll(async () => {
     umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
@@ -28,8 +30,11 @@ describe("usePosition tests", () => {
     const signer = injectedProvider.getSigner()
     ownerAddress = await signer.getAddress()
 
-    // deploy sample EMP
+    const allInterfaces = getUMAInterfaces()
+
+    // create sample EMP
     empAddress = await deploySampleEMP(signer)
+    empInstance = new ethers.Contract(empAddress, allInterfaces.get('ExpiringMultiParty') as ethers.utils.Interface, signer)
 
     const collateralAmount = 200
     const syntheticTokens = 100
@@ -40,11 +45,15 @@ describe("usePosition tests", () => {
 
   const render = () => {
     const wrapper = ({ children }: any) => (
-      <ReactWeb3Provider injectedProvider={injectedProvider}>
-        <UMARegistryProvider>{children}</UMARegistryProvider>
-      </ReactWeb3Provider>
+      <UMARegistryProvider>
+        <ReactWeb3Provider injectedProvider={injectedProvider}>
+          <EMPProvider empInstance={empInstance}>
+            {children}
+          </EMPProvider>
+        </ReactWeb3Provider>
+      </UMARegistryProvider>
     )
-    const result = renderHook(() => usePosition(empAddress, ownerAddress), { wrapper })
+    const result = renderHook(() => usePosition(ownerAddress), { wrapper })
     return result
   }
 
@@ -52,8 +61,11 @@ describe("usePosition tests", () => {
     const { result, waitForNextUpdate } = render()
 
     await waitForNextUpdate()
+    await waitForNextUpdate()
+    await waitForNextUpdate()
 
-    expect(result.current.collateral).toBeDefined()
+    expect(result.current).toBeDefined()
+    expect(result.current!.collateral).toBeDefined()
 
     console.log("Result", result.current)
   })

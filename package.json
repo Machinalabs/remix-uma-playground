@@ -51,6 +51,7 @@
     "test:syntheticToken": "react-scripts test useSyntheticToken.test.tsx --env=jsdom --verbose --silent=false --runInBand",
     "test:web3Provider": "react-scripts test useWeb3Provider.test.tsx --env=jsdom --verbose --silent=false --runInBand",
     "test:totals": "react-scripts test useTotals.test.tsx --env=jsdom --verbose --silent=false --runInBand",
+    "test:usePosition": "react-scripts test usePosition.test.tsx --env=jsdom --verbose --silent=false --runInBand",
     "eject": "react-scripts eject",
     "test:ci": "CI=true react-scripts test",
     "tslint": "tslint -c tslint.json src/**/*.{ts,tsx} -e src/extras/uma-ethers/**/*.{ts,tsx} --fix --format verbose",
