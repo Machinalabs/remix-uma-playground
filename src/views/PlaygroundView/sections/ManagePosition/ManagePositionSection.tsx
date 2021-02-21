@@ -153,7 +153,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
         setSubmitting(false)
         onClose()
       })
-      .catch((error) => console.log("Fallo", error))
+      .catch((err) => console.log("Fallo", err))
   }
 
   return (

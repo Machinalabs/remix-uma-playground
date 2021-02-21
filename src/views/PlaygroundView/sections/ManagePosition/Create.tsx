@@ -72,7 +72,7 @@ export const Create: React.FC<{}> = () => {
       )
 
       const receipt = await contract.create(
-        { rawValue: toWeiSafe(`${(values.collateralAmount, collateralDecimals)}`) },
+        { rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals) },
         { rawValue: toWeiSafe(`${values.syntheticTokens}`, syntheticdecimals) }
       )
 
