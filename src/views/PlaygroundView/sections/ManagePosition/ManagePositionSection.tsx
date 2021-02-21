@@ -195,6 +195,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
                 labelWidth={6}
                 placeHolder="Amount of tokens"
                 size="sm"
+                type="number"
               />
 
               <Button
