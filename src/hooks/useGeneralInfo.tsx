@@ -37,7 +37,7 @@ export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo | undef
           expireDate: expiryDate,
           collateralRequirement: collateralRequirementPercentage,
           isExpired: isExpired ? "YES" : "NO",
-          minimunSponsorTokens: fromWei(minSponsorTokens.toString())
+          minimunSponsorTokens: fromWei(minSponsorTokens.toString()),
         })
       } else {
         setGeneralInfo(undefined)
@@ -45,5 +45,5 @@ export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo | undef
     }
   }, [empState])
 
-  return generalInfo;
+  return generalInfo
 }

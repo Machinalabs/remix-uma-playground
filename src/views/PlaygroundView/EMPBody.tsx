@@ -23,7 +23,7 @@ export const EMPBody: React.FC<Props> = ({ empAdress }) => {
     <Container fluid={true} style={{ padding: "2em 0" }}>
       <div style={{ display: "flex", justifyContent: "left" }}>
         <Col md={10} lg={8} className="align-items-left">
-          {instance ?
+          {instance ? (
             <EMPProvider empInstance={instance}>
               <Tabs id="controlled-tab" activeKey={key} onSelect={(k: any) => setKey(k)}>
                 <Tab eventKey={GENERAL_INFO_KEY} title="General Info">
@@ -34,11 +34,13 @@ export const EMPBody: React.FC<Props> = ({ empAdress }) => {
                 </Tab>
               </Tabs>
             </EMPProvider>
-            : <Box pt={2} textAlign="center">
+          ) : (
+            <Box pt={2} textAlign="center">
               <Spinner animation="border" role="status">
                 <span className="sr-only">Loading...</span>
               </Spinner>
-            </Box>}
+            </Box>
+          )}
         </Col>
       </div>
     </Container>

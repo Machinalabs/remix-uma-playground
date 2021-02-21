@@ -14,164 +14,168 @@ import { Spinner } from "react-bootstrap"
 import { EMPState, TokenState } from "../../../../types"
 
 interface FormProps {
-    syntheticTokens: number
-    collateralAmount: number
+  syntheticTokens: number
+  collateralAmount: number
 }
 
 const initialValues: FormProps = {
-    syntheticTokens: 0,
-    collateralAmount: 0,
+  syntheticTokens: 0,
+  collateralAmount: 0,
 }
 
 export const Create: React.FC<{}> = () => {
-    const { address, signer } = useWeb3Provider()
-    const { selectedEMPAddress } = useGlobalState()
-    const { empState, collateralState, syntheticState } = useEMPProvider()
-    const { getContractInterface } = useUMARegistry()
+  const { address, signer } = useWeb3Provider()
+  const { selectedEMPAddress } = useGlobalState()
+  const { empState, collateralState, syntheticState } = useEMPProvider()
+  const { getContractInterface } = useUMARegistry()
 
-    const [tokens, setTokens] = useState<string>("0")
+  const [tokens, setTokens] = useState<string>("0")
 
-    const [error, setError] = useState<string | undefined>(undefined)
+  const [error, setError] = useState<string | undefined>(undefined)
 
-    if (!empState && !collateralState && !syntheticState) {
-        return (<Loader />)
+  if (!empState && !collateralState && !syntheticState) {
+    return <Loader />
+  }
+
+  const {
+    symbol: collateralSymbol,
+    totalSupply,
+    decimals: collateralDecimals,
+    allowance: collateralAllowance,
+  } = collateralState as TokenState
+  const { collateralRequirement, priceIdentifier, minSponsorTokens } = empState as EMPState
+  const { symbol: tokenSymbol, decimals: syntheticdecimals, setMaxAllowance } = syntheticState as TokenState
+
+  // if (collateralRequirement && priceIdentifier && minSponsorTokens && totalSupply && collateralDecimals && syntheticdecimals && collateralDecimals) {
+  const minSponsorTokensFromWei = parseFloat(fromWei(minSponsorTokens, syntheticdecimals))
+  const collateralRequirementFromWei = parseFloat(fromWei(collateralRequirement, collateralDecimals))
+  const needAllowance = collateralAllowance !== "Infinity"
+  // const tokensToCreate = Number(tokens) || 0;
+  // const resultantCollateral = posCollateral + collateralToDeposit;
+  // const resultantTokens = posTokens + tokensToCreate;
+  // const resultantTokensBelowMin = resultantTokens < minSponsorTokensFromWei && resultantTokens !== 0;
+
+  const handleSubmit = (values: FormProps, { setSubmitting }) => {
+    setError(undefined)
+
+    const createPosition = async () => {
+      const contract = new ethers.Contract(
+        selectedEMPAddress,
+        getContractInterface("ExpiringMultiParty") as ethers.utils.Interface,
+        signer
+      )
+
+      console.log(
+        "params",
+        { rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals) },
+        { rawValue: toWeiSafe(`${values.syntheticTokens}`, syntheticdecimals) }
+      )
+
+      const receipt = await contract.create(
+        { rawValue: toWeiSafe(`${(values.collateralAmount, collateralDecimals)}`) },
+        { rawValue: toWeiSafe(`${values.syntheticTokens}`, syntheticdecimals) }
+      )
+
+      await receipt.wait()
     }
 
-    const { symbol: collateralSymbol, totalSupply, decimals: collateralDecimals, allowance: collateralAllowance } = collateralState as TokenState
-    const { collateralRequirement, priceIdentifier, minSponsorTokens } = empState as EMPState
-    const { symbol: tokenSymbol, decimals: syntheticdecimals, setMaxAllowance } = syntheticState as TokenState
+    createPosition()
+      .then(() => {
+        setSubmitting(false)
+      })
+      .catch((e) => {
+        console.log("error", e)
+        setSubmitting(false)
+        setError(e.message.replace("VM Exception while processing transaction: revert", "").trim())
+      })
+  }
 
-    // if (collateralRequirement && priceIdentifier && minSponsorTokens && totalSupply && collateralDecimals && syntheticdecimals && collateralDecimals) {
-    const minSponsorTokensFromWei = parseFloat(fromWei(minSponsorTokens, syntheticdecimals));
-    const collateralRequirementFromWei = parseFloat(fromWei(collateralRequirement, collateralDecimals));
-    const needAllowance = collateralAllowance !== "Infinity"
-    // const tokensToCreate = Number(tokens) || 0;
-    // const resultantCollateral = posCollateral + collateralToDeposit;
-    // const resultantTokens = posTokens + tokensToCreate;
-    // const resultantTokensBelowMin = resultantTokens < minSponsorTokensFromWei && resultantTokens !== 0;
-
-    const handleSubmit = (values: FormProps, { setSubmitting }) => {
-        setError(undefined)
-
-        const createPosition = async () => {
-
-            const contract = new ethers.Contract(
-                selectedEMPAddress,
-                getContractInterface('ExpiringMultiParty') as ethers.utils.Interface,
-                signer
-            )
-
-            console.log(
-                "params",
-                { rawValue: toWeiSafe(`${values.collateralAmount}`, collateralDecimals) },
-                { rawValue: toWeiSafe(`${values.syntheticTokens}`, syntheticdecimals) }
-            )
-
-            const receipt = await contract.create(
-                { rawValue: toWeiSafe(`${values.collateralAmount, collateralDecimals}`) },
-                { rawValue: toWeiSafe(`${values.syntheticTokens}`, syntheticdecimals) }
-            )
-
-            await receipt.wait()
-        }
-
-        createPosition()
-            .then(() => {
-                setSubmitting(false)
-            })
-            .catch((e) => {
-                console.log("error", e)
-                setSubmitting(false)
-                setError(e.message.replace("VM Exception while processing transaction: revert", "").trim())
-            })
+  const setMaxAllowanceHandler = async () => {
+    try {
+      await setMaxAllowance()
+      console.log("seted ")
+    } catch (error) {
+      console.log("Error setting up max allowance", error)
     }
+  }
+  return (
+    <Box>
+      <Grid container={true} spacing={3}>
+        <Grid item={true} md={4} sm={6} xs={12}>
+          <Formik
+            initialValues={initialValues}
+            validate={(values) => {
+              return new Promise((resolve, reject) => {
+                const errors: FormikErrors<FormProps> = {}
+                if (!values.collateralAmount) {
+                  errors.collateralAmount = "Required"
+                } else if (values.collateralAmount < 0) {
+                  errors.collateralAmount = "Value cannot be negative"
+                } else if (values.collateralAmount / values.syntheticTokens < minSponsorTokensFromWei / 100) {
+                  errors.collateralAmount = `The collateral requirement is ${collateralRequirementFromWei} %`
+                } else if (BigNumber.from(values.collateralAmount).gt(totalSupply)) {
+                  errors.collateralAmount = `The collateral desired is bigger than the total supply`
+                }
 
-    const setMaxAllowanceHandler = async () => {
-        try {
-            await setMaxAllowance()
-            console.log("seted ")
-        } catch (error) {
-            console.log("Error setting up max allowance", error)
-        }
-    }
-    return (
-        <Box>
-            <Grid container={true} spacing={3}>
-                <Grid item={true} md={4} sm={6} xs={12}>
+                if (!values.syntheticTokens) {
+                  errors.syntheticTokens = "Required"
+                } else if (values.syntheticTokens < minSponsorTokensFromWei) {
+                  errors.syntheticTokens = `Value should be higher than ${minSponsorTokensFromWei}` // TO BE CONFIGURED via call to get the value..
+                }
 
-                    <Formik
-                        initialValues={initialValues}
-                        validate={(values) => {
-                            return new Promise((resolve, reject) => {
-                                const errors: FormikErrors<FormProps> = {}
-                                if (!values.collateralAmount) {
-                                    errors.collateralAmount = "Required"
-                                } else if (values.collateralAmount < 0) {
-                                    errors.collateralAmount = "Value cannot be negative"
-                                } else if (values.collateralAmount / values.syntheticTokens < minSponsorTokensFromWei / 100) {
-                                    errors.collateralAmount = `The collateral requirement is ${collateralRequirementFromWei} %`
-                                } else if (BigNumber.from(values.collateralAmount).gt(totalSupply)) {
-                                    errors.collateralAmount = `The collateral desired is bigger than the total supply`
-                                }
+                resolve(errors)
+              })
+            }}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <FormItem
+                  key="syntheticTokens"
+                  label={`Tokens (${tokenSymbol})`}
+                  field="syntheticTokens"
+                  labelWidth={3}
+                  placeHolder="Amount of synthetic tokens (i.e 100)"
+                />
 
-                                if (!values.syntheticTokens) {
-                                    errors.syntheticTokens = "Required"
-                                } else if (values.syntheticTokens < minSponsorTokensFromWei) {
-                                    errors.syntheticTokens = `Value should be higher than ${minSponsorTokensFromWei}` // TO BE CONFIGURED via call to get the value..
-                                }
+                <FormItem
+                  key="collateralAmount"
+                  label={`Collateral (${collateralSymbol})`}
+                  field="collateralAmount"
+                  labelWidth={3}
+                  placeHolder="Amount of collateral (i.e. 150)"
+                />
 
-                                resolve(errors)
-                            })
-                        }
-                        }
-                        onSubmit={handleSubmit}
-                    >
-                        {({ isSubmitting }) => (
-                            <Form>
-                                <FormItem
-                                    key="syntheticTokens"
-                                    label={`Tokens (${tokenSymbol})`}
-                                    field="syntheticTokens"
-                                    labelWidth={3}
-                                    placeHolder="Amount of synthetic tokens (i.e 100)"
-                                />
+                {needAllowance && (
+                  <Button
+                    variant="primary"
+                    type="button"
+                    size="sm"
+                    disabled={isSubmitting}
+                    isloading={isSubmitting}
+                    onClick={setMaxAllowanceHandler}
+                    loadingText="Setting max allowance"
+                    text="Set Max Allowance"
+                  />
+                )}
+                {!needAllowance && (
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    size="sm"
+                    disabled={isSubmitting}
+                    isloading={isSubmitting}
+                    loadingText="Creating Position..."
+                    text="Create Position"
+                  />
+                )}
 
-                                <FormItem
-                                    key="collateralAmount"
-                                    label={`Collateral (${collateralSymbol})`}
-                                    field="collateralAmount"
-                                    labelWidth={3}
-                                    placeHolder="Amount of collateral (i.e. 150)"
-                                />
-
-                                {needAllowance &&
-                                    <Button
-                                        variant="primary"
-                                        type="button"
-                                        size="sm"
-                                        disabled={isSubmitting}
-                                        isloading={isSubmitting}
-                                        onClick={setMaxAllowanceHandler}
-                                        loadingText="Setting max allowance"
-                                        text="Set Max Allowance"
-                                    />}
-                                {!needAllowance &&
-                                    <Button
-                                        variant="primary"
-                                        type="submit"
-                                        size="sm"
-                                        disabled={isSubmitting}
-                                        isloading={isSubmitting}
-                                        loadingText="Creating Position..."
-                                        text="Create Position"
-                                    />}
-
-                                <SuccessMessage show={false}>You have successfully created a position.</SuccessMessage>
-                                <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
-                            </Form>
-                        )}
-                    </Formik>
-                    {/* <TextField
+                <SuccessMessage show={false}>You have successfully created a position.</SuccessMessage>
+                <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
+              </Form>
+            )}
+          </Formik>
+          {/* <TextField
                             fullWidth
                             type="number"
                             variant="outlined"
@@ -213,8 +217,8 @@ export const Create: React.FC<{}> = () => {
                                 ),
                             }}
                         /> */}
-                </Grid>
-                {/* <Grid item md={4} sm={6} xs={12}>
+        </Grid>
+        {/* <Grid item md={4} sm={6} xs={12}>
                         <TextField
                             fullWidth
                             type="number"
@@ -288,11 +292,11 @@ export const Create: React.FC<{}> = () => {
                             )}
                         </Box>
                     </Grid>*/}
-            </Grid>
-        </Box>
+      </Grid>
+    </Box>
 
-        // 1 input text for number of tokens
-        // 1 input for collateral
-        //
-    )
+    // 1 input text for number of tokens
+    // 1 input for collateral
+    //
+  )
 }

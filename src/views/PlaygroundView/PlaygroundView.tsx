@@ -74,7 +74,7 @@ export const PlaygroundView: React.FC = () => {
         const syntheticToken = {
           address: syntheticTokenAddress,
           name: await syntheticContract.name(),
-          symbol: await syntheticContract.symbol()
+          symbol: await syntheticContract.symbol(),
         }
 
         return {
@@ -139,8 +139,8 @@ export const PlaygroundView: React.FC = () => {
                     isLoading
                       ? "Please wait. Loading list of EMPs..."
                       : emps.length === 0
-                        ? "There are not existing EMPs"
-                        : "Select an EMP"
+                      ? "There are not existing EMPs"
+                      : "Select an EMP"
                   }
                 />
               </MenuItem>
@@ -167,11 +167,11 @@ export const PlaygroundView: React.FC = () => {
         </div>
 
         {/* EMP Body */}
-        {emps && emps.length > 0 && selectedEMPAddress !== "0" &&
+        {emps && emps.length > 0 && selectedEMPAddress !== "0" && (
           <ReactWeb3Provider injectedProvider={web3Provider}>
             <EMPBody empAdress={selectedEMPAddress} />
           </ReactWeb3Provider>
-        }
+        )}
 
         {/* EMP Dialog */}
         <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>

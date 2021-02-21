@@ -32,7 +32,7 @@ export const FormItem: React.FC<Props> = ({
   helptext = "",
   isDate,
   customClass,
-  size = "sm"
+  size = "sm",
 }) => {
   const { themeType } = useRemix()
   return (

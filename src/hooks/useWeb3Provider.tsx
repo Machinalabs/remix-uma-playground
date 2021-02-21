@@ -60,8 +60,7 @@ export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProp
         setAddress(result)
       }
 
-      getSelectedAddress()
-        .catch((error) => console.log("getSelectedAddress failed"))
+      getSelectedAddress().catch((error) => console.log("getSelectedAddress failed"))
     }
   }, [injectedProvider])
 

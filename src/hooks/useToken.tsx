@@ -20,7 +20,7 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
   const [symbol, setSymbol] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [decimals, setDecimals] = useState<number>(0)
-  const [totalSupply, setTotalSupply] = useState<BigNumber | undefined>(undefined);
+  const [totalSupply, setTotalSupply] = useState<BigNumber | undefined>(undefined)
 
   // TODO: Remove nulls
   const [allowance, setAllowance] = useState<number | "Infinity" | null>(null)
@@ -32,7 +32,7 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
       contractInstance.symbol(),
       contractInstance.name(),
       contractInstance.decimals(),
-      contractInstance.totalSupply()
+      contractInstance.totalSupply(),
     ])
     // const balanceRaw: BigNumber = await contractInstance.balanceOf(address);
     // const allowanceRaw: BigNumber = await contractInstance.allowance(
@@ -86,6 +86,6 @@ export const useToken = (tokenAddress?: EthereumAddress): Token => {
     name,
     decimals,
     symbol,
-    totalSupply
+    totalSupply,
   }
 }

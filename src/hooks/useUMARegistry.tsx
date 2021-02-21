@@ -18,7 +18,7 @@ import DesignatedVotingFactoryArtifact from "@uma/core/build/contracts/Designate
 import TokenFactoryArtifact from "@uma/core/build/contracts/TokenFactory.json"
 import AddressWhitelistArtifact from "@uma/core/build/contracts/AddressWhitelist.json"
 import ERC20Artifact from "@uma/core/build/contracts/ERC20.json"
-import ExpiringMultiPartyArtifact from '@uma/core/build/contracts/ExpiringMultiParty.json'
+import ExpiringMultiPartyArtifact from "@uma/core/build/contracts/ExpiringMultiParty.json"
 
 interface IUMAProvider {
   getContractAddress: (contractName: UMAContractName) => EthereumAddress | undefined
@@ -52,7 +52,7 @@ export const getUMAInterfaces = () => {
   interfaces.set("ExpiringMultiParty", new ethers.utils.Interface(ExpiringMultiPartyArtifact.abi))
   interfaces.set("WETH", new ethers.utils.Interface(TestnetERC20Artifact.abi))
   interfaces.set("ERC20", new ethers.utils.Interface(ERC20Artifact.abi))
-  interfaces.set('TestnetERC20', new ethers.utils.Interface(TestnetERC20Artifact.abi));
+  interfaces.set("TestnetERC20", new ethers.utils.Interface(TestnetERC20Artifact.abi))
   return interfaces
 }
 

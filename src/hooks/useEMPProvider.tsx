@@ -16,7 +16,7 @@ interface IEMPProvider {
 const EMPContext = React.createContext<IEMPProvider>({
   empState: undefined,
   collateralState: undefined,
-  syntheticState: undefined
+  syntheticState: undefined,
 })
 
 interface EMPProviderProps {
@@ -120,7 +120,7 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
       value={{
         empState,
         collateralState,
-        syntheticState
+        syntheticState,
       }}
     >
       {children}
@@ -132,9 +132,7 @@ export const useEMPProvider = (): IEMPProvider => {
   const context = useContext(EMPContext)
 
   if (context === null) {
-    throw new Error(
-      "useEMPProvider() can only be used inside of <EMPProvider />, please declare it at a higher level"
-    )
+    throw new Error("useEMPProvider() can only be used inside of <EMPProvider />, please declare it at a higher level")
   }
   return context
 }

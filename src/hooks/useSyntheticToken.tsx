@@ -6,7 +6,11 @@ import { useEMPProvider } from "./useEMPProvider"
 import { useERC20At } from "./useERC20At"
 import { useWeb3Provider } from "./useWeb3Provider"
 
-export const useSyntheticToken = (empAddress: EthereumAddress, address: EthereumAddress, empState?: EMPState): TokenState | undefined => {
+export const useSyntheticToken = (
+  empAddress: EthereumAddress,
+  address: EthereumAddress,
+  empState?: EMPState
+): TokenState | undefined => {
   const { block$ } = useWeb3Provider()
   const tokenAddress = empState ? empState.tokenCurrency : undefined
   const { instance } = useERC20At(tokenAddress)
@@ -22,14 +26,17 @@ export const useSyntheticToken = (empAddress: EthereumAddress, address: Ethereum
 
   const setMaxAllowance = async () => {
     if (instance) {
-      const receipt = await instance.approve(empAddress, ethers.constants.MaxUint256);
+      const receipt = await instance.approve(empAddress, ethers.constants.MaxUint256)
       await receipt.wait()
-      return receipt;
+      return receipt
     }
-  };
+  }
 
-
-  const getAllowance = async (contractInstance: ethers.Contract, addressParam: EthereumAddress, newDecimals: number) => {
+  const getAllowance = async (
+    contractInstance: ethers.Contract,
+    addressParam: EthereumAddress,
+    newDecimals: number
+  ) => {
     const allowanceRaw: BigNumber = await contractInstance.allowance(addressParam, empAddress)
     const newAllowance = allowanceRaw.eq(ethers.constants.MaxUint256) ? "Infinity" : fromWei(allowanceRaw, newDecimals)
 
@@ -41,7 +48,7 @@ export const useSyntheticToken = (empAddress: EthereumAddress, address: Ethereum
       contractInstance.symbol(),
       contractInstance.name(),
       contractInstance.decimals(),
-      contractInstance.totalSupply()
+      contractInstance.totalSupply(),
     ])
     console.log("decimals", newDecimals)
     // setSymbol(newSymbol)
@@ -70,7 +77,7 @@ export const useSyntheticToken = (empAddress: EthereumAddress, address: Ethereum
       totalSupply: newTotalSupply,
       allowance: newAllowance,
       balance: newBalance,
-      setMaxAllowance
+      setMaxAllowance,
     })
   }
 
@@ -91,10 +98,12 @@ export const useSyntheticToken = (empAddress: EthereumAddress, address: Ethereum
   // get collateral info on each new block
   useEffect(() => {
     if (block$ && instance) {
-      const sub = block$.subscribe(() => getCollateralInfo(instance).catch((error) => console.log("Error getCollateralInfo", error)));
-      return () => sub.unsubscribe();
+      const sub = block$.subscribe(() =>
+        getCollateralInfo(instance).catch((error) => console.log("Error getCollateralInfo", error))
+      )
+      return () => sub.unsubscribe()
     }
-  }, [block$, instance]);
+  }, [block$, instance])
 
-  return collateralState;
+  return collateralState
 }

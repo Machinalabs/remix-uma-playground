@@ -1,3 +1,3 @@
 export * from "./Button"
 export * from "./Col"
-export * from './Loader'
+export * from "./Loader"

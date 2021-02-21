@@ -6,7 +6,8 @@ import { EthereumAddress } from "../types"
 import { useWeb3Provider } from "./useWeb3Provider"
 import { useEMPAt } from "./useEMPAt"
 
-interface ContractState { // TODO: Remove
+interface ContractState {
+  // TODO: Remove
   expirationTimestamp: BigNumber | undefined
   collateralCurrency: string | undefined
   priceIdentifier: Bytes | undefined

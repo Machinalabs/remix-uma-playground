@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { ethers, utils } from "ethers"
 import { Formik, FormikErrors, Form as FormikForm } from "formik"
 import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
