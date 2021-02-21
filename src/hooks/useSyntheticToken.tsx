@@ -63,6 +63,7 @@ export const useSyntheticToken = (
       allowance: newAllowance,
       balance: newBalance,
       setMaxAllowance,
+      instance: contractInstance
     })
   }
 

@@ -67,30 +67,30 @@ export const MethodSelector: React.FC<MethodSelectorProps> = ({ method, handleCh
         <Select labelId="demo-simple-select-label" value={method} onChange={handleChange} input={<BootstrapInput />}>
           {isExpired
             ? [
-                <MenuItem key={"settle"} value={"settle"}>
-                  <ListItemText primary="Settle" secondary="Settle expired tokens at settlement price." />
-                </MenuItem>,
-                <MenuItem key={"withdraw"} value={"withdraw"}>
-                  <ListItemText primary="Withdraw" secondary="Cancel pending withdrawal requests" />
-                </MenuItem>,
-                <MenuItem key={"redeem"} value={"redeem"}>
-                  <ListItemText primary="Redeem" secondary="Redeem synthetic tokens for locked collateral." />
-                </MenuItem>,
-              ]
+              <MenuItem key={"settle"} value={"settle"}>
+                <ListItemText primary="Settle" secondary="Settle expired tokens at settlement price." />
+              </MenuItem>,
+              <MenuItem key={"withdraw"} value={"withdraw"}>
+                <ListItemText primary="Withdraw" secondary="Cancel pending withdrawal requests" />
+              </MenuItem>,
+              <MenuItem key={"redeem"} value={"redeem"}>
+                <ListItemText primary="Redeem" secondary="Redeem synthetic tokens for locked collateral." />
+              </MenuItem>,
+            ]
             : [
-                <MenuItem key={"create"} value={"create"}>
-                  <ListItemText primary="Create" secondary="Mint new synthetic tokens." />
-                </MenuItem>,
-                <MenuItem key={"deposit"} value={"deposit"}>
-                  <ListItemText primary="Deposit" secondary="Add to position collateral." />
-                </MenuItem>,
-                <MenuItem key={"withdraw"} value={"withdraw"}>
-                  <ListItemText primary="Withdraw" secondary="Remove position collateral" />
-                </MenuItem>,
-                <MenuItem key={"redeem"} value={"redeem"}>
-                  <ListItemText primary="Redeem" secondary="Redeem synthetics for collateral." />
-                </MenuItem>,
-              ]}
+              <MenuItem key={"create"} value={"create"}>
+                <ListItemText primary="Create" secondary="Mint new synthetic tokens." />
+              </MenuItem>,
+              <MenuItem key={"deposit"} value={"deposit"}>
+                <ListItemText primary="Deposit" secondary="Add collateral to position." />
+              </MenuItem>,
+              <MenuItem key={"withdraw"} value={"withdraw"}>
+                <ListItemText primary="Withdraw" secondary="Remove position collateral" />
+              </MenuItem>,
+              <MenuItem key={"redeem"} value={"redeem"}>
+                <ListItemText primary="Redeem" secondary="Redeem synthetics for collateral." />
+              </MenuItem>,
+            ]}
         </Select>
       </FormWrapper>
     </Box>

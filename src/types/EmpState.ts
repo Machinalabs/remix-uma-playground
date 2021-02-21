@@ -1,4 +1,4 @@
-import { BigNumber, Bytes, ContractReceipt } from "ethers"
+import { BigNumber, Bytes, ContractReceipt, ethers } from "ethers"
 import { NumberAsString } from "./types"
 
 export interface EMPState {
@@ -32,6 +32,7 @@ export interface TokenState {
   allowance: NumberAsString | "Infinity"
   totalSupply: BigNumber
   setMaxAllowance: () => Promise<ContractReceipt>
+  instance: ethers.Contract
 }
 
 export interface PositionData {

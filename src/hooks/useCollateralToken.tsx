@@ -66,6 +66,7 @@ export const useCollateralToken = (
       allowance: newAllowance,
       balance: newBalance,
       setMaxAllowance,
+      instance: contractInstance
     })
   }
 

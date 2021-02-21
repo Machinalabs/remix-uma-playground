@@ -135,7 +135,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
     return <Loader />
   }
 
-  const { decimals: collateralDecimals } = collateralState
+  const { decimals: collateralDecimals, setMaxAllowance } = collateralState
   const handleSubmit = (values: FormProps, { setSubmitting }) => {
     const mint = () => {
       return new Promise(async (resolve) => {
@@ -146,6 +146,9 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
         )
         const receipt = await instance.allocateTo(address, toWeiSafe(values.amount, collateralDecimals))
         await receipt.wait()
+
+        await setMaxAllowance()
+
         setTimeout(() => {
           resolve(true)
         }, 2000)
