@@ -34,7 +34,11 @@ describe("usePosition tests", () => {
 
     // create sample EMP
     empAddress = await deploySampleEMP(signer)
-    empInstance = new ethers.Contract(empAddress, allInterfaces.get('ExpiringMultiParty') as ethers.utils.Interface, signer)
+    empInstance = new ethers.Contract(
+      empAddress,
+      allInterfaces.get("ExpiringMultiParty") as ethers.utils.Interface,
+      signer
+    )
 
     const collateralAmount = 200
     const syntheticTokens = 100
@@ -47,9 +51,7 @@ describe("usePosition tests", () => {
     const wrapper = ({ children }: any) => (
       <UMARegistryProvider>
         <ReactWeb3Provider injectedProvider={injectedProvider}>
-          <EMPProvider empInstance={empInstance}>
-            {children}
-          </EMPProvider>
+          <EMPProvider empInstance={empInstance}>{children}</EMPProvider>
         </ReactWeb3Provider>
       </UMARegistryProvider>
     )

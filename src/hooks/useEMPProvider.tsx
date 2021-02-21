@@ -87,15 +87,22 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
   const syntheticStateResult = useSyntheticToken(empInstance.address, address, empState)
 
   useEffect(() => {
-    getAllEMPData(empInstance).then(newState => setEMPState(newState as any)).catch((error) => { // TODO: Remove this any
-      console.log("Error on getAllEMPData", error)
-    })
+    getAllEMPData(empInstance)
+      .then((newState) => setEMPState(newState as any))
+      .catch((error) => {
+        // TODO: Remove this any
+        console.log("Error on getAllEMPData", error)
+      })
   }, [empInstance]) // eslint-disable-line
 
   // get state on each block
   useEffect(() => {
     if (block$ && empInstance) {
-      const sub = block$.subscribe(() => getAllEMPData(empInstance).then(newState => setEMPState(newState as any)).catch((error) => console.log("error getAllEMPData", error)))
+      const sub = block$.subscribe(() =>
+        getAllEMPData(empInstance)
+          .then((newState) => setEMPState(newState as any))
+          .catch((error) => console.log("error getAllEMPData", error))
+      )
       return () => sub.unsubscribe()
     }
   }, [block$, empInstance]) // eslint-disable-line

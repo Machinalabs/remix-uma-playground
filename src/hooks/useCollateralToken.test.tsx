@@ -35,16 +35,18 @@ describe("useCollateralToken tests", () => {
     empAddress = await deploySampleEMP(signer)
 
     const allInterfaces = getUMAInterfaces()
-    empInstance = new ethers.Contract(empAddress, allInterfaces.get('ExpiringMultiParty') as ethers.utils.Interface, signer)
-    empData = await getAllEMPData(empInstance) as EMPState
+    empInstance = new ethers.Contract(
+      empAddress,
+      allInterfaces.get("ExpiringMultiParty") as ethers.utils.Interface,
+      signer
+    )
+    empData = (await getAllEMPData(empInstance)) as EMPState
   })
 
   const render = () => {
     const wrapper = ({ children }: any) => (
       <UMARegistryProvider>
-        <ReactWeb3Provider injectedProvider={injectedProvider}>
-          {children}
-        </ReactWeb3Provider>
+        <ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider>
       </UMARegistryProvider>
     )
     const result = renderHook(() => useCollateralToken(empAddress, userAddress, empData), { wrapper })
