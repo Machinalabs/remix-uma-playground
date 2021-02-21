@@ -2,71 +2,48 @@ import { formatUnits, parseBytes32String } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
 import { fromWei } from "web3-utils"
 import { DateAsString, EthereumAddress } from "../types"
-import { useCollateralToken } from "./useCollateralToken"
 import { useEMPProvider } from "./useEMPProvider"
 
 interface GeneralInfo {
   expireDate: DateAsString
   isExpired: string
   priceIdentifier: string
-  globalCollateralRatio: string
+  // globalCollateralRatio: string TODO
   collateralRequirement: string
-  // uniqueSponsors: number
+  // uniqueSponsors: number TODO
   minimunSponsorTokens: string
 }
 
-export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo => {
-  const { empState } = useEMPProvider()
-
-  const { symbol } = useCollateralToken(empAddress)
-  // const { symbol } = useSyntheticToken(empAddress)
-  const [expireDate, setExpireDate] = useState<string>("")
-  const [isExpired, setIsExpired] = useState<string>("")
-  const [priceIdentifier, setPriceIdentifier] = useState<string>("")
-  const [globalCollateralRatio, setGlobalCollateralRatio] = useState<string>("")
-  const [collateralRequirement, setCollateralRequirement] = useState<string>("")
-  const [minimunSponsorTokens, setMinimumSponsorTokens] = useState<string>("")
+export const useGeneralInfo = (empAddress: EthereumAddress): GeneralInfo | undefined => {
+  const { empState, collateralState } = useEMPProvider()
+  const [generalInfo, setGeneralInfo] = useState<GeneralInfo | undefined>(undefined)
 
   useEffect(() => {
     if (empState) {
-      const {
-        expirationTimestamp: expTimestamp,
-        priceIdentifier: priceId,
-        collateralRequirement: collReq,
-        minSponsorTokens: minSpons,
-        isExpired: isExp,
-      } = empState
-      if (expTimestamp && priceId && collReq && minSpons) {
-        const expiryDate = new Date(expTimestamp.toNumber() * 1000).toLocaleString("en-GB", { timeZone: "UTC" })
+      const { expirationTimestamp, priceIdentifier, collateralRequirement, minSponsorTokens, isExpired } = empState
+
+      if (expirationTimestamp && priceIdentifier && collateralRequirement && minSponsorTokens) {
+        const expiryDate = new Date(expirationTimestamp.toNumber() * 1000).toLocaleString("en-GB", { timeZone: "UTC" })
         // const prettyLatestPrice = Number(latestPrice).toFixed(8);
         // const pricedGcr = (gcr / latestPrice).toFixed(8);
-        const priceIdentifierParsed = parseBytes32String(priceId)
-        const collateralRequirementPercentage = parseFloat(formatUnits(collReq)).toString()
+        const priceIdentifierParsed = parseBytes32String(priceIdentifier)
+        const collateralRequirementPercentage = parseFloat(formatUnits(collateralRequirement)).toString()
         // const minSponsorTokensSymbol = `${formatUnits(
         //     minSponsorTokens
         // )} ${tokenSymbol}`;
-        setPriceIdentifier(priceIdentifierParsed)
-        setExpireDate(expiryDate)
-        setCollateralRequirement(collateralRequirementPercentage)
-        setIsExpired(isExp ? "YES" : "NO")
-        setMinimumSponsorTokens(fromWei(minSpons.toString()))
+
+        setGeneralInfo({
+          priceIdentifier: priceIdentifierParsed,
+          expireDate: expiryDate,
+          collateralRequirement: collateralRequirementPercentage,
+          isExpired: isExpired ? "YES" : "NO",
+          minimunSponsorTokens: fromWei(minSponsorTokens.toString())
+        })
       } else {
-        setExpireDate("")
-        setIsExpired("")
-        setPriceIdentifier("")
-        setGlobalCollateralRatio("")
-        setCollateralRequirement("")
-        setMinimumSponsorTokens("")
+        setGeneralInfo(undefined)
       }
     }
   }, [empState])
 
-  return {
-    expireDate,
-    isExpired,
-    priceIdentifier,
-    collateralRequirement,
-    minimunSponsorTokens,
-    globalCollateralRatio,
-  }
+  return generalInfo;
 }
