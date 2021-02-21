@@ -3,14 +3,14 @@ import { Card, Col, Container, Row } from "react-bootstrap"
 import styled from "styled-components"
 import { useGeneralInfo, useTotals } from "../../../hooks"
 import { useDisputeParams } from "../../../hooks/useDisputeParams"
-import { useContract } from "../hooks"
+import { useGlobalState } from "../hooks"
 
 const StyledCol = styled(Col)`
   padding: 0;
   padding-top: 1em;
 `
 export const GeneralInfoSection: React.FC = () => {
-  const { selectedEMPAddress } = useContract()
+  const { selectedEMPAddress } = useGlobalState()
   const { gcr, totalCollateral, totalSyntheticTokens } = useTotals(selectedEMPAddress)
   const { expireDate, isExpired, priceIdentifier, minimunSponsorTokens } = useGeneralInfo(selectedEMPAddress)
   const { liquidationLiveness, withdrawalLiveness } = useDisputeParams(selectedEMPAddress)

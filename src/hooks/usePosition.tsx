@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { EthereumAddress, NumberAsString } from "../types"
 import { toNumberAsString, weiToNum } from "../utils"
 import { useEMPAt } from "./useEMPAt"
-import { useEMPData } from "./useEMPData"
+import { useEMPProvider } from "./useEMPProvider"
 import { useToken } from "./useToken"
 import { useWeb3Provider } from "./useWeb3Provider"
 
@@ -20,9 +20,12 @@ interface PositionData {
 
 export const usePosition = (empAddress: EthereumAddress, address: EthereumAddress): PositionData => {
   const { instance } = useEMPAt(empAddress)
-  const { state: empState } = useEMPData(empAddress)
-  const { decimals: collateralDecimals } = useToken(empState.collateralCurrency)
-  const { decimals: syntheticTokenDecimals } = useToken(empState.tokenCurrency)
+
+  const { empState } = useEMPProvider()
+  // const tokenAddress = empState ? empState.collateralCurrency : undefined
+
+  const { decimals: collateralDecimals } = useToken(empState ? empState.collateralCurrency : undefined)
+  const { decimals: syntheticTokenDecimals } = useToken(empState ? empState.tokenCurrency : undefined)
   const { block$ } = useWeb3Provider()
 
   // position data

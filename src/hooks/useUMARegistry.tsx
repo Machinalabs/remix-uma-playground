@@ -52,6 +52,7 @@ export const getUMAInterfaces = () => {
   interfaces.set("ExpiringMultiParty", new ethers.utils.Interface(ExpiringMultiPartyArtifact.abi))
   interfaces.set("WETH", new ethers.utils.Interface(TestnetERC20Artifact.abi))
   interfaces.set("ERC20", new ethers.utils.Interface(ERC20Artifact.abi))
+  interfaces.set('TestnetERC20', new ethers.utils.Interface(TestnetERC20Artifact.abi));
   return interfaces
 }
 

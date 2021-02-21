@@ -1,11 +1,7 @@
 import { BigNumber, ethers } from "ethers"
-import { formatUnits, parseBytes32String } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
-import { fromWei } from "web3-utils"
-import { DateAsString, EthereumAddress, NumberAsString } from "../types"
-import { useEMPData } from "./useEMPData"
+import { EthereumAddress } from "../types"
 import { useERC20At } from "./useERC20At"
-import { useUMARegistry } from "./useUMARegistry"
 
 interface Token {
   symbol: string

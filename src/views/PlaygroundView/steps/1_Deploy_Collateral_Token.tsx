@@ -11,7 +11,7 @@ import { debug, defaultTransactionValues } from "../../../utils"
 import { useRemix, useUMARegistry } from "../../../hooks"
 import { Button, StyledButton } from "../../../components"
 
-import { useContract, useStep } from "../hooks"
+import { useGlobalState, useStep } from "../hooks"
 import { FormItem } from "../components"
 import { SuccessMessage, ErrorMessage } from "../components"
 import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
@@ -40,7 +40,7 @@ enum MODE {
 }
 
 export const DeployCollateralToken: React.FC = () => {
-  const { collateralTokens, selectedCollateralToken, setSelectedCollateralToken } = useContract()
+  const { collateralTokens, selectedCollateralToken, setSelectedCollateralToken } = useGlobalState()
   const [mode, setMode] = useState(MODE.SelectCollateralToken)
   const { getNextStep, goNextStep } = useStep()
   const history = useHistory()
@@ -131,7 +131,7 @@ interface DeployCollateralViewProps {
 
 const DeployCollateralView: React.FC<DeployCollateralViewProps> = ({ onCancelCallback, onSuccessCallback }) => {
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { setSelectedCollateralToken } = useContract()
+  const { setSelectedCollateralToken } = useGlobalState()
   const { getContractAddress } = useUMARegistry()
 
   const [newCollateralTokenAddress, setNewCollateralTokenAddress] = useState<string | undefined>(undefined)

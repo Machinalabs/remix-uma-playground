@@ -14,7 +14,7 @@ import ExpandedIERC20Artifact from "@uma/core/build/contracts/ExpandedERC20.json
 
 import { TITLE } from "../../text"
 
-import { StepProvider, useContract } from "./hooks"
+import { StepProvider, useGlobalState } from "./hooks"
 import { Stepmanager } from "./steps"
 import { NavMenu, RightPanel } from "./sections"
 import { ethers } from "ethers"
@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
 export const PlaygroundView: React.FC = () => {
   const theme = useTheme()
   const { signer, web3Provider } = useRemix()
-  const { resetModalData, empAddresses, setSelectedEMPAddress, selectedEMPAddress } = useContract()
+  const { resetModalData, empAddresses, setSelectedEMPAddress, selectedEMPAddress } = useGlobalState()
   const [isLoading, setIsLoading] = useState(false)
 
   const [emps, setEmps] = useState<Emp[]>([])
@@ -73,9 +73,7 @@ export const PlaygroundView: React.FC = () => {
         const syntheticToken = {
           address: syntheticTokenAddress,
           name: await syntheticContract.name(),
-          symbol: await syntheticContract.symbol(),
-          decimals: await syntheticContract.decimals(),
-          totalSupply: (await syntheticContract.totalSupply()).toString(),
+          symbol: await syntheticContract.symbol()
         }
 
         return {
@@ -98,6 +96,7 @@ export const PlaygroundView: React.FC = () => {
 
   useEffect(() => {
     setIsLoading(true)
+    setSelectedEMPAddress("0")
   }, [])
 
   const largeScreen = useMediaQuery(theme.breakpoints.up("sm"))
@@ -166,11 +165,13 @@ export const PlaygroundView: React.FC = () => {
           </Col>
         </div>
 
-        {/* EMP Body
-         */}
-        <ReactWeb3Provider injectedProvider={web3Provider}>
-          <EMPBody />
-        </ReactWeb3Provider>
+        {/* EMP Body */}
+        {emps && emps.length > 0 && selectedEMPAddress !== "0" &&
+          <ReactWeb3Provider injectedProvider={web3Provider}>
+            <EMPBody empAdress={selectedEMPAddress} />
+          </ReactWeb3Provider>
+        }
+
         {/* EMP Dialog */}
         <Dialog maxWidth="lg" fullWidth={true} open={open} onClose={handleClose}>
           {open && (

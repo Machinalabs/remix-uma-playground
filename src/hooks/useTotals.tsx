@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { EthereumAddress, NumberAsString } from "../types"
 import { weiToNum } from "../utils"
 
-import { useEMPData } from "./useEMPData"
+import { useEMPProvider } from "./useEMPProvider"
 import { useToken } from "./useToken"
 
 interface Totals {
@@ -13,9 +13,10 @@ interface Totals {
 }
 
 export const useTotals = (empAddress: EthereumAddress): Totals => {
-  const { state: empState } = useEMPData(empAddress)
-  const { decimals: collateralDecimals } = useToken(empState.collateralCurrency)
-  const { decimals: syntheticDecimals } = useToken(empState.tokenCurrency)
+  const { empState } = useEMPProvider()
+
+  const { decimals: collateralDecimals } = useToken(empState ? empState.collateralCurrency : undefined)
+  const { decimals: syntheticDecimals } = useToken(empState ? empState.tokenCurrency : undefined)
 
   const [totalCollateral, setTotalCollateral] = useState<NumberAsString>("")
   const [totalTokens, setTotalTokens] = useState<NumberAsString>("")

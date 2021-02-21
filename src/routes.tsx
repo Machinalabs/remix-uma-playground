@@ -7,7 +7,7 @@ import { PLAYGROUND_ROUTE } from "./constants"
 import { useRemix } from "./hooks"
 import { ThemeProvider } from "styled-components"
 import { ThemeProvider as MaterialUIProvider, createMuiTheme } from "@material-ui/core/styles"
-import { ContractProvider } from "./views/PlaygroundView/hooks"
+import { GlobalStateProvider } from "./views/PlaygroundView/hooks"
 
 import { getTheme } from "./theme"
 
@@ -48,9 +48,9 @@ const RouteWithDefaultLayout = ({ component: Component, ...rest }: Props) => {
 
 const PlaygroundRoute = () => {
   return (
-    <ContractProvider>
+    <GlobalStateProvider>
       <PlaygroundView />
-    </ContractProvider>
+    </GlobalStateProvider>
   )
 }
 

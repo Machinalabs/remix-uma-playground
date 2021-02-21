@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react"
+import { ethers, utils } from "ethers"
 import { Formik, FormikErrors, Form as FormikForm } from "formik"
 import { Form, Button as BootstrapButton, Row, Col } from "react-bootstrap"
-import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhitelist.json"
 import { useHistory } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 
+import IdentifierWhitelistArtifact from "@uma/core/build/contracts/IdentifierWhitelist.json"
+
 import { useRemix, useUMARegistry } from "../../../hooks"
 import { debug, defaultTransactionValues } from "../../../utils"
-import { ethers, utils } from "ethers"
-import { useContract } from "../hooks/useContract"
+import { useGlobalState, useStep } from "../hooks"
 import { FormItem } from "../components"
-import { useStep } from "../hooks"
 import { SuccessMessage, ErrorMessage } from "../components"
 import { Button, StyledButton } from "../../../components"
 import { DELAY_AFTER_FORM_CREATION } from "../../../constants"
@@ -30,7 +30,7 @@ enum MODE {
 }
 
 export const DeployPriceIdentifier: React.FC = () => {
-  const { priceIdentifiers, setSelectedPriceIdentifier, selectedPriceIdentifier } = useContract()
+  const { priceIdentifiers, setSelectedPriceIdentifier, selectedPriceIdentifier } = useGlobalState()
   const [mode, setMode] = useState(MODE.SelectPriceIdentifier)
   const { getNextStep, goNextStep, getStepBefore, goStepBefore } = useStep()
   const history = useHistory()
@@ -129,7 +129,7 @@ const DeployPriceIdentifierView: React.FC<DeployPriceIdentifierViewProps> = ({
   onCancelCallback,
   onSuccessCallback,
 }) => {
-  const { setSelectedPriceIdentifier } = useContract()
+  const { setSelectedPriceIdentifier } = useGlobalState()
   const { getContractAddress } = useUMARegistry()
   const { clientInstance } = useRemix()
   const [error, setError] = useState<string | undefined>(undefined)

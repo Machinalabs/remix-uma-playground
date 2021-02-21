@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { EthereumAddress } from "../types"
-import { useEMPData } from "./useEMPData"
+import { useEMPProvider } from "./useEMPProvider"
 
 interface DisputeParams {
   // liquidationBond: number
@@ -12,7 +12,7 @@ interface DisputeParams {
 }
 
 export const useDisputeParams = (empAddress: EthereumAddress): DisputeParams => {
-  const { state: empState } = useEMPData(empAddress)
+  const { empState } = useEMPProvider()
 
   const [liquidationLiveness, setLiquidationLiveness] = useState<string>("")
   const [withdrawalLiveness, setWithdrawalLiveness] = useState<string>("")

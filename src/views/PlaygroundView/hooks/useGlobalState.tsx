@@ -20,23 +20,7 @@ export interface Token {
   address?: string
 }
 
-export interface ExpiringMultiParty {
-  address: string
-  expirationTimestamp: number
-  syntheticName: string
-  syntheticSymbol: string
-  collateralRequirement: number
-  minSponsorTokens: number
-  withdrawalLiveness: number
-  liquidationLiveness: number
-}
-
-export interface Position {
-  syntheticTokens: BigNumber
-  collateralAmount: BigNumber
-}
-
-interface IContractProvider {
+interface IGlobalStateProvider {
   priceIdentifiers: string[]
   collateralTokens: Token[]
   empAddresses: string[]
@@ -54,25 +38,21 @@ const defaultCollateral: Token = { name: "WETH", symbol: "WETH", decimals: 18, t
 
 /* tslint:disable */
 // Defaults
-const ContractContext = React.createContext<IContractProvider>({
+const GlobalStateContext = React.createContext<IGlobalStateProvider>({
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
   empAddresses: ["0x000000"],
-  resetModalData: () => {},
+  resetModalData: () => { },
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
-  setSelectedCollateralToken: () => {},
-  setSelectedPriceIdentifier: () => {},
+  setSelectedCollateralToken: () => { },
+  setSelectedPriceIdentifier: () => { },
   selectedEMPAddress: "0",
-  setSelectedEMPAddress: (newEMP: string) => {},
+  setSelectedEMPAddress: (newEMP: string) => { },
 })
 /* tslint:enable */
 
-// const addContractAddress = (contractName: UMAContractName, address: EthereumAddress) => {
-//     setContracts(new Map(contracts.set(contractName, address)))
-// }
-
-export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
   const { web3Provider, signer } = useRemix()
   const [priceIdentifiers, setPriceIdentifiers] = useState<string[]>([])
   const [collateralTokens, setCollateralTokens] = useState<Token[]>([])
@@ -89,7 +69,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     setSelectedCollateralToken(undefined)
   }
 
-  const getEMPs = async () => {
+  const getEMPAddresses = async () => {
     const expiringMultipartyCreatorInterface = new ethers.utils.Interface(ExpiringMultiPartyCreatorArtifact.abi)
     const expiringMultiPartyCreatorAddress = getContractAddress("ExpiringMultiPartyCreator")
     if (!expiringMultiPartyCreatorAddress) {
@@ -118,7 +98,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
     if (!address) {
       throw new Error("UMARegistryProvider not defined")
     }
-    console.log("address", address)
+    console.log("AddressWhitelist address", address)
 
     const erc20Interface = new ethers.utils.Interface(TestnetERC20Artifact.abi)
     const whitelistInterface = new ethers.utils.Interface(AddressWhitelistArtifact.abi)
@@ -181,7 +161,7 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         .then(() => console.log("Price identifiers retrieved"))
         .catch((error) => console.log("Error getPriceIdentifiers", error))
 
-      getEMPs()
+      getEMPAddresses()
         .then(() => console.log("EMPs retrieved"))
         .catch((error) => console.log("Error getEMPs", error))
     }
@@ -193,14 +173,14 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
         console.log("New block observable arrived")
         await getCollateralTokens()
         await getPriceIdentifiers()
-        await getEMPs()
+        await getEMPAddresses()
       })
       return () => sub.unsubscribe()
     }
   }, [block$])
 
   return (
-    <ContractContext.Provider
+    <GlobalStateContext.Provider
       value={{
         priceIdentifiers,
         collateralTokens,
@@ -215,16 +195,16 @@ export const ContractProvider: React.FC<PropsWithChildren<{}>> = ({ children }) 
       }}
     >
       {children}
-    </ContractContext.Provider>
+    </GlobalStateContext.Provider>
   )
 }
 
-export const useContract = () => {
-  const context = useContext(ContractContext)
+export const useGlobalState = () => {
+  const context = useContext(GlobalStateContext)
 
   if (context === null) {
     throw new Error(
-      "useContract() can only be used inside of <ContractProvider />, please declare it at a higher level"
+      "useGlobalState() can only be used inside of <GlobalStateProvider />, please declare it at a higher level"
     )
   }
   return context

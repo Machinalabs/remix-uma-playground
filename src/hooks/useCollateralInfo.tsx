@@ -2,14 +2,14 @@ import { useEffect, useState } from "react"
 
 import { EthereumAddress } from "../types"
 
-import { useEMPData } from "./useEMPData"
+import { useEMPProvider } from "./useEMPProvider"
 
 interface CollateralInfo {
   symbol: string
 }
 
 export const useCollateralInfo = (empAddress: EthereumAddress): CollateralInfo => {
-  const { state: empState } = useEMPData(empAddress)
+  const { empState } = useEMPProvider()
   // const { symbol } = useCollateralToken(empAddress)
   // const { symbol } = useSyntheticToken(empAddress)
 

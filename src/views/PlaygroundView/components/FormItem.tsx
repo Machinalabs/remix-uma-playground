@@ -18,6 +18,7 @@ interface Props {
   helptext?: string
   isDate?: boolean
   customClass?: string
+  size?: "sm" | "lg"
 }
 
 export const FormItem: React.FC<Props> = ({
@@ -31,6 +32,7 @@ export const FormItem: React.FC<Props> = ({
   helptext = "",
   isDate,
   customClass,
+  size = "sm"
 }) => {
   const { themeType } = useRemix()
   return (
@@ -51,6 +53,7 @@ export const FormItem: React.FC<Props> = ({
             type={type}
             helptext={helptext}
             className={customClass}
+            size={size}
           />
           <ErrorMessage className="red" name={field} component="div" />
         </Col>
@@ -80,7 +83,7 @@ const CustomInputComponent = (props: Props) => {
       <BootstrapForm.Control
         type="text"
         key="name"
-        size="sm"
+        size={props.size}
         placeholder={props.field}
         {...props}
         style={{ marginRight: "10px" }}

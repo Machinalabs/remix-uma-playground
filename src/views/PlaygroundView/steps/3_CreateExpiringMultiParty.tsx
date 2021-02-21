@@ -10,7 +10,7 @@ import MockOracleArtifact from "@uma/core/build/contracts/MockOracle.json"
 import FinderArtifact from "@uma/core/build/contracts/Finder.json"
 
 import { debug } from "../../../utils"
-import { useContract, useStep } from "../hooks"
+import { useGlobalState, useStep } from "../hooks"
 import { Button, StyledButton } from "../../../components"
 import { ErrorMessage, FormItem, SuccessMessage } from "../components"
 import { useRemix, useUMARegistry } from "../../../hooks"
@@ -46,7 +46,7 @@ interface Props {
 
 export const CreateExpiringMultiParty: React.FC<Props> = ({ onCreatedCallback }) => {
   const { clientInstance, web3Provider, signer } = useRemix()
-  const { selectedPriceIdentifier, selectedCollateralToken, setSelectedEMPAddress } = useContract()
+  const { selectedPriceIdentifier, selectedCollateralToken, setSelectedEMPAddress } = useGlobalState()
   const { getContractAddress } = useUMARegistry()
 
   const { setCurrentStepCompleted, getStepBefore, goStepBefore } = useStep()

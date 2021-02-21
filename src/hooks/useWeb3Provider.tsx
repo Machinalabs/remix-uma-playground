@@ -2,11 +2,7 @@ import React, { PropsWithChildren, useContext, useEffect, useState } from "react
 import { ethers } from "ethers"
 import { Observable } from "rxjs"
 import { debounceTime } from "rxjs/operators"
-import { EthereumAddress } from "../types"
-
-type Web3Provider = ethers.providers.Web3Provider
-type Signer = ethers.Signer
-type Block = ethers.providers.Block
+import { Block, EthereumAddress, Signer, Web3Provider } from "../types"
 
 interface IWeb3Provider {
   signer: Signer | undefined
@@ -27,7 +23,7 @@ const Web3Context = React.createContext<IWeb3Provider>({
 })
 
 interface ReactWeb3ProviderProps {
-  injectedProvider: any // TODO
+  injectedProvider: ethers.providers.Web3Provider
 }
 
 export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProps>> = ({
@@ -58,6 +54,14 @@ export const ReactWeb3Provider: React.FC<PropsWithChildren<ReactWeb3ProviderProp
       // debounce to prevent subscribers making unnecessary calls
       const newBlock$ = observable.pipe(debounceTime(1000))
       setBlock$(newBlock$)
+
+      const getSelectedAddress = async () => {
+        const result = await newSigner.getAddress()
+        setAddress(result)
+      }
+
+      getSelectedAddress()
+        .catch((error) => console.log("getSelectedAddress failed"))
     }
   }, [injectedProvider])
 

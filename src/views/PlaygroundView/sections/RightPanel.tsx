@@ -7,7 +7,7 @@ import TestnetERC20Artifact from "@uma/core/build/contracts/TestnetERC20.json"
 import { useRemix } from "../../../hooks"
 import { debug } from "../../../utils"
 
-import { useContract } from "../hooks"
+import { useGlobalState } from "../hooks"
 import { BigNumber, ethers } from "ethers"
 import { formatUnits } from "ethers/lib/utils"
 
@@ -20,7 +20,7 @@ const Paragraph = styled.p`
 export const RightPanel: React.FC = () => {
   const { clientInstance, signer } = useRemix()
   const [account, setAccount] = useState("")
-  const { selectedCollateralToken, selectedPriceIdentifier } = useContract()
+  const { selectedCollateralToken, selectedPriceIdentifier } = useGlobalState()
   const [collateralBalance, setCollateralBalance] = useState("0")
 
   useEffect(() => {

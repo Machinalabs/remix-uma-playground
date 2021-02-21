@@ -8,12 +8,12 @@ import { useEffect, useState } from "react"
 
 export const useEMPAt = (empAddress: EthereumAddress) => {
   const { signer } = useWeb3Provider()
-  const [instance, setInstance] = useState<ethers.Contract | null>(null)
+  const [instance, setInstance] = useState<ethers.Contract | undefined>(undefined)
 
   useEffect(() => {
     if (signer) {
       if (empAddress === "0") {
-        setInstance(null)
+        setInstance(undefined)
       } else {
         const newInstance = new ethers.Contract(empAddress, ExpiringMultiPartyArtifact.abi, signer)
         setInstance(newInstance)
