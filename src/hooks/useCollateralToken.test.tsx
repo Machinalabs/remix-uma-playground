@@ -9,18 +9,21 @@ import {
   startUMASnapshotContainerOrSkip,
   stopUMASnapshotContainerOrSkip,
 } from "../utils"
-import { EthereumAddress } from "../types"
+import { EMPState, EthereumAddress } from "../types"
 
-import { UMARegistryProvider } from "./useUMARegistry"
+import { getUMAInterfaces, UMARegistryProvider } from "./useUMARegistry"
 import { ReactWeb3Provider } from "./useWeb3Provider"
 import { useCollateralToken } from "./useCollateralToken"
 import { deploySampleEMP } from "./utils"
+import { EMPProvider, getAllEMPData } from "./useEMPProvider"
 
 describe("useCollateralToken tests", () => {
   let empAddress: EthereumAddress
   let umaSnapshotContainer: UMASnapshotContainer | undefined
   let injectedProvider: ethers.providers.Web3Provider
   let userAddress: EthereumAddress
+  let empInstance: ethers.Contract
+  let empData: EMPState
 
   beforeAll(async () => {
     umaSnapshotContainer = await startUMASnapshotContainerOrSkip()
@@ -30,15 +33,21 @@ describe("useCollateralToken tests", () => {
 
     // deploy sampleEMP
     empAddress = await deploySampleEMP(signer)
+
+    const allInterfaces = getUMAInterfaces()
+    empInstance = new ethers.Contract(empAddress, allInterfaces.get('ExpiringMultiParty') as ethers.utils.Interface, signer)
+    empData = await getAllEMPData(empInstance) as EMPState
   })
 
   const render = () => {
     const wrapper = ({ children }: any) => (
       <UMARegistryProvider>
-        <ReactWeb3Provider injectedProvider={injectedProvider}>{children}</ReactWeb3Provider>
+        <ReactWeb3Provider injectedProvider={injectedProvider}>
+          {children}
+        </ReactWeb3Provider>
       </UMARegistryProvider>
     )
-    const result = renderHook(() => useCollateralToken(empAddress, empAddress), { wrapper })
+    const result = renderHook(() => useCollateralToken(empAddress, userAddress, empData), { wrapper })
     return result
   }
 
@@ -49,9 +58,10 @@ describe("useCollateralToken tests", () => {
 
     await waitForNextUpdate()
 
-    expect(result.current.name).toEqual("yUSD")
-    expect(result.current.decimals).toEqual(18)
-    expect(result.current.symbol).toEqual("yUSD")
+    expect(result.current).toBeDefined()
+    expect(result.current!.name).toEqual("Wrapped Ether")
+    expect(result.current!.decimals).toEqual(18)
+    expect(result.current!.symbol).toEqual("WETH")
   })
 
   afterAll(async () => {

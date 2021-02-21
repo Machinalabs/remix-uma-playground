@@ -25,6 +25,58 @@ interface EMPProviderProps {
   empInstance: ethers.Contract
 }
 
+export const getAllEMPData = async (empInstance: ethers.Contract) => {
+  console.log("Calling EMPProvider#getAllEMPData")
+  const res = await Promise.all([
+    empInstance.expirationTimestamp(),
+    empInstance.collateralCurrency(),
+    empInstance.priceIdentifier(),
+    empInstance.tokenCurrency(),
+    empInstance.collateralRequirement(),
+    empInstance.minSponsorTokens(),
+    empInstance.timerAddress(),
+    empInstance.cumulativeFeeMultiplier(),
+    empInstance.rawTotalPositionCollateral(),
+    empInstance.totalTokensOutstanding(),
+    empInstance.liquidationLiveness(),
+    empInstance.withdrawalLiveness(),
+    empInstance.getCurrentTime(),
+    empInstance.contractState(),
+    empInstance.finder(),
+    empInstance.expiryPrice(),
+    // empInstance.disputeBondPercentage(),
+    // empInstance.disputerDisputeRewardPercentage(),
+    // empInstance.sponsorDisputeRewardPercentage(),
+  ])
+  console.log("Finished")
+
+  const newState: Partial<EMPState> = {
+    expirationTimestamp: res[0] as BigNumber,
+    collateralCurrency: res[1] as EthereumAddress,
+    priceIdentifier: res[2] as Bytes,
+    tokenCurrency: res[3] as EthereumAddress,
+    collateralRequirement: res[4] as BigNumber,
+    minSponsorTokens: res[5] as BigNumber,
+    timerAddress: res[6] as EthereumAddress,
+    cumulativeFeeMultiplier: res[7] as BigNumber,
+    rawTotalPositionCollateral: res[8] as BigNumber,
+    totalTokensOutstanding: res[9] as BigNumber,
+    liquidationLiveness: res[10] as BigNumber,
+    withdrawalLiveness: res[11] as BigNumber,
+    currentTime: res[12] as BigNumber,
+    isExpired: Number(res[13]) >= Number(res[0]),
+    contractState: Number(res[14]),
+    finderAddress: res[15] as EthereumAddress,
+    expiryPrice: res[16] as BigNumber,
+    // disputeBondPct: res[17] as BigNumber,
+    // disputerDisputeRewardPct: res[18] as BigNumber,
+    // sponsorDisputeRewardPct: res[19] as BigNumber,
+  }
+  console.log("Finished EMPPRovider")
+
+  return newState
+}
+
 export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ children, empInstance }) => {
   const [empState, setEMPState] = useState<EMPState | undefined>(undefined)
   const [collateralState, setCollateralState] = useState<TokenState | undefined>(undefined)
@@ -36,58 +88,8 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
   const collateralStateResult = useCollateralToken(empInstance.address, address, empState)
   const syntheticStateResult = useSyntheticToken(empInstance.address, address, empState)
 
-  const getAllEMPData = async () => {
-    console.log("Calling EMPProvider#getAllEMPData")
-    const res = await Promise.all([
-      empInstance.expirationTimestamp(),
-      empInstance.collateralCurrency(),
-      empInstance.priceIdentifier(),
-      empInstance.tokenCurrency(),
-      empInstance.collateralRequirement(),
-      empInstance.minSponsorTokens(),
-      empInstance.timerAddress(),
-      empInstance.cumulativeFeeMultiplier(),
-      empInstance.rawTotalPositionCollateral(),
-      empInstance.totalTokensOutstanding(),
-      empInstance.liquidationLiveness(),
-      empInstance.withdrawalLiveness(),
-      empInstance.getCurrentTime(),
-      empInstance.contractState(),
-      empInstance.finder(),
-      empInstance.expiryPrice(),
-      // empInstance.disputeBondPercentage(),
-      // empInstance.disputerDisputeRewardPercentage(),
-      // empInstance.sponsorDisputeRewardPercentage(),
-    ])
-
-    const newState: Partial<EMPState> = {
-      expirationTimestamp: res[0] as BigNumber,
-      collateralCurrency: res[1] as EthereumAddress,
-      priceIdentifier: res[2] as Bytes,
-      tokenCurrency: res[3] as EthereumAddress,
-      collateralRequirement: res[4] as BigNumber,
-      minSponsorTokens: res[5] as BigNumber,
-      timerAddress: res[6] as EthereumAddress,
-      cumulativeFeeMultiplier: res[7] as BigNumber,
-      rawTotalPositionCollateral: res[8] as BigNumber,
-      totalTokensOutstanding: res[9] as BigNumber,
-      liquidationLiveness: res[10] as BigNumber,
-      withdrawalLiveness: res[11] as BigNumber,
-      currentTime: res[12] as BigNumber,
-      isExpired: Number(res[13]) >= Number(res[0]),
-      contractState: Number(res[14]),
-      finderAddress: res[15] as EthereumAddress,
-      expiryPrice: res[16] as BigNumber,
-      // disputeBondPct: res[17] as BigNumber,
-      // disputerDisputeRewardPct: res[18] as BigNumber,
-      // sponsorDisputeRewardPct: res[19] as BigNumber,
-    }
-    // console.log("New state", newState)
-    setEMPState(newState as any) // TODO: Remove this any..
-  }
-
   useEffect(() => {
-    getAllEMPData().catch((error) => {
+    getAllEMPData(empInstance).then(newState => setEMPState(newState as any)).catch((error) => { // TODO: Remove this any
       console.log("Error on getAllEMPData", error)
     })
   }, [empInstance]) // eslint-disable-line
@@ -95,7 +97,7 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
   // get state on each block
   useEffect(() => {
     if (block$ && empInstance) {
-      const sub = block$.subscribe(() => getAllEMPData().catch((error) => console.log("error getAllEMPData", error)))
+      const sub = block$.subscribe(() => getAllEMPData(empInstance).then(newState => setEMPState(newState as any)).catch((error) => console.log("error getAllEMPData", error)))
       return () => sub.unsubscribe()
     }
   }, [block$, empInstance]) // eslint-disable-line

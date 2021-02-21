@@ -156,7 +156,6 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
             setIsSuccessful(false)
             onClose()
           }, 2000)
-
         })
         .catch((e) => {
           console.log("error", e)
@@ -216,7 +215,6 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
             <SuccessMessage show={successful}>You have successfully minting tokens.</SuccessMessage>
             <ErrorMessage show={error !== undefined}>{error}</ErrorMessage>
           </div>
-
         </Container>
       </Dialog>
     )
