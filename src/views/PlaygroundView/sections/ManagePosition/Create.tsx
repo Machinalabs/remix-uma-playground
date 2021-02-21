@@ -32,11 +32,7 @@ export const Create: React.FC<{}> = () => {
   const [successful, setIsSuccessful] = useState(false)
 
   if (empState && collateralState && syntheticState) {
-    const {
-      symbol: collateralSymbol,
-      totalSupply,
-      decimals: collateralDecimals,
-    } = collateralState
+    const { symbol: collateralSymbol, totalSupply, decimals: collateralDecimals } = collateralState
     const { collateralRequirement, minSponsorTokens } = empState
     const { symbol: tokenSymbol, decimals: syntheticdecimals } = syntheticState
 
