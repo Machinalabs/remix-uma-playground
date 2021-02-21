@@ -101,6 +101,8 @@ export const Create: React.FC<{}> = () => {
               initialValues={initialValues}
               validate={(values) => {
                 return new Promise((resolve, reject) => {
+                  console.log("totalSupply", totalSupply.toString())
+                  console.log("values.collateralAmount", toWeiSafe(`${values.collateralAmount}`, collateralDecimals).toString())
                   const errors: FormikErrors<FormProps> = {}
                   if (!values.collateralAmount) {
                     errors.collateralAmount = "Required"
