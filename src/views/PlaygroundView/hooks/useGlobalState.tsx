@@ -42,13 +42,13 @@ const GlobalStateContext = React.createContext<IGlobalStateProvider>({
   priceIdentifiers: ["ETH/BTC"],
   collateralTokens: [defaultCollateral],
   empAddresses: ["0x000000"],
-  resetModalData: () => {},
+  resetModalData: () => { },
   selectedPriceIdentifier: "",
   selectedCollateralToken: defaultToken,
-  setSelectedCollateralToken: () => {},
-  setSelectedPriceIdentifier: () => {},
+  setSelectedCollateralToken: () => { },
+  setSelectedPriceIdentifier: () => { },
   selectedEMPAddress: "0",
-  setSelectedEMPAddress: (newEMP: string) => {},
+  setSelectedEMPAddress: (newEMP: string) => { },
 })
 /* tslint:enable */
 
@@ -89,6 +89,7 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       if (event.args) {
         return event.args[0]
       }
+      return undefined
     })
     const empsFiltered: string[] = newEmpAddresses.filter((s) => s !== undefined) as string[]
     setEmpAddresses(empsFiltered)
@@ -134,6 +135,7 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       if (event.args) {
         return ethers.utils.parseBytes32String(event.args[0])
       }
+      return undefined
     })
     const identifiersFiltered: string[] = identifiers.filter((s) => s !== undefined) as string[]
     setPriceIdentifiers(identifiersFiltered)
@@ -185,7 +187,7 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
         .then(() => console.log("EMPs retrieved"))
         .catch((error) => console.log("Error getEMPs", error))
     }
-  }, [web3Provider, signer])
+  }, [web3Provider, signer]) // eslint-disable-line
 
   useEffect(() => {
     if (block$ && web3Provider && signer) {
@@ -197,7 +199,7 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       })
       return () => sub.unsubscribe()
     }
-  }, [block$])
+  }, [block$]) // eslint-disable-line
 
   useEffect(() => {
     if (empCreator$ && web3Provider && signer) {
@@ -209,7 +211,7 @@ export const GlobalStateProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       })
       return () => sub.unsubscribe()
     }
-  }, [empCreator$])
+  }, [empCreator$]) // eslint-disable-line
 
   return (
     <GlobalStateContext.Provider

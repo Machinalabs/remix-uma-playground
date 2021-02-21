@@ -90,7 +90,7 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
     getAllEMPData().catch((error) => {
       console.log("Error on getAllEMPData", error)
     })
-  }, [empInstance])
+  }, [empInstance]) // eslint-disable-line
 
   // get state on each block
   useEffect(() => {
@@ -98,7 +98,7 @@ export const EMPProvider: React.FC<PropsWithChildren<EMPProviderProps>> = ({ chi
       const sub = block$.subscribe(() => getAllEMPData().catch((error) => console.log("error getAllEMPData", error)))
       return () => sub.unsubscribe()
     }
-  }, [block$, empInstance])
+  }, [block$, empInstance]) // eslint-disable-line
 
   useEffect(() => {
     if (collateralStateResult) {

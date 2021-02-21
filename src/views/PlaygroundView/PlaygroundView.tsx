@@ -93,12 +93,12 @@ export const PlaygroundView: React.FC = () => {
         setIsLoading(false)
       })
       .catch((error) => console.log("Error"))
-  }, [empAddresses])
+  }, [empAddresses, signer])
 
   useEffect(() => {
     setIsLoading(true)
     setSelectedEMPAddress("0")
-  }, [])
+  }, []) // eslint-disable-line
 
   const largeScreen = useMediaQuery(theme.breakpoints.up("sm"))
   const [open, setOpen] = React.useState(false)
@@ -139,8 +139,8 @@ export const PlaygroundView: React.FC = () => {
                     isLoading
                       ? "Please wait. Loading list of EMPs..."
                       : emps.length === 0
-                      ? "There are not existing EMPs"
-                      : "Select an EMP"
+                        ? "There are not existing EMPs"
+                        : "Select an EMP"
                   }
                 />
               </MenuItem>

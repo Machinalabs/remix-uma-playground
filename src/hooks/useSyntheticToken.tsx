@@ -72,7 +72,7 @@ export const useSyntheticToken = (
       setSyntheticState(undefined)
       getCollateralInfo(instance).catch((error) => console.log("error getting token info", error))
     }
-  }, [instance, address])
+  }, [instance, address]) // eslint-disable-line
 
   // get collateral info on each new block
   useEffect(() => {
@@ -82,7 +82,7 @@ export const useSyntheticToken = (
       )
       return () => sub.unsubscribe()
     }
-  }, [block$, instance])
+  }, [block$, instance]) // eslint-disable-line
 
   return syntheticState
 }

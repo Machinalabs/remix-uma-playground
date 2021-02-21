@@ -59,7 +59,7 @@ export const usePosition = (address: EthereumAddress): PositionData | undefined 
         console.log("There was an error on getPositionInfo")
       )
     }
-  }, [instance, collateralState, syntheticState, address])
+  }, [instance, collateralState, syntheticState, address]) // eslint-disable-line
 
   // get position info on each new block
   useEffect(() => {
@@ -75,7 +75,7 @@ export const usePosition = (address: EthereumAddress): PositionData | undefined 
       )
       return () => sub.unsubscribe()
     }
-  }, [block$, instance, collateralState, syntheticState])
+  }, [block$, instance, collateralState, syntheticState]) // eslint-disable-line
 
   return positionData
 }
