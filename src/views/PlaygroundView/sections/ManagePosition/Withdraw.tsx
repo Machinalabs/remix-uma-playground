@@ -86,8 +86,7 @@ export const Withdraw: React.FC<{}> = () => {
                     errors.collateralAmount = "Required"
                   } else if (parseInt(`${values.collateralAmount}`, 10) < 0) {
                     errors.collateralAmount = "Value cannot be negative"
-                  } else if (BigNumber.from(values.collateralAmount).gt(collateralTotalSupply)) {
-                    // TODO: verify conversions
+                  } else if (toWeiSafe(`${values.collateralAmount}`, collateralDecimals).gt(collateralTotalSupply)) {
                     errors.collateralAmount = `The collateral desired is bigger than the total supply`
                   }
 

@@ -93,11 +93,7 @@ export const Create: React.FC<{}> = () => {
               initialValues={initialValues}
               validate={(values) => {
                 return new Promise((resolve, reject) => {
-                  console.log("totalSupply", totalSupply.toString())
-                  console.log(
-                    "values.collateralAmount",
-                    toWeiSafe(`${values.collateralAmount}`, collateralDecimals).toString()
-                  )
+
                   const errors: FormikErrors<FormProps> = {}
                   if (!values.collateralAmount) {
                     errors.collateralAmount = "Required"
@@ -105,7 +101,7 @@ export const Create: React.FC<{}> = () => {
                     errors.collateralAmount = "Value cannot be negative"
                   } else if (values.collateralAmount / values.syntheticTokens < minSponsorTokensFromWei / 100) {
                     errors.collateralAmount = `The collateral requirement is ${collateralRequirementFromWei} %`
-                  } else if (BigNumber.from(values.collateralAmount).gt(totalSupply)) {
+                  } else if (toWeiSafe(`${values.collateralAmount}`, collateralDecimals).gt(totalSupply)) {
                     errors.collateralAmount = `The collateral desired is bigger than the total supply`
                   }
 
