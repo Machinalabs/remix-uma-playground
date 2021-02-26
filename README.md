@@ -1,11 +1,13 @@
-# Remix UMA Playground
+# Remix UMA Playground Plugin
 
 ## Project setup
 ```
+git clone git@github.com:Machinalabs/remix-uma-playground.git
+
 yarn
 ```
 
-### Compiles and hot-reloads for development
+### Compiles and hot-reloads for development (Requires to be loaded as a Remix plugin, view Remix loading section)
 ```
 yarn start
 ```
@@ -14,3 +16,6 @@ yarn start
 ```
 yarn build
 ```
+
+### Remix loading
+
