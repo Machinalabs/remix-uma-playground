@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { ethers } from "ethers"
 import { Card, Col, Container, Row, Button as BootstrapButton } from "react-bootstrap"
 import styled from "styled-components"
@@ -11,8 +11,9 @@ import { useGlobalState } from "../../hooks"
 import { ActionsSection } from "../ManagePosition"
 import { ErrorMessage, FormItem, SuccessMessage } from "../../components"
 import { Button, Loader } from "../../../../components"
-import { toWeiSafe } from "../../../../utils"
+import { fromWei, toWeiSafe } from "../../../../utils"
 import { PositionData } from "../../../../types"
+import { WETH } from "../../../../constants"
 
 const StyledCol = styled(Col)`
   padding: 0;
@@ -118,13 +119,35 @@ const initialValues: FormProps = {
 
 const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => {
   const [error, setError] = useState<string | undefined>(undefined)
-  const { empState, collateralState } = useEMPProvider()
+  const { empState, collateralState, instance: empInstance } = useEMPProvider()
   const { getContractInterface } = useUMARegistry()
-  const { signer, address } = useWeb3Provider()
+  const { signer, address, provider, block$ } = useWeb3Provider()
   const [successful, setIsSuccessful] = useState(false)
 
+  const [etherBalance, setEtherBalance] = useState<string | undefined>(undefined)
+
+  const getEtherBalance = async () => {
+    const balance = await provider?.getBalance(address)
+    if (balance) {
+      setEtherBalance(fromWei(balance))
+    }
+  }
+
+  useEffect(() => {
+    getEtherBalance()
+  }, [])
+
+  useEffect(() => {
+    if (block$) {
+      const sub = block$.subscribe(async () => {
+        getEtherBalance()
+      })
+      return () => sub.unsubscribe()
+    }
+  }, [block$]) // eslint-disable-line
+
   if (collateralState) {
-    const { decimals: collateralDecimals, setMaxAllowance } = collateralState
+    const { decimals: collateralDecimals, setMaxAllowance, symbol: collateralSymbol, balance: collateralBalance } = collateralState
 
     const handleSubmit = (values: FormProps, { setSubmitting }) => {
       setIsSuccessful(false)
@@ -132,19 +155,41 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
 
       const mint = () => {
         return new Promise(async (resolve) => {
-          const instance = new ethers.Contract(
-            empState!.collateralCurrency as string,
-            getContractInterface("TestnetERC20") as ethers.utils.Interface,
-            signer
-          )
-          const receipt = await instance.allocateTo(address, toWeiSafe(values.amount, collateralDecimals))
-          await receipt.wait()
+          if (collateralSymbol === WETH) {
+            const instance = new ethers.Contract(
+              empState!.collateralCurrency as string,
+              getContractInterface(WETH) as ethers.utils.Interface,
+              signer
+            )
 
-          await setMaxAllowance()
+            const receipt = await instance.deposit({
+              value: toWeiSafe(values.amount, collateralDecimals)
+            })
+            await receipt.wait()
 
-          setTimeout(() => {
-            resolve(true)
-          }, 2000)
+            const txApprove = await instance.approve(empInstance.address, ethers.constants.MaxUint256)
+            await txApprove.wait()
+
+            setTimeout(() => {
+              resolve(true)
+            }, 2000)
+
+          } else {
+            const instance = new ethers.Contract(
+              empState!.collateralCurrency as string,
+              getContractInterface("TestnetERC20") as ethers.utils.Interface,
+              signer
+            )
+
+            const receipt = await instance.allocateTo(address, toWeiSafe(values.amount, collateralDecimals))
+            await receipt.wait()
+
+            await setMaxAllowance()
+
+            setTimeout(() => {
+              resolve(true)
+            }, 2000)
+          }
         })
       }
 
@@ -188,6 +233,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
           >
             {({ isSubmitting }) => (
               <Form>
+                {collateralSymbol === WETH && <p>ETH Balance: <span>{etherBalance}</span></p>}
                 <FormItem
                   key="amount"
                   label="Number of tokens to mint"

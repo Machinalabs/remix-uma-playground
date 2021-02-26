@@ -13,3 +13,5 @@ export const SELECT_PRICE_IDENTIFIER_ROUTE = "select_price_identifier"
 export const CREATE_EXPIRING_MULTIPARTY = "create_expiring_multiparty"
 
 export const DELAY_AFTER_FORM_CREATION = 2000
+
+export const WETH = "WETH"
