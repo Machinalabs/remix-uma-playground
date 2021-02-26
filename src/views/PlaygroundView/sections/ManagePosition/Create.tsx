@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Box, Grid } from "@material-ui/core"
 import { Formik, Form, FormikErrors } from "formik"
-import { BigNumber, ethers } from "ethers"
+import { ethers } from "ethers"
 
 import { useEMPProvider, useUMARegistry, useWeb3Provider } from "../../../../hooks"
 import { fromWei, toWeiSafe } from "../../../../utils"

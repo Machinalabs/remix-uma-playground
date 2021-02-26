@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import { Box, Grid } from "@material-ui/core"
 import { Formik, Form, FormikErrors } from "formik"
-import { BigNumber } from "ethers"
 
 import { useEMPProvider } from "../../../../hooks"
 import { toWeiSafe } from "../../../../utils"
