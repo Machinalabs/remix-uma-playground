@@ -135,7 +135,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
 
   useEffect(() => {
     getEtherBalance()
-  }, [])
+  }, []) // eslint-disable-line
 
   useEffect(() => {
     if (block$) {
@@ -147,7 +147,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
   }, [block$]) // eslint-disable-line
 
   if (collateralState) {
-    const { decimals: collateralDecimals, setMaxAllowance, symbol: collateralSymbol, balance: collateralBalance } = collateralState
+    const { decimals: collateralDecimals, setMaxAllowance, symbol: collateralSymbol } = collateralState
 
     const handleSubmit = (values: FormProps, { setSubmitting }) => {
       setIsSuccessful(false)
