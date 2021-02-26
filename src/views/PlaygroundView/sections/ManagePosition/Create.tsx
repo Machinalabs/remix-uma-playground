@@ -93,7 +93,6 @@ export const Create: React.FC<{}> = () => {
               initialValues={initialValues}
               validate={(values) => {
                 return new Promise((resolve, reject) => {
-
                   const errors: FormikErrors<FormProps> = {}
                   if (!values.collateralAmount) {
                     errors.collateralAmount = "Required"
