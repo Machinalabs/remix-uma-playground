@@ -1,5 +1,4 @@
-# Remix UMA Tutorials Plugin
-
+# Remix UMA Playground
 
 ## Project setup
 ```
