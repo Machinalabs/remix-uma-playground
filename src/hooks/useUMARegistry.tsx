@@ -19,7 +19,7 @@ import TokenFactoryArtifact from "@uma/core/build/contracts/TokenFactory.json"
 import AddressWhitelistArtifact from "@uma/core/build/contracts/AddressWhitelist.json"
 import ERC20Artifact from "@uma/core/build/contracts/ERC20.json"
 import ExpiringMultiPartyArtifact from "@uma/core/build/contracts/ExpiringMultiParty.json"
-import WETHArtifact from '@uma/core/build/contracts/WETH9.json'
+import WETHArtifact from "@uma/core/build/contracts/WETH9.json"
 
 interface IUMAProvider {
   getContractAddress: (contractName: UMAContractName) => EthereumAddress | undefined

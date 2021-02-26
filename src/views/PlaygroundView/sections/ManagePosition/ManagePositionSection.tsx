@@ -163,7 +163,7 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
             )
 
             const receipt = await instance.deposit({
-              value: toWeiSafe(values.amount, collateralDecimals)
+              value: toWeiSafe(values.amount, collateralDecimals),
             })
             await receipt.wait()
 
@@ -173,7 +173,6 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
             setTimeout(() => {
               resolve(true)
             }, 2000)
-
           } else {
             const instance = new ethers.Contract(
               empState!.collateralCurrency as string,
@@ -233,7 +232,11 @@ const MintDialog: React.FC<MintDialogProps> = ({ isMintModalOpen, onClose }) => 
           >
             {({ isSubmitting }) => (
               <Form>
-                {collateralSymbol === WETH && <p>ETH Balance: <span>{etherBalance}</span></p>}
+                {collateralSymbol === WETH && (
+                  <p>
+                    ETH Balance: <span>{etherBalance}</span>
+                  </p>
+                )}
                 <FormItem
                   key="amount"
                   label="Number of tokens to mint"
